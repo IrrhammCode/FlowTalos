@@ -302,6 +302,21 @@ def trigger_lit_action(signal_data):
                 const cadenceScript = `
                     import FlowToken from 0x7e60df042a9c0868
                     import FlowTransactionScheduler from 0x8c5303eaa26202d6
+                    
+                    transaction(
+                        delaySeconds: UFix64, 
+                        executionEffort: UInt64, 
+                        transactionData: [{{String: AnyStruct}}],
+                        ipfsProofCID: String,
+                        action: String,
+                        token: String,
+                        amount: UFix64
+                    ) {{
+                        // Details omitted in mock for brevity (matches action.js)
+                        prepare(signer: auth(Storage, Capabilities) &Account) {{
+                            log("AI Strategy Scheduled for future execution | Proof: ".concat(ipfsProofCID))
+                        }}
+                    }}
                 `;
                 
                 const output = {{
@@ -420,7 +435,7 @@ def submit_to_flow(signal_data, ipfs_cid=None):
         
         # Note: In a production system, the actual ScheduleAIStrategy.cdc transaction 
         # would be sent here with properly encoded Cadence arguments.
-        # For the hackathon demo, we log the complete execution payload.
+        # For the hackathon demo, we log the complete execution payload showing all Forte arguments.
         
         execution_payload = {
             "transaction": "ScheduleAIStrategy.cdc",
@@ -429,9 +444,12 @@ def submit_to_flow(signal_data, ipfs_cid=None):
             "args": {
                 "delaySeconds": delay_seconds,
                 "executionEffort": execution_effort,
-                "transactionData": [evm_call]
+                "transactionData": [evm_call],
+                "ipfsProofCID": ipfs_cid or "None",
+                "action": signal_data["action"],
+                "token": signal_data["token"],
+                "amount": f"{signal_data['amount']:.2f}"
             },
-            "ipfs_proof": f"ipfs://{ipfs_cid}" if ipfs_cid else None,
             "status": "READY_TO_BROADCAST"
         }
         

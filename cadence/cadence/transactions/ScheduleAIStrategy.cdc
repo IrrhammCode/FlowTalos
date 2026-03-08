@@ -8,7 +8,11 @@ import "FungibleToken"
 transaction(
     delaySeconds: UFix64,
     executionEffort: UInt64,
-    transactionData: [{String: AnyStruct}]
+    transactionData: [{String: AnyStruct}],
+    ipfsProofCID: String,
+    action: String,
+    token: String,
+    amount: UFix64
 ) {
     prepare(signer: auth(Storage, Capabilities) &Account) {
         
@@ -36,7 +40,7 @@ transaction(
             
         let fees <- vaultRef.withdraw(amount: est.flowFee ?? 0.0) as! @FlowToken.Vault
 
-        // 4. If a transaction scheduler manager has not been created for this account yet, create one
+        // 4. If a transaction scheduler manager has not been created, create one
         if !signer.storage.check<@{FlowTransactionSchedulerUtils.Manager}>(from: FlowTransactionSchedulerUtils.managerStoragePath) {
             let manager <- FlowTransactionSchedulerUtils.createManager()
             signer.storage.save(<-manager, to: FlowTransactionSchedulerUtils.managerStoragePath)
@@ -58,19 +62,27 @@ transaction(
                 .capability as! Capability<auth(FlowTransactionScheduler.Execute) &{FlowTransactionScheduler.TransactionHandler}>
         }
 
-        // 6. Borrow the manager and schedule the transaction
+        // 6. Borrow the manager and schedule the transaction with full context
         let manager = signer.storage.borrow<auth(FlowTransactionSchedulerUtils.Owner) &{FlowTransactionSchedulerUtils.Manager}>(from: FlowTransactionSchedulerUtils.managerStoragePath)
             ?? panic("Could not borrow a Manager reference")
 
+        let schedulingData: {String: AnyStruct} = {
+            "evmCalls": transactionData,
+            "ipfsProof": ipfsProofCID,
+            "action": action,
+            "token": token,
+            "amount": amount
+        }
+
         manager.schedule(
             handlerCap: handlerCap!,
-            data: transactionData,
+            data: schedulingData,
             timestamp: future,
             priority: pr,
             executionEffort: executionEffort,
             fees: <-fees
         )
 
-        log("AI Strategy successfully Scheduled at block timestamp: ".concat(future.toString()))
+        log("AI Strategy Scheduled for ".concat(future.toString()).concat(" | Proof: ").concat(ipfsProofCID))
     }
 }

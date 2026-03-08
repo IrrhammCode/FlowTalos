@@ -19,16 +19,20 @@ const go = async () => {
         //   - delaySeconds: "5.0"
         //   - executionEffort: "1000"
         //   - transactionData: "[]" (Stringified JSON array of EVM Batch Calls)
+        //   - ipfsProofCID: "bafy..."
+        //   - signalAction: "BUY"
+        //   - signalToken: "FLOW"
+        //   - signalAmount: "100.0"
         //   - pkpPublicKey: Lit PKP Public Key (injected by Lit)
         //   - sigName: Name for the signature share
 
         // 1. Validate Input Completeness
-        if (!delaySeconds || !executionEffort || !transactionData) {
+        if (!delaySeconds || !executionEffort || !transactionData || !ipfsProofCID || !signalAction || !signalToken || !signalAmount) {
             console.log("Validation Failed: Missing required Scheduling parameters.");
             return LitActions.setResponse({
                 response: JSON.stringify({
                     status: "ERROR",
-                    message: "Missing scheduling parameters (delaySeconds, executionEffort, or transactionData).",
+                    message: "Missing scheduling parameters (delaySeconds, effort, data, cid, action, token, or amount).",
                     fallback: true
                 })
             });
@@ -50,13 +54,19 @@ const go = async () => {
             import FlowToken from 0x7e60df042a9c0868
             import FungibleToken from 0x9a0766d93b6608b7
             
-            transaction(delaySeconds: UFix64, executionEffort: UInt64, transactionData: [{String: AnyStruct}]) {
+            transaction(
+                delaySeconds: UFix64, 
+                executionEffort: UInt64, 
+                transactionData: [{String: AnyStruct}],
+                ipfsProofCID: String,
+                action: String,
+                token: String,
+                amount: UFix64
+            ) {
                 prepare(signer: auth(Storage, Capabilities) &Account) {
-                    // Calculate future execution timestamp
                     let future = getCurrentBlock().timestamp + delaySeconds
                     let pr = FlowTransactionScheduler.Priority.High
 
-                    // Estimate execution fees
                     let est = FlowTransactionScheduler.estimate(
                         data: transactionData,
                         timestamp: future,
@@ -65,13 +75,11 @@ const go = async () => {
                     )
                     assert(est.timestamp != nil, message: est.error ?? "Scheduler estimation failed")
 
-                    // Withdraw fees from signer's FlowToken vault
                     let vaultRef = signer.storage
                         .borrow<auth(FungibleToken.Withdraw) &FlowToken.Vault>(from: /storage/flowTokenVault)
                         ?? panic("Missing FlowToken vault")
                     let fees <- vaultRef.withdraw(amount: est.flowFee ?? 0.0) as! @FlowToken.Vault
 
-                    // Setup scheduler manager if needed
                     if !signer.storage.check<@{FlowTransactionSchedulerUtils.Manager}>(from: FlowTransactionSchedulerUtils.managerStoragePath) {
                         let manager <- FlowTransactionSchedulerUtils.createManager()
                         signer.storage.save(<-manager, to: FlowTransactionSchedulerUtils.managerStoragePath)
@@ -79,23 +87,33 @@ const go = async () => {
                         signer.capabilities.publish(managerRef, at: FlowTransactionSchedulerUtils.managerPublicPath)
                     }
 
-                    // Get handler capability and schedule
-                    let handlerCap = signer.capabilities.storage
-                        .getControllers(forPath: /storage/FlowTalosStrategyHandler)[0]
-                        .capability as! Capability<auth(FlowTransactionScheduler.Execute) &{FlowTransactionScheduler.TransactionHandler}>
+                    var handlerCap: Capability<auth(FlowTransactionScheduler.Execute) &{FlowTransactionScheduler.TransactionHandler}>? = nil
+                    if let cap = signer.capabilities.storage.getControllers(forPath: /storage/FlowTalosStrategyHandler)[0].capability as? Capability<auth(FlowTransactionScheduler.Execute) &{FlowTransactionScheduler.TransactionHandler}> {
+                        handlerCap = cap
+                    } else {
+                        handlerCap = signer.capabilities.storage.getControllers(forPath: /storage/FlowTalosStrategyHandler)[1].capability as! Capability<auth(FlowTransactionScheduler.Execute) &{FlowTransactionScheduler.TransactionHandler}>
+                    }
 
                     let manager = signer.storage.borrow<auth(FlowTransactionSchedulerUtils.Owner) &{FlowTransactionSchedulerUtils.Manager}>(from: FlowTransactionSchedulerUtils.managerStoragePath)
                         ?? panic("Could not borrow Manager reference")
 
+                    let schedulingData: {String: AnyStruct} = {
+                        "evmCalls": transactionData,
+                        "ipfsProof": ipfsProofCID,
+                        "action": action,
+                        "token": token,
+                        "amount": amount
+                    }
+
                     manager.schedule(
-                        handlerCap: handlerCap,
-                        data: transactionData,
+                        handlerCap: handlerCap!,
+                        data: schedulingData,
                         timestamp: future,
                         priority: pr,
                         executionEffort: executionEffort,
                         fees: <-fees
                     )
-                    log("AI Strategy scheduled at: ".concat(future.toString()))
+                    log("AI Strategy Scheduled for ".concat(future.toString()).concat(" | Proof: ").concat(ipfsProofCID))
                 }
             }
         `;
@@ -106,8 +124,11 @@ const go = async () => {
             arguments: [
                 { type: "UFix64", value: delaySeconds },
                 { type: "UInt64", value: executionEffort },
-                { type: "Array", value: transactionData }
-                // Note: FCL args need proper composite type formatting
+                { type: "Array", value: transactionData },
+                { type: "String", value: ipfsProofCID },
+                { type: "String", value: signalAction },
+                { type: "String", value: signalToken },
+                { type: "UFix64", value: signalAmount }
             ]
         };
 
