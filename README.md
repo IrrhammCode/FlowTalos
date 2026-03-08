@@ -60,7 +60,24 @@ This mono-repo is structured to reflect the exact flow of data through the proto
    cd ai-agent && python -m venv venv && source venv/bin/activate && pip install requests eth-abi eth-utils && cd ..
    ```
 
-## 🌐 The Flow EVM / Cadence Synergy
-FlowTalos uniquely bridges both runtimes available on Flow. 
-The Vaults and Scheduling logic live in **Cadence** (providing strong security boundaries, capability-based access control, and native chronological scheduling). 
-The executed DeFi strategies (AMM Swaps, liquidity provisioning) happen dynamically in the **Flow EVM** space via Cadence-Owned Accounts (COA), allowing the AI to tap into standard Solidity ABIs seamlessly.
+## 🎯 Hackathon Tracks & Technology Integrations
+
+To assist the judges in evaluating FlowTalos, here is exactly where and how each requested technology is implemented within the codebase:
+
+### 1. Flow Blockchain (Cadence & EVM)
+FlowTalos uniquely bridges both runtimes available on Flow, utilizing the **Cadence-Owned-Account (COA)** architecture to allow a Cadence smart contract to execute transactions on the Flow EVM seamlessly.
+
+* **Cadence (The Settlement Layer):** 
+  * Location: `/cadence/contracts/FlowTalosVault.cdc` & `FlowTalosStrategyHandler.cdc`
+  * Usage: We leverage the native **Flow Transaction Scheduler** pattern. The vault logic, access control (Capabilities), and scheduled execution queues live purely in Cadence. The user deposits FLOW/USDC into a Cadence vault, and schedules future AI interventions.
+* **Flow EVM (The DeFi Execution Layer):**
+  * Location: `/ai-agent/main.py` (`generate_evm_calldata` function)
+  * Usage: The AI agent analyzes CoinGecko data and constructs raw EVM calldata targeting real EVM smart contracts (like the `swapExactTokensForTokens` ABI on IncrementFi or Metapier). The Cadence Vault then uses its COA to dispatch this EVM calldata directly to the Flow EVM.
+
+### 2. Storacha Network (Data Storage & Audits)
+* **Location:** `/storacha-logger/src/index.ts`
+* **Usage:** We use the Web3.Storage / Storacha protocol to solve AI "Black Box" opacity. Whenever the Python AI Agent makes a trading decision, it generates a JSON log explaining its reasoning (e.g., RSI metrics, market volatility). This NodeJS script computes a unique Content-Addressed ID (CIDv1 via SHA-256) for that log and pins it to the decentralized Storacha network. This CID is then attached to the executed trade on the frontend, acting as an immutable cryptographic audit trail.
+
+### 3. Lit Protocol (Threshold Cryptography / Security)
+* **Location:** `/lit-action/src/action.js`
+* **Usage:** We use Lit Protocol to secure the bridge between the off-chain Python AI Agent and the on-chain Flow Cadence contracts. The AI generates the scheduling payload, but instead of holding a highly vulnerable private key directly, the AI sends the payload to a Lit Action. The decentralized Lit Nodes execute the JS script, validate the Cadence code structure, and use a **Programmable Key Pair (PKP)** (ECDSA_secp256k1) to sign the transaction. Only if the signature is valid can the Flow testnet accept the AI's scheduling request.
