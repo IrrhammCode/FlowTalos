@@ -1,0 +1,8 @@
+node_modules/
+venv/
+.env
+.env.local
+.DS_Store
+trade_log.json
+__pycache__/
+*.pyc
