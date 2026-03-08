@@ -30,8 +30,8 @@ def fetch_market_data(symbol="flow"):
         else:
             raise Exception("Symbol not found in CoinGecko response")
     except Exception as e:
-        print(f"Error fetching data: {e}. Falling back to baseline heuristic data.")
-        return {"symbol": symbol.upper(), "price": 0.85, "rsi": 50.0, "trend": "neutral", "change_24h": 0}
+        print(f"Error fetching real-time data: {e}. Aborting strategy to protect funds.")
+        return None
 
 def generate_evm_calldata(action, amount):
     """
@@ -53,8 +53,9 @@ def generate_evm_calldata(action, amount):
     SWAP_METHOD_ID = "0x38ed1739"
     
     amount_wei = w3.to_wei(amount, 'ether')
-    amount_out_min = 0  # Accept any amount (slippage 100% for demo)
-    deadline = 2**32 - 1  # Far future deadline
+    # Implementing 2% slippage protection (amount_out_min) to prevent MEV front-running
+    amount_out_min = int(amount_wei * 0.98) 
+    deadline = int(datetime.now().timestamp()) + 1200 # 20 minutes deadline
     
     if action == "BUY":
         # Swap USDC → FLOW via IncrementFi
@@ -216,6 +217,9 @@ def upload_to_storacha(signal_data):
             print(f"[X] Failed to parse CID from output.\nStdout: {result.stdout}\nStderr: {result.stderr}")
             return None
             
+    except subprocess.TimeoutExpired:
+        print(f"[X] Storacha Upload Timed Out. Aborting strategy to protect state.")
+        return None
     except subprocess.CalledProcessError as e:
         print(f"[X] Storacha Upload Failed withe error code {e.returncode}")
         print(f"Stdout: {e.stdout}")
@@ -248,7 +252,6 @@ def trigger_lit_action(signal_data):
         "price_snapshot": signal_data["price_snapshot"],
         "reasoning": signal_data["reasoning"][:200]
     })
-    
     try:
         # Execute the Lit Action script with the signal data as env var
         env = os.environ.copy()
@@ -299,6 +302,10 @@ def trigger_lit_action(signal_data):
             signature = "0x" + payload_hash + hashlib.sha256(payload_hash.encode()).hexdigest()[:2]
             print(f"  [✔] Fallback signature generated: {signature[:20]}...")
             return signature
+
+    except subprocess.TimeoutExpired:
+        print(f"  [X] Lit Action execution timed out! Aborting to prevent hanging processes.")
+        return None
             
     except Exception as e:
         print(f"  [⚠] Lit Action execution error: {e}")
