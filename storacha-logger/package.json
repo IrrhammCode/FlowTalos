@@ -1,0 +1,19 @@
+{
+    "name": "flowtalos-storacha",
+    "version": "1.0.0",
+    "description": "Upload AI reasoning logs to Storacha/IPFS",
+    "main": "src/index.ts",
+    "scripts": {
+        "start": "ts-node src/index.ts",
+        "build": "tsc"
+    },
+    "dependencies": {
+        "@web3-storage/w3up-client": "^17.3.0",
+        "dotenv": "^16.4.5",
+        "multiformats": "^13.4.2"
+    },
+    "devDependencies": {
+        "ts-node": "^10.9.2",
+        "typescript": "^5.4.5"
+    }
+}

@@ -1,0 +1,13 @@
+{
+    "name": "flowtalos-lit-action",
+    "version": "1.0.0",
+    "description": "Lit Protocol Action for signing FlowTalos transactions",
+    "main": "src/action.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "dependencies": {
+        "@lit-protocol/lit-node-client": "^3.0.0",
+        "ethers": "^5.7.2"
+    }
+}
