@@ -21,7 +21,7 @@ The current landscape of DeFi yield aggregation and algorithmic trading suffers 
 ## 3. The FlowTalos Solution: A Four-Pillar Architecture
 FlowTalos solves these problems by deeply amalgamating Flow's specific architectural advantages with decentralized infrastructure:
 
-### Pillar I: The Nervous System (Impulse AI & IPFS Logging)
+### Pillar I: The Nervous System (Synapse AI & IPFS Logging)
 The off-chain Python backend acts as the brain. It runs continuously, ingesting live market data via CoinGecko/Pyth APIs. It computes trading geometry (e.g., RSI, fast/slow velocity metrics). 
 When a trading signal is confirmed (e.g., "Oversold conditions detected: BUY FLOW"), the AI produces two critical outputs:
 1. The **EVM Calldata** (ABI Hexadecimal strings) required to execute the optimal trade on a Flow EVM DEX (like IncrementFi).

@@ -12,7 +12,7 @@
 ├─────────────────────────────────────────────────────────────┤
 │  1. fetch_market_data()    → CoinGecko real-time price      │
 │  2. fetch_news_sentiment() → CryptoCompare headline scoring │
-│  3. impulse_ai_analyze()   → Dual-signal matrix decision    │
+│  3. synapse_ai_analyze()   → Dual-signal matrix decision    │
 │  4. upload_to_storacha()   → Immutable IPFS proof (CID)     │
 │  5. trigger_lit_action()   → Lit Protocol threshold signing │
 │  6. submit_to_flow()       → Flow Scheduled Transaction     │
@@ -32,7 +32,7 @@ ai-agent/
 
 ## Decision Matrix
 
-The Impulse AI engine uses a dual-signal matrix to produce actionable signals:
+The Synapse AI engine uses a dual-signal matrix to produce actionable signals:
 
 |           | Positive News | Neutral News | Negative News |
 |-----------|:------------:|:------------:|:-------------:|
@@ -109,7 +109,7 @@ python3 -m pytest test_agent.py -v
 **Expected output:** 8 tests, 3 test classes:
 - `TestGenerateEVMCalldata` — Validates Uniswap V2 calldata encoding
 - `TestComputeLocalCID` — Validates deterministic CID generation
-- `TestImpulseAIAnalyze` — Validates the decision matrix logic
+- `TestSynapseAIAnalyze` — Validates the decision matrix logic
 
 ## Environment Variables
 

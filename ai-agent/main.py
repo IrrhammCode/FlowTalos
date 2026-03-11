@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-FlowTalos — Impulse AI Agent
+FlowTalos — Synapse AI Agent
 ============================
 Autonomous DeFi strategy engine that combines quantitative market analysis
 with qualitative news sentiment to generate actionable on-chain signals.
@@ -8,7 +8,7 @@ with qualitative news sentiment to generate actionable on-chain signals.
 Architecture Pipeline:
     1. fetch_market_data()       → CoinGecko real-time price + RSI heuristic
     2. fetch_news_sentiment()    → CryptoCompare headline sentiment scoring
-    3. impulse_ai_analyze()      → Dual-signal matrix → BUY / SELL / HOLD
+    3. synapse_ai_analyze()      → Dual-signal matrix → BUY / SELL / HOLD
     4. upload_to_storacha()      → Immutable IPFS proof (Glass-Box audit trail)
     5. trigger_lit_action()      → Lit Protocol PKP threshold signing
     6. submit_to_flow()          → Flow Scheduled Transaction via Forte
@@ -289,9 +289,9 @@ def fetch_twitter_sentiment() -> Optional[Dict[str, Any]]:
         return None
 
 
-def impulse_ai_analyze(data: Dict[str, Any], news_data: Dict[str, Any], twitter_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+def synapse_ai_analyze(data: Dict[str, Any], news_data: Dict[str, Any], twitter_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
-    Core Impulse AI inference engine.
+    Core Synapse AI inference engine.
 
     Combines quantitative signals (price, RSI, trend) with qualitative signals
     (news sentiment) to produce an actionable trading signal.
@@ -312,7 +312,7 @@ def impulse_ai_analyze(data: Dict[str, Any], news_data: Dict[str, Any], twitter_
     Returns:
         Signal dict with action, token, amount, evm_calldata, reasoning, etc.
     """
-    print(f"[{datetime.now().time()}] Impulse AI analyzing market geometry...")
+    print(f"[{datetime.now().time()}] Synapse AI analyzing market geometry...")
     
     symbol   = data['symbol']
     price    = data['price']
@@ -722,7 +722,7 @@ def init_trade(signal: Dict[str, Any]) -> Dict[str, Any]:
     persists it to `trade_log.json` for the dashboard API to read.
 
     Args:
-        signal: The AI signal dictionary from impulse_ai_analyze().
+        signal: The AI signal dictionary from synapse_ai_analyze().
 
     Returns:
         The newly created trade entry dict.
@@ -806,7 +806,7 @@ def _save_or_update_trade(trade_entry: Dict[str, Any]) -> None:
         print(f"  [⚠] Failed to write trade log: {e}")
 
 def main():
-    print("--- FlowTalos Impulse AI Service Started ---\n")
+    print("--- FlowTalos Synapse AI Service Started ---\n")
     
     # 1. Gather Data
     market_data = fetch_market_data("flow")
@@ -832,8 +832,8 @@ def main():
         print("\n[✔] X (Twitter) Sentiment Data:")
         print(json.dumps(twitter_data, indent=2))
     
-    # 2. Impulse AI Generates Signal, Reasoning, and Calldata
-    signal = impulse_ai_analyze(market_data, news_data, twitter_data)
+    # 2. Synapse AI Generates Signal, Reasoning, and Calldata
+    signal = synapse_ai_analyze(market_data, news_data, twitter_data)
     
     print("\n[✔] AI Signal Generated:")
     print(json.dumps(signal, indent=2))
@@ -893,7 +893,7 @@ def main():
         print("="*60)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="FlowTalos Impulse AI Agent")
+    parser = argparse.ArgumentParser(description="FlowTalos Synapse AI Agent")
     parser.add_argument("--daemon", action="store_true", help="Run continuously in background daemon mode")
     args, unknown = parser.parse_known_args()
     

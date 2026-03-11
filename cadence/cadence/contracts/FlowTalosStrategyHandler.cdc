@@ -45,7 +45,7 @@ access(all) contract FlowTalosStrategyHandler {
     ///
     /// Fields:
     ///   - scheduleID:   Unique ID assigned by the Forte scheduler
-    ///   - action:       "BUY" or "SELL" (from Impulse AI signal)
+    ///   - action:       "BUY" or "SELL" (from Synapse AI signal)
     ///   - token:        Target token symbol (e.g. "FLOW")
     ///   - amount:       Trade size in human-readable units
     ///   - ipfsProofCID: Storacha CID linking to the immutable AI reasoning log
