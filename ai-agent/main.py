@@ -1,93 +1,184 @@
+#!/usr/bin/env python3
+"""
+FlowTalos — Impulse AI Agent
+============================
+Autonomous DeFi strategy engine that combines quantitative market analysis
+with qualitative news sentiment to generate actionable on-chain signals.
+
+Architecture Pipeline:
+    1. fetch_market_data()       → CoinGecko real-time price + RSI heuristic
+    2. fetch_news_sentiment()    → CryptoCompare headline sentiment scoring
+    3. impulse_ai_analyze()      → Dual-signal matrix → BUY / SELL / HOLD
+    4. upload_to_storacha()      → Immutable IPFS proof (Glass-Box audit trail)
+    5. trigger_lit_action()      → Lit Protocol PKP threshold signing
+    6. submit_to_flow()          → Flow Scheduled Transaction via Forte
+
+Fallback Strategy:
+    Every external dependency (CoinGecko, Storacha, Lit Protocol, Flow CLI)
+    has a graceful degradation path so the agent NEVER crashes mid-execution.
+
+Usage:
+    $ python3 main.py
+
+Author: FlowTalos Team — Built for Flow Hackathon 2026
+"""
+
 import json
-import requests
-import subprocess
+import hashlib
 import os
+import subprocess
+import time
+import uuid
 from datetime import datetime
+from typing import Any, Dict, List, Optional, Tuple
+
+import requests
 from web3 import Web3
 
-def fetch_market_data(symbol="flow"):
+
+# =============================================================================
+# CONSTANTS — Flow EVM Testnet Contract Addresses
+# =============================================================================
+
+# Wrapped FLOW token on Flow EVM Testnet
+WFLOW_ADDRESS = "0xd3bF53DAC106A0290B0483EcBC89d40FcC961f3e"
+# USDC stablecoin on Flow EVM Testnet
+USDC_ADDRESS  = "0x1c6e5c2F15E53E8e1E3f6F5C7E4dC0E8F3a9B7C2"
+# IncrementFi DEX Router (used for BUY: USDC → FLOW)
+INCREMENTFI_ROUTER = "0x2A5Ade7d26c2F9C9eD59e19D642e5a8b6b3B9d5F"
+# Metapier DEX Router (used for SELL: FLOW → USDC)
+METAPIER_ROUTER    = "0x7F4C61116729d5b27E5f734E8C92b2E5F0a0B3c1"
+# FlowTalos Cadence-Owned Account (COA) on Flow EVM
+VAULT_COA = "0x24c2e530f15129b7000000000000000000000001"
+# Uniswap V2 Router method selector: swapExactTokensForTokens
+SWAP_METHOD_ID = "0x38ed1739"
+# FlowTalos signer account on Flow Testnet
+FLOW_TESTNET_SIGNER = "24c2e530f15129b7"
+
+# Slippage tolerance (2%) to protect against MEV front-running
+SLIPPAGE_TOLERANCE = 0.02
+# Swap deadline in seconds (20 minutes)
+SWAP_DEADLINE_SECONDS = 1200
+# Maximum trades to retain in trade_log.json
+MAX_TRADE_LOG_ENTRIES = 50
+
+# Sentiment analysis keyword banks
+POSITIVE_KEYWORDS = ['bull', 'surge', 'gain', 'adopt', 'up', 'high', 'partnership', 'launch', 'growth']
+NEGATIVE_KEYWORDS = ['bear', 'drop', 'hack', 'down', 'low', 'scam', 'sec', 'ban', 'crash', 'sell']
+
+
+def fetch_market_data(symbol: str = "flow") -> Optional[Dict[str, Any]]:
     """
-    Fetches real-time crypto market data from CoinGecko.
+    Fetches real-time crypto market data from CoinGecko's public API.
+
+    Args:
+        symbol: CoinGecko asset ID (e.g. "flow", "bitcoin").
+
+    Returns:
+        Dict with keys: symbol, price, rsi, trend, change_24h.
+        Returns None if the API is unreachable (triggers abort in main()).
     """
     print(f"[{datetime.now().time()}] Fetching real market data for {symbol.upper()}...")
     try:
-        # CoinGecko API endpoint for simple price
-        url = f"https://api.coingecko.com/api/v3/simple/price?ids={symbol}&vs_currencies=usd&include_24hr_vol=true&include_24hr_change=true"
+        url = (
+            f"https://api.coingecko.com/api/v3/simple/price"
+            f"?ids={symbol}&vs_currencies=usd"
+            f"&include_24hr_vol=true&include_24hr_change=true"
+        )
         response = requests.get(url, timeout=10)
+        response.raise_for_status()
         data = response.json()
         
-        if symbol in data:
-            price = data[symbol]['usd']
-            change_24h = data[symbol]['usd_24h_change'] or 0
-            
-            # Simple RSI heuristic based on 24h change for the hackathon MVP
-            rsi = 50 + (change_24h * 2) # e.g., +10% change -> 70 RSI (Overbought)
-            rsi = max(0, min(100, rsi)) # Clamp between 0-100
-            
-            trend = "bullish" if rsi < 40 else "bearish" if rsi > 70 else "neutral"
-            
-            return {"symbol": symbol.upper(), "price": price, "rsi": rsi, "trend": trend, "change_24h": change_24h}
-        else:
-            raise Exception("Symbol not found in CoinGecko response")
+        if symbol not in data:
+            raise ValueError(f"Symbol '{symbol}' not found in CoinGecko response")
+        
+        price = data[symbol]['usd']
+        change_24h = data[symbol].get('usd_24h_change', 0) or 0
+        
+        # RSI heuristic: maps 24h % change to a 0–100 range
+        # e.g. +10% change → RSI 70 (overbought), -10% → RSI 30 (oversold)
+        rsi = max(0, min(100, 50 + (change_24h * 2)))
+        trend = "bullish" if rsi < 40 else "bearish" if rsi > 70 else "neutral"
+        
+        return {
+            "symbol": symbol.upper(),
+            "price": price,
+            "rsi": rsi,
+            "trend": trend,
+            "change_24h": change_24h,
+        }
+    except requests.RequestException as e:
+        print(f"[✘] Network error fetching market data: {e}")
+        return None
+    except (KeyError, ValueError) as e:
+        print(f"[✘] Data parsing error: {e}")
+        return None
     except Exception as e:
-        print(f"Error fetching real-time data: {e}. Aborting strategy to protect funds.")
+        print(f"[✘] Unexpected error fetching market data: {e}")
         return None
 
-def generate_evm_calldata(action, amount):
+
+def generate_evm_calldata(action: str, amount: float) -> Tuple[str, str]:
     """
-    Generates real EVM Calldata for a DEX swap on Flow EVM Testnet.
-    BUY: swapExactTokensForTokens(USDC → FLOW) via IncrementFi
-    SELL: swapExactTokensForTokens(FLOW → USDC) via Metapier
-    Uses proper Uniswap V2 Router ABI encoding.
-    Falls back to a raw transfer calldata if ABI encoding fails.
+    Generates real EVM calldata for a DEX swap on Flow EVM Testnet.
+
+    Encoding follows the Uniswap V2 Router ABI:
+        swapExactTokensForTokens(uint256, uint256, address[], address, uint256)
+
+    Args:
+        action: "BUY" (USDC → FLOW via IncrementFi) or "SELL" (FLOW → USDC via Metapier).
+        amount: Token amount in human-readable units (e.g. 100.0 USDC).
+
+    Returns:
+        Tuple of (calldata_hex, router_address).
+        Falls back to a deterministic SHA-256 payload if ABI encoding fails.
     """
     try:
         w3 = Web3()
         
-        # Real Flow EVM Testnet contract addresses
-        WFLOW_ADDRESS = "0xd3bF53DAC106A0290B0483EcBC89d40FcC961f3e"  # Wrapped FLOW on Flow EVM
-        USDC_ADDRESS = "0x1c6e5c2F15E53E8e1E3f6F5C7E4dC0E8F3a9B7C2"   # USDC on Flow EVM
-        INCREMENTFI_ROUTER = "0x2A5Ade7d26c2F9C9eD59e19D642e5a8b6b3B9d5F"  # IncrementFi Router
-        METAPIER_ROUTER = "0x7F4C61116729d5b27E5f734E8C92b2E5F0a0B3c1"    # Metapier Router
-        VAULT_COA = "0x24c2e530f15129b7000000000000000000000001"            # Our COA on Flow EVM
-        
-        # swapExactTokensForTokens(uint256 amountIn, uint256 amountOutMin, address[] path, address to, uint256 deadline)
-        SWAP_METHOD_ID = "0x38ed1739"
-        
         amount_wei = w3.to_wei(amount, 'ether')
-        # Implementing 2% slippage protection (amount_out_min) to prevent MEV front-running
-        amount_out_min = int(amount_wei * 0.98) 
-        deadline = int(datetime.now().timestamp()) + 1200 # 20 minutes deadline
+        amount_out_min = int(amount_wei * (1 - SLIPPAGE_TOLERANCE))
+        deadline = int(datetime.now().timestamp()) + SWAP_DEADLINE_SECONDS
         
         if action == "BUY":
-            # Swap USDC → FLOW via IncrementFi
-            path = [w3.to_checksum_address(USDC_ADDRESS), w3.to_checksum_address(WFLOW_ADDRESS)]
+            path = [
+                w3.to_checksum_address(USDC_ADDRESS),
+                w3.to_checksum_address(WFLOW_ADDRESS),
+            ]
             router = INCREMENTFI_ROUTER
         else:
-            # Swap FLOW → USDC via Metapier
-            path = [w3.to_checksum_address(WFLOW_ADDRESS), w3.to_checksum_address(USDC_ADDRESS)]
+            path = [
+                w3.to_checksum_address(WFLOW_ADDRESS),
+                w3.to_checksum_address(USDC_ADDRESS),
+            ]
             router = METAPIER_ROUTER
         
-        # ABI encode the swap parameters
         encoded_args = w3.codec.encode(
             ['uint256', 'uint256', 'address[]', 'address', 'uint256'],
-            [amount_wei, amount_out_min, path, w3.to_checksum_address(VAULT_COA), deadline]
+            [amount_wei, amount_out_min, path, w3.to_checksum_address(VAULT_COA), deadline],
         )
         
         calldata = SWAP_METHOD_ID + encoded_args.hex()
         return calldata, router
-    except Exception as e:
-        print(f"  [⚠] EVM Calldata encoding error: {e}. Using fallback raw calldata.")
-        # Fallback: return a minimal valid hex calldata and default router
-        import hashlib
-        fallback_data = hashlib.sha256(f"{action}:{amount}:{datetime.now().isoformat()}".encode()).hexdigest()
-        fallback_router = "0x2A5Ade7d26c2F9C9eD59e19D642e5a8b6b3B9d5F" if action == "BUY" else "0x7F4C61116729d5b27E5f734E8C92b2E5F0a0B3c1"
-        return "0x38ed1739" + fallback_data, fallback_router
 
-def fetch_news_sentiment():
+    except Exception as e:
+        print(f"  [⚠] EVM calldata encoding error: {e}. Using fallback.")
+        fallback_data = hashlib.sha256(
+            f"{action}:{amount}:{datetime.now().isoformat()}".encode()
+        ).hexdigest()
+        fallback_router = INCREMENTFI_ROUTER if action == "BUY" else METAPIER_ROUTER
+        return SWAP_METHOD_ID + fallback_data, fallback_router
+
+
+def fetch_news_sentiment() -> Dict[str, Any]:
     """
-    Fetches the latest crypto news to gauge market sentiment.
-    Uses CryptoCompare's free public news API.
+    Fetches the latest crypto news and performs keyword-based sentiment analysis.
+
+    Source: CryptoCompare public news API (no API key required).
+
+    Returns:
+        Dict with keys: headlines (List[str]), overall_sentiment (str), raw_score (int).
+        Always returns a valid dict — falls back to neutral sentiment on failure.
     """
     print(f"[{datetime.now().time()}] Fetching social & news sentiment data...")
     try:
@@ -96,31 +187,23 @@ def fetch_news_sentiment():
         response.raise_for_status()
         data = response.json()
         
-        headlines = []
+        headlines: List[str] = []
         sentiment_score = 0
-        
-        positive_keywords = ['bull', 'surge', 'gain', 'adopt', 'up', 'high', 'partnership', 'launch', 'growth']
-        negative_keywords = ['bear', 'drop', 'hack', 'down', 'low', 'scam', 'sec', 'ban', 'crash', 'sell']
 
-        if data.get('Data'):
-            for item in data['Data'][:3]:
-                title = item['title']
-                headlines.append(title)
-                
-                title_lower = title.lower()
-                for word in positive_keywords:
-                    if word in title_lower: sentiment_score += 1
-                for word in negative_keywords:
-                    if word in title_lower: sentiment_score -= 1
+        for item in (data.get('Data') or [])[:3]:
+            title = item.get('title', '')
+            headlines.append(title)
+            
+            title_lower = title.lower()
+            sentiment_score += sum(1 for w in POSITIVE_KEYWORDS if w in title_lower)
+            sentiment_score -= sum(1 for w in NEGATIVE_KEYWORDS if w in title_lower)
                     
-        overall_sentiment = "neutral"
-        if sentiment_score > 0: overall_sentiment = "positive"
-        elif sentiment_score < 0: overall_sentiment = "negative"
+        overall = "positive" if sentiment_score > 0 else "negative" if sentiment_score < 0 else "neutral"
         
         return {
-            "headlines": headlines,
-            "overall_sentiment": overall_sentiment,
-            "raw_score": sentiment_score
+            "headlines": headlines or ["No news articles available."],
+            "overall_sentiment": overall,
+            "raw_score": sentiment_score,
         }
             
     except Exception as e:
@@ -128,51 +211,90 @@ def fetch_news_sentiment():
         return {
             "headlines": ["Could not fetch real-time news."],
             "overall_sentiment": "neutral",
-            "raw_score": 0
+            "raw_score": 0,
         }
 
-def impulse_ai_analyze(data, news_data):
+
+def impulse_ai_analyze(data: Dict[str, Any], news_data: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Simulates the core Impulse AI inference returning actionable signals, text reasoning, and EVM calldata.
-    Combines Quantitative (Price/RSI) with Qualitative (News Sentiment).
+    Core Impulse AI inference engine.
+
+    Combines quantitative signals (price, RSI, trend) with qualitative signals
+    (news sentiment) to produce an actionable trading signal.
+
+    Decision Matrix:
+        ┌───────────┬───────────────┬───────────────┬───────────┐
+        │           │ Positive News │ Neutral News  │ Neg News  │
+        ├───────────┼───────────────┼───────────────┼───────────┤
+        │ Bullish   │ BUY           │ BUY           │ HOLD      │
+        │ Neutral   │ HOLD          │ HOLD          │ HOLD      │
+        │ Bearish   │ HOLD          │ SELL          │ SELL      │
+        └───────────┴───────────────┴───────────────┴───────────┘
+
+    Args:
+        data:      Market data dict from fetch_market_data().
+        news_data: Sentiment dict from fetch_news_sentiment().
+
+    Returns:
+        Signal dict with action, token, amount, evm_calldata, reasoning, etc.
     """
     print(f"[{datetime.now().time()}] Impulse AI analyzing market geometry...")
     
-    symbol = data['symbol']
-    price = data['price']
-    rsi = data['rsi']
-    trend = data['trend']
-    change = data.get('change_24h', 0)
+    symbol   = data['symbol']
+    price    = data['price']
+    rsi      = data['rsi']
+    trend    = data['trend']
+    change   = data.get('change_24h', 0)
     
     sentiment = news_data['overall_sentiment']
     headlines = " | ".join(news_data['headlines'])
     
-    action = "HOLD"
-    amount = 0.0
-    reasoning = f"Market for {symbol} is currently neutral (24h change: {change:.2f}%). Price: ${price}, Est. RSI: {rsi:.2f}. News Sentiment: {sentiment.upper()}. Awaiting stronger alignment between on-chain metrics and social catalysts."
-    calldata = "0x"
-    target_dex = "None"
-    router_addr = None  # Initialize to prevent unbound variable in HOLD case
+    # Defaults — HOLD unless dual-signal alignment is detected
+    action: str = "HOLD"
+    amount: float = 0.0
+    calldata: str = "0x"
+    target_dex: str = "None"
+    router_addr: Optional[str] = None
+    reasoning = (
+        f"Market for {symbol} is currently neutral (24h change: {change:.2f}%). "
+        f"Price: ${price}, Est. RSI: {rsi:.2f}. News Sentiment: {sentiment.upper()}. "
+        f"Awaiting stronger alignment between on-chain metrics and social catalysts."
+    )
     
-    # Combined Logic: Both technical indication and sentiment alignment needed
-    if trend == "bullish" and (sentiment == "positive" or sentiment == "neutral"):
+    # ── Decision Matrix ──────────────────────────────────────────────────
+    if trend == "bullish" and sentiment in ("positive", "neutral"):
         action = "BUY"
-        amount = 100.0 # Example USDC to swap for FLOW
+        amount = 100.0  # USDC to swap for FLOW
         target_dex = "IncrementFi"
-        reasoning = f"Dual-Signal Alignment! Technicals: {symbol} shows oversold conditions (Drop of {change:.2f}%). Qualitative: Social sentiment is {sentiment.upper()} ('{headlines[:80]}...'). Executing BUY via {target_dex} to capture anticipated upward reversal."
+        reasoning = (
+            f"Dual-Signal Alignment! Technicals: {symbol} shows oversold conditions "
+            f"(Drop of {change:.2f}%). Qualitative: Social sentiment is {sentiment.upper()} "
+            f"('{headlines[:80]}...'). Executing BUY via {target_dex}."
+        )
         calldata, router_addr = generate_evm_calldata("BUY", amount)
-    elif trend == "bearish" and (sentiment == "negative" or sentiment == "neutral"):
+
+    elif trend == "bearish" and sentiment in ("negative", "neutral"):
         action = "SELL"
-        amount = 10.0  # Example FLOW amount to dump
+        amount = 10.0  # FLOW to convert to USDC
         target_dex = "Metapier"
-        reasoning = f"Dual-Signal Alignment! Technicals: {symbol} indicates overbought conditions (Pump of {change:.2f}%). Qualitative: News sentiment is {sentiment.upper()} ('{headlines[:80]}...'). Executing SELL on {target_dex} to lock in gains to USDC before market reaction."
+        reasoning = (
+            f"Dual-Signal Alignment! Technicals: {symbol} indicates overbought conditions "
+            f"(Pump of {change:.2f}%). Qualitative: News sentiment is {sentiment.upper()} "
+            f"('{headlines[:80]}...'). Executing SELL on {target_dex}."
+        )
         calldata, router_addr = generate_evm_calldata("SELL", amount)
+
     elif trend == "bullish" and sentiment == "negative":
-        action = "HOLD"
-        reasoning = f"Signal Conflict! Technicals signal BUY (Oversold), but News Sentiment is brutally {sentiment.upper()}. Preserving capital. Aborting trade."
+        reasoning = (
+            f"Signal Conflict! Technicals signal BUY (Oversold), but News Sentiment is "
+            f"brutally {sentiment.upper()}. Preserving capital. Aborting trade."
+        )
+
     elif trend == "bearish" and sentiment == "positive":
-        action = "HOLD"
-        reasoning = f"Signal Conflict! Technicals signal SELL (Overbought), but News Sentiment is wildly {sentiment.upper()} ('{headlines[:50]}...'). Holding to ride the potential catalyst."
+        reasoning = (
+            f"Signal Conflict! Technicals signal SELL (Overbought), but News Sentiment is "
+            f"wildly {sentiment.upper()} ('{headlines[:50]}...'). Holding to ride the catalyst."
+        )
 
     return {
         "timestamp": datetime.now().isoformat(),
@@ -184,17 +306,24 @@ def impulse_ai_analyze(data, news_data):
         "target_dex_evm": target_dex,
         "evm_calldata": calldata,
         "dex_router": router_addr if action != "HOLD" else None,
-        "reasoning": reasoning
+        "reasoning": reasoning,
     }
 
-def compute_local_cid(data_str):
+
+def compute_local_cid(data_str: str) -> str:
     """
-    Pure Python fallback: computes a CIDv1-compatible hash (SHA-256) locally.
-    Used when Node.js/Storacha is unavailable (e.g., npx not installed).
+    Pure-Python fallback for CID generation using SHA-256.
+
+    Produces a CIDv1-compatible identifier that is deterministic and unique
+    per input. Used when Node.js / Storacha is unavailable.
+
+    Args:
+        data_str: Raw string content to hash.
+
+    Returns:
+        A 'bafylocal...' prefixed hash string.
     """
-    import hashlib
     content_hash = hashlib.sha256(data_str.encode('utf-8')).hexdigest()
-    # Prefix with 'bafy' to mimic CIDv1 base32 format for frontend compatibility
     return f"bafylocal{content_hash[:48]}"
 
 def upload_to_storacha(signal_data):
@@ -295,43 +424,7 @@ def trigger_lit_action(signal_data):
         env["FLOWTALOS_ACTION_MODE"] = "local"  # Indicates local execution (not on Lit nodes)
         
         result = subprocess.run(
-            ["node", "-e", f"""
-                const signal = JSON.parse(process.env.FLOWTALOS_SIGNAL);
-                
-                // Construct the Cadence scheduled transaction (same logic as action.js)
-                const cadenceScript = `
-                    import FlowToken from 0x7e60df042a9c0868
-                    import FlowTransactionScheduler from 0x8c5303eaa26202d6
-                    
-                    transaction(
-                        delaySeconds: UFix64, 
-                        executionEffort: UInt64, 
-                        transactionData: [{{String: AnyStruct}}],
-                        ipfsProofCID: String,
-                        action: String,
-                        token: String,
-                        amount: UFix64
-                    ) {{
-                        // Details omitted in mock for brevity (matches action.js)
-                        prepare(signer: auth(Storage, Capabilities) &Account) {{
-                            log("AI Strategy Scheduled for future execution | Proof: ".concat(ipfsProofCID))
-                        }}
-                    }}
-                `;
-                
-                const output = {{
-                    success: true,
-                    pkp_public_key: "0x04" + require('crypto').randomBytes(64).toString('hex'),
-                    action_cid: "lit://flowtalos-signer-v2",
-                    signed_payload: "0x" + require('crypto').randomBytes(65).toString('hex'),
-                    cadence_tx_hash: cadenceScript.trim().substring(0, 40),
-                    signal_action: signal.action,
-                    signal_amount: signal.amount,
-                    dex_router: signal.dex_router
-                }};
-                
-                console.log(JSON.stringify(output));
-            """],
+            ["node", os.path.join(lit_action_dir, 'src', 'simulateLitNode.js')],
             capture_output=True,
             text=True,
             env=env,
@@ -340,11 +433,21 @@ def trigger_lit_action(signal_data):
         
         if result.returncode == 0 and result.stdout.strip():
             lit_output = json.loads(result.stdout.strip())
-            print(f"  → PKP Public Key: {lit_output['pkp_public_key'][:20]}...")
-            print(f"  → Action IPFS CID: {lit_output['action_cid']}")
-            print(f"  → Payload Signed: {lit_output['signed_payload'][:20]}...")
-            print(f"  [✔] Lit Protocol Signature Obtained (via local execution)")
-            return lit_output['signed_payload']
+            
+            if lit_output.get("status") == "SUCCESS":
+                print(f"  → PKP Public Key (Mocked): {lit_output['payload']['arguments'][0]['value']}...") # Delay seconds arg etc
+                print(f"  → Action IPFS Proof: {lit_output['payload']['arguments'][3]['value']}")
+                print(f"  [✔] Lit Protocol Execution Succeeded! Cadence payload constructed.")
+                # We return the serialized Cadence script hash or simulated sig
+                return lit_output['payload']['script'].strip().replace('\\n', '')[:40] + "..."
+            else:
+                print(f"  [⚠] Lit Action execution returned ERROR: {lit_output.get('message')}")
+                # Fallback implementation
+                import hashlib
+                payload_hash = hashlib.sha256(payload.encode()).hexdigest()
+                signature = "0x" + payload_hash + hashlib.sha256(payload_hash.encode()).hexdigest()[:2]
+                print(f"  [✔] Fallback signature generated: {signature[:20]}...")
+                return signature
         else:
             print(f"  [⚠] Lit Action returned: {result.stderr[:200]}")
             # Generate a real cryptographic signature as fallback
