@@ -6,11 +6,30 @@
 
 > **Trustless, autonomous, and mathematically verifiable AI-driven asset management built natively for the Flow Blockchain.**
 
-[![Flow Blockchain](https://img.shields.io/badge/Flow-Blockchain-10B981?style=for-the-badge&logo=flow&logoColor=white)](https://flow.com/)
-[![Hackathon: PL_Genesis](https://img.shields.io/badge/Hackathon-PL__Genesis:_Frontiers_of_Collaboration-blue?style=for-the-badge)](#)
-[![AI Powered](https://img.shields.io/badge/AI-Powered-purple?style=for-the-badge&logo=openai)](https://github.com/IrrhammCode/FlowTalos)
-[![Web3 DeFi](https://img.shields.io/badge/Web3-DeFi-black?style=for-the-badge)](https://github.com/IrrhammCode/FlowTalos)
+[![Flow Blockchain](https://img.shields.io/badge/Blockchain-Flow-10B981?style=for-the-badge&logo=flow&logoColor=white)](https://flow.com/)
+[![AI Powered](https://img.shields.io/badge/AI-Autonomous%20Trading-purple?style=for-the-badge&logo=openai)](https://github.com/IrrhammCode/FlowTalos)
+[![Web3 DeFi](https://img.shields.io/badge/Web3-DeFi_Protocol-black?style=for-the-badge)](https://github.com/IrrhammCode/FlowTalos)
+[![Hackathon: PL_Genesis](https://img.shields.io/badge/Hackathon-PL__Genesis-blue?style=for-the-badge)](https://devfolio.co/projects/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](https://opensource.org/licenses/MIT)
+
+---
+
+<p align="center">
+  <img src="docs/flowtalos-banner.png" width="900">
+</p>
+
+---
+
+## ⏱️ How FlowTalos Works in 10 Seconds
+
+FlowTalos distills complex quantitative AI trading into a trustless 6-step loop:
+
+1. **User deposits assets** into the pristine Cadence Vault.
+2. ↓ **AI Daemon analyzes** market data via CoinGecko & News Sentiment.
+3. ↓ **Reasoning is logged** and permanently pinned to Storacha/IPFS.
+4. ↓ **Lit Protocol validates** the payload and generates a Threshold Signature.
+5. ↓ **Flow Scheduler queues** the validated transaction on the native timer.
+6. ↓ **Flow EVM executes** the final automated DEX swap securely.
 
 ---
 
@@ -108,7 +127,27 @@ Here is exactly how we answer the challenge (**5W1H**):
 
 ---
 
-## 🏗️ Architecture Overview
+## 🎨 Screenshots
+
+To provide a visual sense of the protocol's operating environment, here are structural previews of the system in action:
+
+### 1. The Glass-Box Dashboard
+*Real-time monitoring of Vault TVL, AI Daemon Terminal Status, and Agent Balance.*
+![Dashboard Overview](docs/dashboard.png)
+
+### 2. Immutable IPFS Trading Receipts
+*Users can click on explicit CIDs to verify the exact NLP reasoning that triggered an execution.*
+![IPFS Logs & Reasoning](docs/tradelogs.png)
+
+---
+
+## 🏗️ Architecture Diagram
+
+![FlowTalos Architecture](docs/architecture.png)
+
+*   **Top Layer:** End-user interaction strictly with the Non-Custodial Vault.
+*   **Middle Layer:** Cryptographic verification pipelines (Lit Protocol Nodes + Storacha IPFS pinning).
+*   **Bottom Layer:** Seamless Cross-VM Execution (Cadence to Flow EVM).
 
 ```text
     [USER] 
@@ -426,12 +465,45 @@ The "Glass-Box" UI features:
 
 ---
 
+## 💼 Core Use Cases
+
+FlowTalos is designed as fundamental infrastructure, enabling massive real-world applications:
+
+- 🤖 **Autonomous Portfolio Management:** Users let the AI intelligently rebalance assets 24/7.
+- 📈 **DeFi Hedge Fund Automation:** Institutional capital pools governed purely by mathematical models.
+- 🔍 **Transparent Algorithmic Trading:** Stop trusting opaque Telegram bots; verify every execution hash.
+- 🛡️ **Trustless Yield Generation:** Eliminate human intermediary risk and centralized exchange custodial failures.
+- 🏛️ **DAO-Governed AI Vaults:** Communities vote to upgrade AI parameters while funds remain totally decentralized.
+
+---
+
+## 🔭 Future Vision
+
+While the MVP demonstrates functional EVM bridging and reasoning proofs, the ultimate roadmap for FlowTalos includes:
+
+- 🕸️ **Multi-Agent Trading Networks:** Multiple specialized AIs debating market conditions before executing a combined threshold trade.
+- 🛒 **AI Strategy Marketplaces:** Permitting independent quantitative researchers to inject custom proprietary AI models natively into the platform.
+- 🧮 **zk-Proof AI Verification:** Advancing from IPFS storage to zero-knowledge proofs mathematically guaranteeing the AI model was run correctly.
+- 🛣️ **Cross-Chain Liquidity Routing:** Expanding the Cadence-Owned-Account boundary to route liquidity across Ethereum and Base natively.
+
+---
+
 ## 🗺️ Roadmap
 
 - **Phase 1 — Hackathon MVP:** Core FlowTalos Cadence bridging routing testnets and establishing structural viability.
 - **Phase 2 — Mainnet deployment:** Full smart-contract audits and real-world capital deployment integrations on Flow Network.
 - **Phase 3 — DAO governance:** Transfer of capability limits and AI-algorithm modification governance to a community DAO.
 - **Phase 4 — Strategy marketplace:** Permitting independent quantitative researchers to inject hyper-specific AI models natively into the platform ecosystem.
+
+---
+
+## 📚 Documentation Links
+
+For deep-dive technical explorations, architecture logic, and future economic designs, please review our comprehensive documentation matrix:
+
+- 📄 **[Whitepaper (Coming Soon)](#)** — Protocol tokenomics and advanced agent theory.
+- ⛓️ **[Smart Contract Docs](cadence/README.md)** — Capability scoping and Cross-VM implementations.
+- 🧠 **[Architecture Docs](ai-agent/README.md)** — Python AI Daemon system configurations.
 
 ---
 
