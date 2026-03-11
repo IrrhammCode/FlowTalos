@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140" fill="none">
+  <circle cx="70" cy="70" r="66" fill="#0176FF"/>
+  <path d="M70 20 L70 120 M45 50 L70 40 M45 70 L70 60 M45 90 L70 80 M95 50 L70 40 M95 70 L70 60 M95 90 L70 80" stroke="white" stroke-width="6" stroke-linecap="round"/>
+  <text x="70" y="78" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="central">S</text>
+</svg>
