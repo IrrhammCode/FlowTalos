@@ -237,7 +237,7 @@ FlowTalos is proudly built for the **PL_Genesis: Frontiers of Collaboration Hack
 3. **Storacha (Filecoin/IPFS) Track:** Replacing typical ephemeral off-chain AI reasoning with **Permanent Verifiable Audit Logs**, pushing JSON metadata directly to Filecoin/IPFS for absolute decentralized dispute resolution.
 
 ### Targeted Bounty
-- 💰 **🔐 Agents With Receipts — 8004:** Selected as our primary bounty focus. Every single trading decision made by the Synapse AI is cryptographically hashed and pinned to Storacha (IPFS) *before* the threshold signature is granted. This provides an undeniable, decentralized "receipt" of the agent's exact thought parameters and market conditions at the time of execution.
+- 💰 **AI & Robotics (Verifiable AI):** Selected as our primary bounty focus. FlowTalos is an exact match for the "Verifiable AI" requirement: *Agents with cryptographic proof of reasoning and decision provenance*. Every single trading decision made by the Synapse AI is cryptographically hashed and pinned to Storacha (IPFS) *before* the Lit Protocol threshold signature is granted. This provides an undeniable, decentralized "receipt" and audit trail of the agent's exact thought parameters natively on-chain.
 
 ---
 
