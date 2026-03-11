@@ -31,6 +31,7 @@ import subprocess
 import tempfile
 import time
 import uuid
+import argparse
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -836,4 +837,21 @@ def main():
         print("="*60)
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="FlowTalos Impulse AI Agent")
+    parser.add_argument("--daemon", action="store_true", help="Run continuously in background daemon mode")
+    args, unknown = parser.parse_known_args()
+    
+    if args.daemon:
+        print("==========================================================")
+        print("  FlowTalos Agent initializing in DAEMON mode")
+        print("  Polling frequency: Auto")
+        print("==========================================================")
+        while True:
+            try:
+                main()
+            except Exception as e:
+                print(f"Daemon exception caught: {e}")
+            print("\n[DAEMON] Sleeping for 60 seconds before next strategy evaluation...\n")
+            time.sleep(60)
+    else:
+        main()
