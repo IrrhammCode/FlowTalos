@@ -8,7 +8,7 @@
         "simulate": "node src/simulateLitNode.js"
     },
     "dependencies": {
-        "@lit-protocol/lit-node-client": "^3.0.0",
+        "@lit-protocol/lit-node-client": "^7.4.0",
         "ethers": "^5.7.2"
     },
     "devDependencies": {

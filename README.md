@@ -27,6 +27,32 @@ Every action the AI takes goes through our "Glass-Box" pipeline:
 
 ## 🏗️ Repository Architecture
 
+```mermaid
+flowchart TD
+    %% Styling
+    classDef ai fill:#f9f2f4,stroke:#d47596,stroke-width:2px;
+    classDef ipfs fill:#eef2ff,stroke:#6366f1,stroke-width:2px;
+    classDef lit fill:#fdf4ff,stroke:#d946ef,stroke-width:2px;
+    classDef cadence fill:#ecfdf5,stroke:#10b981,stroke-width:2px;
+    classDef evm fill:#f8fafc,stroke:#64748b,stroke-width:2px;
+
+    %% Nodes
+    AI["🧠 Python AI Agent<br/>(Ingests Market Data)"]:::ai
+    Storacha["📦 Storacha (IPFS)<br/>(Pins Reasoning JSON)"]:::ipfs
+    Lit["🔑 Lit Protocol Action<br/>(Validates & Signs Payload)"]:::lit
+    FlowScheduler["⏱️ Flow Scheduler<br/>(Cadence Job Queue)"]:::cadence
+    FlowVault["🛡️ FlowTalosVault.cdc<br/>(Cadence Smart Contract)"]:::cadence
+    FlowEVM["⚡ Flow EVM (COA)<br/>(Executes DEX Swap)"]:::evm
+
+    %% Edges
+    AI -- "1. Logs Reasoning" --> Storacha
+    Storacha -. "Returns CID" .-> AI
+    AI -- "2. Sends CID +<br/>EVM Calldata" --> Lit
+    Lit -- "3. Threshold Signs<br/>Cadence TX" --> FlowScheduler
+    FlowScheduler -- "4. Executes at<br/>Target Time" --> FlowVault
+    FlowVault -- "5. Bridges Call<br/>via COA" --> FlowEVM
+```
+
 This mono-repo is structured to reflect the exact flow of data through the protocol:
 
 - **`/ai-agent`** (The Brain): Python-based intelligence engine parsing market signals and constructing EVM calldata.
