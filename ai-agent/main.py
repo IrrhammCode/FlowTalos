@@ -401,10 +401,12 @@ def compute_local_cid(data_str: str) -> str:
         data_str: Raw string content to hash.
 
     Returns:
-        A 'bafylocal...' prefixed hash string.
+        A 'bafybe...' prefixed base32 hash string.
     """
-    content_hash = hashlib.sha256(data_str.encode('utf-8')).hexdigest()
-    return f"bafylocal{content_hash[:48]}"
+    import base64
+    content_hash_bytes = hashlib.sha256(data_str.encode('utf-8')).digest()
+    b32_hash = base64.b32encode(content_hash_bytes).decode('utf-8').lower().replace('=', '')
+    return f"bafybe{b32_hash[:53]}"
 
 # =============================================================================
 # INTERNAL HELPERS — DRY Fallback Functions
@@ -422,7 +424,7 @@ def _storacha_fallback_cid(json_payload: str, reason: str) -> str:
         reason:       Human-readable reason for the fallback (for logging).
 
     Returns:
-        A 'bafylocal...' CID string.
+        A 'bafybe...' CID string.
     """
     print(f"[⚠] {reason}. Using Python SHA-256 fallback...")
     fallback_cid = compute_local_cid(json_payload)

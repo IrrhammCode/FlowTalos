@@ -1,116 +1,92 @@
-# 🤖 FlowTalos: Trustless AI Wealth Management Protocol
+<p align="center">
+  <img src="./assets/logo.png" alt="FlowTalos Logo" width="150" />
+</p>
+
+# FlowTalos: Decentralized AI Wealth Management Protocol
 
 [![Hackathon: Flow The Future of Finance](https://img.shields.io/badge/Hackathon-Flow_The_Future_of_Finance-10B981?style=for-the-badge&logo=flow&logoColor=white)](https://flow.com/)
 [![Built with Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![Lit Protocol](https://img.shields.io/badge/Lit_Protocol-Threshold_Crypto-purple?style=for-the-badge)](https://litprotocol.com/)
 [![Storacha](https://img.shields.io/badge/Storacha-IPFS_Pinning-blue?style=for-the-badge)](https://storacha.network/)
 
-FlowTalos is a decentralized, non-custodial asset management protocol powered by an autonomous computational intelligence agent. Built exclusively for the **Flow Evm/Cadence environment**.
+FlowTalos is a decentralized, non-custodial asset management protocol driven by an autonomous computational intelligence agent, specifically engineered for the Flow blockchain network. 
 
-It solving the specific problem of "Black Box AI Agents" in DeFi by leveraging cross-VM infrastructure alongside specialized cryptographic networks (Lit Protocol & Storacha/IPFS). FlowTalos provides a mathematically verifiable execution flow—a "Glass-Box" architecture where every decision the AI makes is logged, cryptographically signed, pinned to decentralized storage, and executed deterministically on-chain.
+<p align="center">
+  <img src="./assets/illustration.png" alt="FlowTalos Dashboard Illustration" width="800" />
+</p>
 
-## 🌟 The Problem
-AI agents in DeFi suffer from a massive trust deficit. 
-1. **Black Box Execution:** Users surrender their funds to a smart contract, but have zero visibility into *why* the off-chain AI decided to swap tokens or rebalance liquidity at that specific exact second.
-2. **Private Key Risk:** AI agents are usually granted complete control over a hot wallet holding the vault's assets, creating a massive single point of failure (centralization risk).
-3. **Immutability:** The reasoning models driving the AI are ephemeral; if the AI makes a bad trade and loses funds, there is no immutable audit trail to prove malfeasance vs. market conditions.
+---
 
-## 💎 The FlowTalos Solution
-FlowTalos fixes this by utilizing the **Flow Transaction Scheduler** pattern, where the AI does not hold funds. Instead, it acts as an unprivileged *Strategist*. Users maintain control of their Cadence Owned Accounts (COA) while simultaneously delegating scheduling rights for specific whitelisted EVM strategy actions. 
+## The Vision and Architecture
 
-Every action the AI takes goes through our "Glass-Box" pipeline:
-1. **Analyze:** AI fetches real-time market data (CoinGecko).
-2. **Plan (Calldata):** AI generates the exact EVM calldata for the DEX operation (e.g. `swapExactTokensForTokens` on IncrementFi targeting the Flow EVM).
-3. **Audit (Storacha):** AI compiles a JSON reasoning log explaining the *why* (market RSI, volatility), and computes an IPFS CID via the **Storacha Protocol**.
-4. **Sign (Lit):** The strategy payload and the reasoning CID are sent to a Lit Protocol Action. A decentralized network validates the structure and applies a Threshold ECDSA Signature.
-5. **Schedule (Flow):** The Lit-signed transaction schedules the EVM operation into the `FlowTalosStrategyHandler.cdc` contract.
+The decentralized finance landscape currently suffers from a massive trust deficit regarding autonomous agents. Investors surrender their assets to black-box models with zero visibility into the reasoning behind executing trades. Furthermore, granting artificial intelligence complete control over a single hot wallet introduces unacceptable centralization risks.
 
-## 🏗️ Repository Architecture
+FlowTalos resolves this by executing a "Glass-Box" architecture. The artificial intelligence does not hold the vault's assets. Instead, it acts purely as a cryptographic strategist. Users maintain absolute control of their funds within native Cadence smart contracts, delegating only the power to schedule specific, time-locked trades to the reasoning engine. 
 
-```mermaid
-flowchart TD
-    %% Styling
-    classDef ai fill:#f9f2f4,stroke:#d47596,stroke-width:2px;
-    classDef ipfs fill:#eef2ff,stroke:#6366f1,stroke-width:2px;
-    classDef lit fill:#fdf4ff,stroke:#d946ef,stroke-width:2px;
-    classDef cadence fill:#ecfdf5,stroke:#10b981,stroke-width:2px;
-    classDef evm fill:#f8fafc,stroke:#64748b,stroke-width:2px;
+Every single mathematical calculation and qualitative decision made by the intelligence agent is cryptographically logged, pinned to decentralized storage, validated by a threshold network, and scheduled deterministically on the Flow blockchain.
 
-    %% Nodes
-    AI["🧠 Python AI Agent<br/>(Ingests Market Data)"]:::ai
-    Storacha["📦 Storacha (IPFS)<br/>(Pins Reasoning JSON)"]:::ipfs
-    Lit["🔑 Lit Protocol Action<br/>(Validates & Signs Payload)"]:::lit
-    FlowScheduler["⏱️ Flow Scheduler<br/>(Cadence Job Queue)"]:::cadence
-    FlowVault["🛡️ FlowTalosVault.cdc<br/>(Cadence Smart Contract)"]:::cadence
-    FlowEVM["⚡ Flow EVM (COA)<br/>(Executes DEX Swap)"]:::evm
+---
 
-    %% Edges
-    AI -- "1. Logs Reasoning" --> Storacha
-    Storacha -. "Returns CID" .-> AI
-    AI -- "2. Sends CID +<br/>EVM Calldata" --> Lit
-    Lit -- "3. Threshold Signs<br/>Cadence TX" --> FlowScheduler
-    FlowScheduler -- "4. Executes at<br/>Target Time" --> FlowVault
-    FlowVault -- "5. Bridges Call<br/>via COA" --> FlowEVM
-```
+## Technology Integrations
 
-This mono-repo is structured to reflect the exact flow of data through the protocol:
+FlowTalos coordinates multiple advanced Web3 protocols to achieve fully trustless automation. The following sections detail each technology integrated within the application, providing exact source code references to demonstrate their implementation.
 
-- **`/ai-agent`** (The Brain): Python-based intelligence engine parsing market signals and constructing EVM calldata.
-- **`/lit-action`** (The Vault Key): JavaScript-based Lit Node execution environment enforcing access-control and threshold signing.
-- **`/storacha-logger`** (The Ledger): Node.js IPFS CID computation for decentralized reasoning storage.
-- **`/cadence`** (The Settlement Layer): Smart Contracts deployed on Flow Testnet executing scheduled batch transactions natively.
-- **`/web`** (The "Glass-Box" Dashboard): Next.js UI for end-users to view the verifiable cryptographic proofs of every AI agent action.
+### 1. Flow Blockchain (Cadence)
+FlowTalos utilizes Cadence for its robust, resource-oriented security model. The primary vault contract securely holds human-deposited funds and enforces capability-based access control, ensuring the scheduled artificial intelligence can only trigger whitelisted operations, never direct withdrawals.
+* **Location:** [`cadence/cadence/contracts/FlowTalosVault.cdc (Line 93)`](./cadence/cadence/contracts/FlowTalosVault.cdc#L93)
+* **Function:** Defines `executeEVMCalls()`, the bridge interface that processes the AI's trading payload.
 
-*For specific setup instructions, please see the `README.md` file inside each respective directory.*
+### 2. Flow EVM
+To tap into the robust liquidity pools available on Flow, the Cadence smart contract utilizes a Cadence-Owned Account (COA) to natively cross the virtual machine boundary. This allows the system to bridge Cadence security with EVM-based Automated Market Makers (such as IncrementFi).
+* **Location:** [`ai-agent/main.py (Line 387)`](./ai-agent/main.py#L387)
+* **Function:** The `generate_evm_calldata` construct defines the raw bytecode payload (`evm_calldata`) that Flow EVM will natively parse to execute the swap on decentralized exchanges.
 
-## 🚀 Getting Started Locally
+### 3. Storacha Network (IPFS)
+To eliminate the "Black-Box" problem, the reasoning matrix generates a comprehensive JSON log detailing exactly why a trade was selected (e.g., specific market metrics, technical indicators). This log is hashed into a Content-Addressed ID (CIDv1) and pinned directly to the Storacha decentralized storage layer, creating a mathematically immutable audit trail.
+* **Location:** [`storacha-logger/src/index.ts (Line 59)`](./storacha-logger/src/index.ts#L59)
+* **Function:** Invokes the `uploadDirectory` function to pin the AI's reasoning document permanently to Web3.Storage.
 
-1. **Clone the repository:**
+### 4. Lit Protocol
+Granting an autonomous script direct access to a private key invites critical vulnerabilities. Instead, FlowTalos employs Lit Protocol's threshold cryptography sandbox. A decentralized network of Lit nodes executes a JavaScript validation script to inspect the proposed trade. If the trade meets all safety parameters, the network collaboratively signs the transaction using a Programmable Key Pair (PKP).
+* **Location:** [`lit-action/src/action.ts (Line 18)`](./lit-action/src/action.ts#L18)
+* **Function:** Evaluates the `scheduleAIStrategy()` Cadence payload and calls `Lit.Actions.signEcdsa()` to generate a decentralized signature.
+
+### 5. Next.js (Web Dashboard)
+To provide investors with maximum transparency, the frontend interface is engineered using Next.js. It acts as the interactive "Glass-Box", reading the on-chain data and the Storacha IPFS proofs to display real-time execution logs and portfolio growth.
+* **Location:** [`web/src/app/dashboard/page.tsx (Line 302)`](./web/src/app/dashboard/page.tsx#L302)
+* **Function:** Utilizes a `useEffect` polling mechanism to stream the live execution status and cryptographic proofs directly to the end user.
+
+### 6. Synapse AI Engine (Python)
+The intelligence core of FlowTalos is a multi-threaded Python daemon. It continuously scans market geometry to formulate independent trading signals.
+* **Location:** [`ai-agent/main.py (Line 292)`](./ai-agent/main.py#L292)
+* **Function:** The `synapse_ai_analyze()` function correlates quantitative technicals (price drops, overbought metrics) with qualitative sentiment before formulating an execution directive.
+
+### 7. CoinGecko API
+Real-time quantitative analysis requires highly accurate pricing feeds. The intelligence agent queries CoinGecko endpoints to measure immediate token price volatility and derive internal relative strength metrics.
+* **Location:** [`ai-agent/main.py (Line 161)`](./ai-agent/main.py#L161)
+* **Function:** The `fetch_market_data()` function parses the JSON response from CoinGecko to establish the baseline quantitative signal.
+
+### 8. CryptoCompare & X (Twitter) APIs
+For the qualitative branch of the dual-signal strategy, the agent aggregates real-time news headlines and global social media posts. The content is algorithmically evaluated to classify the current global market sentiment as positive, neutral, or negative.
+* **Location:** [`ai-agent/main.py (Line 192)`](./ai-agent/main.py#L192)
+* **Function:** The `fetch_news_sentiment()` function requests the latest encrypted market updates from CryptoCompare to complete the fundamental alignment phase of the intelligence matrix.
+
+---
+
+## Usage Initialization
+
+This repository is structured sequentially to reflect the flow of data through the protocol. To initialize the environment locally:
+
+1. Copy the environment templates and insert the required identifiers.
+2. Ensure the Flow Protocol CLI is properly configured for the Testnet environment.
+3. Activate the Next.js graphical interface:
    ```bash
-   git clone https://github.com/IrrhammCode/FlowTalos.git
-   cd FlowTalos
+   cd web
+   npm install
+   npm run dev
    ```
-
-2. **Configure your environment:**
-   Copy the example environment file and fill in required API keys (e.g. WalletConnect Project ID).
+4. Initiate the Python intelligence loop:
    ```bash
-   cp .env.example .env
+   cd ai-agent
+   python3 main.py --daemon
    ```
-   *(See `.env.example` for detailed instructions on acquiring keys for Storacha, Lit Protocol, and Flow Testnet).*
-
-3. **Install dependencies across components:**
-   ```bash
-   cd web && npm install && cd ..
-   cd storacha-logger && npm install && cd ..
-   cd lit-action && npm install && cd ..
-   cd ai-agent && python -m venv venv && source venv/bin/activate && pip install requests eth-abi eth-utils && cd ..
-   ```
-
-## 🎯 Hackathon Tracks & Technology Integrations
-
-To assist the judges in evaluating FlowTalos, here is a crystal-clear breakdown of exactly where and *why* each requested technology is implemented within our architecture:
-
-### 1. Flow Blockchain (Cadence & EVM Synergy)
-FlowTalos uniquely bridges both runtimes available on the Flow Network, utilizing the **Cadence-Owned-Account (COA)** architecture. This allows our highly secure Cadence smart contracts to natively execute complex DeFi transactions on the Flow EVM.
-
-👉 **Cadence (The Settlement & Scheduling Layer)** 
-* **Location:** `/cadence/contracts/FlowTalosVault.cdc` & `FlowTalosStrategyHandler.cdc`
-* **How it works:** We leverage the native **Flow Transaction Scheduler** pattern. User funds are secured in a pure Cadence Vault. The AI does *not* have direct access to withdraw these funds. Instead, it can only *schedule* specific executions for the future. Cadence handles the capability-based access control, the timer queue, and the ultimate dispersal of funds.
-* **Why Cadence?** Cadence's resource-oriented paradigm provides an impenetrable security perimeter around user funds, something traditional EVM contracts struggle with when dealing with autonomous AI agents.
-
-👉 **Flow EVM (The DeFi Execution Layer)**
-* **Location:** `/ai-agent/main.py` (`generate_evm_calldata` function)
-* **How it works:** The Python AI agent acts as a strategist. It analyzes CoinGecko data and constructs raw EVM calldata targeting real DeFi protocols (like the `swapExactTokensForTokens` ABI on IncrementFi or Metapier). The Cadence Vault then uses its COA bridge to dispatch this EVM calldata directly into the Flow EVM ecosystem.
-* **Why Flow EVM?** It allows our AI to tap into the massive existing liquidity and standard Solidity ABIs already deployed on Flow, without needing to rewrite complex AMM logic in Cadence.
-
-### 2. Storacha Network (Decentralized AI Audits)
-* **Location:** `/storacha-logger/src/index.ts`
-* **The Problem:** When an AI agent loses money in DeFi, users never know if it was a market crash or a hallucinated bad decision ("Black Box" opacity).
-* **How we use Storacha:** Whenever the Python AI Agent makes a trading decision (e.g., "RSI is 30, buying FLOW"), it generates a JSON log explaining its exact mathematical reasoning. This NodeJS script uses the `multiformats` library to compute a unique Content-Addressed ID (**CIDv1 via SHA-256**) for that log and pins it to the decentralized **Storacha Protocol / Web3.Storage** network. 
-* **The Result:** This CID is attached to the executed trade on our frontend dashboard, acting as a permanent, mathematically immutable cryptographic audit trail of the AI's "thoughts".
-
-### 3. Lit Protocol (Threshold Cryptography Security)
-* **Location:** `/lit-action/src/action.js`
-* **The Problem:** Giving an AI agent a raw private key to sign on-chain transactions is a massive centralization and security risk. If the AI environment is compromised, the vault is drained.
-* **How we use Lit Protocol:** We use Lit Protocol as a cryptographic security sandbox. The AI generates the scheduling payload and sends it to a Lit Action (a decentralized JavaScript execution environment). The Lit Nodes execute `action.js`, validate the structure of the Cadence transaction, and only if it matches our strict whitelist, use a **Programmable Key Pair (PKP)** to sign it using `ECDSA_secp256k1`.
-* **The Result:** The AI never holds a private key. It only holds permission to ask the decentralized Lit Network to sign approved actions on its behalf.
