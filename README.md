@@ -11,9 +11,7 @@
 [![Lit Protocol](https://img.shields.io/badge/Lit_Protocol-Threshold_Crypto-purple?style=for-the-badge)](https://litprotocol.com/)
 [![Storacha](https://img.shields.io/badge/Storacha-IPFS_Pinning-blue?style=for-the-badge)](https://storacha.network/)
 
-<p align="center">
-  <img src="./assets/illustration.png" alt="FlowTalos Dashboard" width="800" />
-</p>
+
 
 ---
 
