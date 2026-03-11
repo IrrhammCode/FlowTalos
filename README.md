@@ -84,6 +84,30 @@ FlowTalos completely reimagines AI wealth management by replacing blind trust wi
 
 ---
 
+## 🏆 Hackathon Challenge Response: Verifiable AI
+
+FlowTalos is engineered from the ground up to win the **AI & Robotics (Verifiable AI)** track. We explicitly reject "raw capability" in favor of absolute **safety, coordination, and real-world deployment** by providing undeniable cryptographic proof of AI reasoning and decision provenance.
+
+Here is exactly how we answer the challenge (**5W1H**):
+
+- **What:** A trustless, non-custodial Vault orchestrated by an autonomous AI agent that generates immutable cryptographic receipts for every single decision it makes.
+- **Why:** To solve the "black box" AI trust deficit. Users must know exactly why an AI decided to swap their tokens, preventing silent edge-case failures or malicious protocol manipulations.
+- **Who:** Built for DeFi users and institutional capital looking for algorithmically driven yield without surrendering self-custody.
+- **Where:** Operating at the bleeding edge of Web3 infrastructure by fusing **Flow Cadence** (strict safety boundaries), **Lit Protocol** (decentralized signing), and **Storacha/IPFS** (permanent logging).
+- **When:** Crucially, the AI's reasoning is hashed and pinned to IPFS *before* any threshold signature is granted or any transaction is scheduled on-chain.
+- **How:** By programmatically enforcing a workflow where the Python AI daemon cannot hold private keys. It must publicly state its intention (JSON payload), get it pinned to Filecoin/IPFS for an eternal audit trail, and submit that proof to decentralized Lit Actions for ECDSA signing validation.
+
+<details>
+<summary><b>🔎 Proof of Implementation (Verifiable AI Code Evidence)</b></summary>
+
+*   **Cryptographic Decision Provenance:** [`storacha-logger/src/index.ts (Line 158)`](https://github.com/IrrhammCode/FlowTalos/blob/main/storacha-logger/src/index.ts#L158) — Binds the AI's string reasoning to an immutable CIDv1 hash.
+*   **Threshold Safety Intervention:** [`lit-action/src/action.js (Line 210)`](https://github.com/IrrhammCode/FlowTalos/blob/main/lit-action/src/action.js#L210) — Lit Actions ensure the agent cannot unilaterally drain accounts; it must pass structural transaction validations.
+*   **Real-World Integration:** [`ai-agent/main.py (Line 460)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L460) — The core logic bridging autonomous market evaluations with decentralized infrastructure.
+*   **Accountable Autonomous Systems:** [`FlowTalosVault.cdc (Line 95)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L95) — Cadence Cross-VM capabilities wrapping EVM execution perfectly in safe, capability-based resource boundaries.
+</details>
+
+---
+
 ## 🏗️ Architecture Overview
 
 ```text
