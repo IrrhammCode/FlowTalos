@@ -236,11 +236,8 @@ FlowTalos is proudly built for the **PL_Genesis: Frontiers of Collaboration Hack
 2. **Lit Protocol Track:** Innovating beyond basic encryption by employing **Threshold Cryptography (PKP)** securely isolated from human custody, preventing Centralized AI manipulation.
 3. **Storacha (Filecoin/IPFS) Track:** Replacing typical ephemeral off-chain AI reasoning with **Permanent Verifiable Audit Logs**, pushing JSON metadata directly to Filecoin/IPFS for absolute decentralized dispute resolution.
 
-### Targeted Bounties
-- 💰 **Crypto:** Demonstrating real-world DeFi yield aggregation and non-custodial asset management.
-- 💰 **AI & Robotics:** Deploying autonomous, continuous-running Python intelligence daemons for market-making.
-- 💰 **🤖 Agent Only: Let the agent cook:** FlowTalos operates 100% autonomously via the Forte Scheduler. Once funded, the AI executes strategies without any human intervention.
-- 💰 **🔐 Agents With Receipts — 8004:** Every single decision the AI makes is cryptographically hashed and pinned to IPFS/Storacha *before* execution, providing an undeniable "receipt" of its thought pattern.
+### Targeted Bounty
+- 💰 **🔐 Agents With Receipts — 8004:** Selected as our primary bounty focus. Every single trading decision made by the Synapse AI is cryptographically hashed and pinned to Storacha (IPFS) *before* the threshold signature is granted. This provides an undeniable, decentralized "receipt" of the agent's exact thought parameters and market conditions at the time of execution.
 
 ---
 
