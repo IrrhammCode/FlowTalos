@@ -244,7 +244,52 @@ def fetch_news_sentiment() -> Dict[str, Any]:
         }
 
 
-def impulse_ai_analyze(data: Dict[str, Any], news_data: Dict[str, Any]) -> Dict[str, Any]:
+def fetch_twitter_sentiment() -> Optional[Dict[str, Any]]:
+    """
+    Fetches the latest tweets mentioning 'flow crypto' using the official X API v2.
+    Requires TWITTER_BEARER_TOKEN in the environment. Defaults to returning None if
+    the token is missing or if the API request fails (rate-limit/network error).
+    """
+    bearer_token = os.environ.get("TWITTER_BEARER_TOKEN")
+    if not bearer_token:
+        print(f"[{datetime.now().time()}] TWITTER_BEARER_TOKEN not found. Bypassing X (Twitter) API.")
+        return None
+        
+    print(f"[{datetime.now().time()}] Fetching social sentiment from X (Twitter) API v2...")
+    try:
+        url = "https://api.twitter.com/2/tweets/search/recent?query=flow crypto&max_results=10"
+        headers = {"Authorization": f"Bearer {bearer_token}"}
+        
+        response = requests.get(url, headers=headers, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+        
+        headlines: List[str] = []
+        sentiment_score = 0
+        
+        for item in data.get('data', []):
+            text = item.get('text', '')
+            clean_text = text.replace('\n', ' ').strip()
+            headlines.append(clean_text)
+            
+            text_lower = clean_text.lower()
+            sentiment_score += sum(1 for w in POSITIVE_KEYWORDS if w in text_lower)
+            sentiment_score -= sum(1 for w in NEGATIVE_KEYWORDS if w in text_lower)
+            
+        overall = "positive" if sentiment_score > 0 else "negative" if sentiment_score < 0 else "neutral"
+        
+        return {
+            "headlines": headlines[:3],
+            "overall_sentiment": overall,
+            "raw_score": sentiment_score,
+            "source": "X (Twitter)"
+        }
+    except Exception as e:
+        print(f"  [⚠] X API error (rate-limit / network): {e}. Falling back to standard pipeline.")
+        return None
+
+
+def impulse_ai_analyze(data: Dict[str, Any], news_data: Dict[str, Any], twitter_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
     Core Impulse AI inference engine.
 
@@ -275,8 +320,14 @@ def impulse_ai_analyze(data: Dict[str, Any], news_data: Dict[str, Any]) -> Dict[
     trend    = data['trend']
     change   = data.get('change_24h', 0)
     
-    sentiment = news_data['overall_sentiment']
-    headlines = " | ".join(news_data['headlines'])
+    if twitter_data:
+        sentiment = twitter_data['overall_sentiment']
+        headlines = " | ".join(twitter_data['headlines'])
+        sentiment_label = "X (Twitter)"
+    else:
+        sentiment = news_data['overall_sentiment']
+        headlines = " | ".join(news_data['headlines'])
+        sentiment_label = "CryptoCompare"
     
     # Defaults — HOLD unless dual-signal alignment is detected
     action: str = "HOLD"
@@ -286,7 +337,7 @@ def impulse_ai_analyze(data: Dict[str, Any], news_data: Dict[str, Any]) -> Dict[
     router_addr: Optional[str] = None
     reasoning = (
         f"Market for {symbol} is currently neutral (24h change: {change:.2f}%). "
-        f"Price: ${price}, Est. RSI: {rsi:.2f}. News Sentiment: {sentiment.upper()}. "
+        f"Price: ${price}, Est. RSI: {rsi:.2f}. Sentiment ({sentiment_label}): {sentiment.upper()}. "
         f"Awaiting stronger alignment between on-chain metrics and social catalysts."
     )
     
@@ -315,13 +366,13 @@ def impulse_ai_analyze(data: Dict[str, Any], news_data: Dict[str, Any]) -> Dict[
 
     elif trend == "bullish" and sentiment == "negative":
         reasoning = (
-            f"Signal Conflict! Technicals signal BUY (Oversold), but News Sentiment is "
+            f"Signal Conflict! Technicals signal BUY (Oversold), but Sentiment ({sentiment_label}) is "
             f"brutally {sentiment.upper()}. Preserving capital. Aborting trade."
         )
 
     elif trend == "bearish" and sentiment == "positive":
         reasoning = (
-            f"Signal Conflict! Technicals signal SELL (Overbought), but News Sentiment is "
+            f"Signal Conflict! Technicals signal SELL (Overbought), but Sentiment ({sentiment_label}) is "
             f"wildly {sentiment.upper()} ('{headlines[:50]}...'). Holding to ride the catalyst."
         )
 
@@ -771,13 +822,18 @@ def main():
         return
     
     news_data = fetch_news_sentiment()
+    twitter_data = fetch_twitter_sentiment()
+    
     print("\n[✔] Market Data:")
     print(json.dumps(market_data, indent=2))
     print("\n[✔] News Sentiment Data:")
     print(json.dumps(news_data, indent=2))
+    if twitter_data:
+        print("\n[✔] X (Twitter) Sentiment Data:")
+        print(json.dumps(twitter_data, indent=2))
     
     # 2. Impulse AI Generates Signal, Reasoning, and Calldata
-    signal = impulse_ai_analyze(market_data, news_data)
+    signal = impulse_ai_analyze(market_data, news_data, twitter_data)
     
     print("\n[✔] AI Signal Generated:")
     print(json.dumps(signal, indent=2))
