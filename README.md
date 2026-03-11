@@ -123,14 +123,21 @@ FlowTalos completely reimagines AI wealth management by introducing a **"Glass-B
 FlowTalos is built on a cutting-edge Web3 stack:
 
 - **Flow Blockchain (Cadence):** The secure settlement layer. Manages the non-custodial user vaults and implements the transaction scheduling logic using resources and capabilities.
+  * *Implementation:* [`cadence/cadence/contracts/FlowTalosVault.cdc (Line 93)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L93)
 - **Flow EVM:** The liquidity layer. Executed via Cadence-Owned Accounts (COA) to access standard Solidity-based Automated Market Makers.
+  * *Implementation:* [`ai-agent/main.py (Line 387)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L387)
 - **Lit Protocol:** Threshold cryptography sandbox. Validates AI payloads and applies decentralized signatures, preventing centralized AI key compromise.
+  * *Implementation:* [`lit-action/src/action.ts (Line 18)`](https://github.com/IrrhammCode/FlowTalos/blob/main/lit-action/src/action.ts#L18)
 - **Storacha / IPFS:** The decentralized ledger for AI reasoning. Ensures the "why" behind every trade is permanent and verifiable.
+  * *Implementation:* [`storacha-logger/src/index.ts (Line 59)`](https://github.com/IrrhammCode/FlowTalos/blob/main/storacha-logger/src/index.ts#L59)
 - **Next.js:** The frontend "Glass-Box" dashboard providing users with real-time portfolio metrics and IPFS proof streaming.
+  * *Implementation:* [`web/src/app/dashboard/page.tsx (Line 302)`](https://github.com/IrrhammCode/FlowTalos/blob/main/web/src/app/dashboard/page.tsx#L302)
 - **Python AI Agent (Synapse):** The autonomous multi-threaded backend engine responsible for scanning market geometry.
+  * *Implementation:* [`ai-agent/main.py (Line 292)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L292)
 - **CoinGecko API:** Provides real-time quantitative price and volume data for RSI processing.
+  * *Implementation:* [`ai-agent/main.py (Line 161)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L161)
 - **CryptoCompare API:** Ingests aggregate news headlines for real-time fundamental analysis.
-- **Twitter/X Sentiment:** (Optional/Fallback) Scans social media API streams to measure retail fear, greed, and hype.
+  * *Implementation:* [`ai-agent/main.py (Line 192)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L192)
 
 ---
 
