@@ -55,6 +55,42 @@ const go = async () => {
             });
         }
 
+        // 2. Validate Input Types & Bounds
+        //    Prevents injection attacks and malformed payloads from the AI agent
+        if (typeof delaySeconds !== 'string' || typeof signalAction !== 'string' ||
+            typeof signalToken !== 'string' || typeof ipfsProofCID !== 'string') {
+            return LitActions.setResponse({
+                response: JSON.stringify({
+                    status: "ERROR",
+                    message: "Invalid parameter types — all inputs must be strings.",
+                    fallback: true
+                })
+            });
+        }
+
+        // Sanitize: Reject unreasonably large delay (max 24 hours)
+        const parsedDelay = parseFloat(delaySeconds);
+        if (isNaN(parsedDelay) || parsedDelay < 0 || parsedDelay > 86400) {
+            return LitActions.setResponse({
+                response: JSON.stringify({
+                    status: "ERROR",
+                    message: "delaySeconds must be between 0 and 86400 (24h). Got: " + delaySeconds,
+                    fallback: true
+                })
+            });
+        }
+
+        // Sanitize: Reject oversized transaction data (DoS protection)
+        if (transactionData.length > 10000) {
+            return LitActions.setResponse({
+                response: JSON.stringify({
+                    status: "ERROR",
+                    message: "transactionData exceeds maximum size (10KB limit).",
+                    fallback: true
+                })
+            });
+        }
+
         console.log(`Validating AI Execution Request...`);
         console.log(`Delay: ${delaySeconds}s | Effort: ${executionEffort} | Data Length: ${transactionData.length}`);
 

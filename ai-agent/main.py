@@ -61,10 +61,30 @@ SLIPPAGE_TOLERANCE = 0.02
 SWAP_DEADLINE_SECONDS = 1200
 # Maximum trades to retain in trade_log.json
 MAX_TRADE_LOG_ENTRIES = 50
+# Maximum reasoning string length passed to subprocesses (prevent oversized payloads)
+MAX_REASONING_FOR_SUBPROCESS = 200
 
 # Sentiment analysis keyword banks
 POSITIVE_KEYWORDS = ['bull', 'surge', 'gain', 'adopt', 'up', 'high', 'partnership', 'launch', 'growth']
 NEGATIVE_KEYWORDS = ['bear', 'drop', 'hack', 'down', 'low', 'scam', 'sec', 'ban', 'crash', 'sell']
+
+# Security: Whitelist of allowed CoinGecko symbol IDs to prevent URL injection
+ALLOWED_SYMBOLS = {'flow', 'bitcoin', 'ethereum', 'solana', 'usd-coin'}
+
+
+def _sanitize_env_for_subprocess() -> Dict[str, str]:
+    """
+    Creates a minimal, safe environment for Node.js subprocesses.
+
+    Security: Prevents sensitive environment variables (API keys, tokens,
+    AWS credentials, etc.) from leaking to child processes. Only forwards
+    the essential paths needed for Node.js to execute.
+
+    Returns:
+        Dict with only PATH, HOME, and NODE_PATH forwarded.
+    """
+    safe_keys = {'PATH', 'HOME', 'NODE_PATH', 'NODE_ENV'}
+    return {k: v for k, v in os.environ.items() if k in safe_keys}
 
 
 def fetch_market_data(symbol: str = "flow") -> Optional[Dict[str, Any]]:
@@ -79,6 +99,12 @@ def fetch_market_data(symbol: str = "flow") -> Optional[Dict[str, Any]]:
         Returns None if the API is unreachable (triggers abort in main()).
     """
     print(f"[{datetime.now().time()}] Fetching real market data for {symbol.upper()}...")
+
+    # Security: Validate symbol against whitelist to prevent URL injection
+    if symbol.lower() not in ALLOWED_SYMBOLS:
+        print(f"[✘] Symbol '{symbol}' is not in the allowed whitelist.")
+        return None
+
     try:
         url = (
             f"https://api.coingecko.com/api/v3/simple/price"

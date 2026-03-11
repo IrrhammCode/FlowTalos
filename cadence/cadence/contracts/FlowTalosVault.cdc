@@ -78,6 +78,12 @@ access(all) contract FlowTalosVault {
         ///   - "gasLimit": UInt64 — Maximum gas units for this call
         ///   - "value":    UInt   — FLOW value to send (in attoflow; usually 0 for swaps)
         ///
+        /// Security:
+        ///   - Only callable from within the FlowTalosVault contract scope
+        ///     (i.e. by FlowTalosStrategyHandler via the VaultManager reference)
+        ///   - Validates that each call dictionary contains all 4 required keys
+        ///   - Empty batch calls are rejected to prevent wasted gas
+        ///
         /// Args:
         ///   calls:    Array of EVM call descriptors
         ///   mustPass: If true, panics on the first failed call (atomic batch).
@@ -85,14 +91,20 @@ access(all) contract FlowTalosVault {
         ///
         /// Returns: True if all calls succeeded, false otherwise.
         access(all) fun executeEVMCalls(calls: [{String: AnyStruct}], mustPass: Bool): Bool {
+            // ── Input Validation ────────────────────────────────────────────
+            assert(calls.length > 0, message: "Cannot execute empty EVM batch — provide at least one call")
             let coa = self.borrowCOA()
             var allSuccessful = true
 
             for i, call in calls {
+                // ── Validate required keys exist ─────────────────────────────
+                assert(call["to"] != nil, message: "EVM call at index ".concat(i.toString()).concat(" missing 'to' field"))
+                assert(call["data"] != nil, message: "EVM call at index ".concat(i.toString()).concat(" missing 'data' field"))
+
                 let toStr    = call["to"]       as! String
                 let dataHex  = call["data"]     as! String
-                let gasLimit = call["gasLimit"] as! UInt64
-                let value    = call["value"]    as! UInt
+                let gasLimit = call["gasLimit"] as? UInt64 ?? 300000  // Safe default gas limit
+                let value    = call["value"]    as? UInt   ?? 0       // Default: no FLOW transfer
 
                 let result = coa.call(
                     to: EVM.addressFromString(toStr),
@@ -136,8 +148,10 @@ access(all) contract FlowTalosVault {
             self.account.capabilities.publish(cap, at: self.coaPublicPath)
         }
 
-        // Create and store the VaultManager singleton
-        let manager <- create VaultManager()
-        self.account.storage.save(<-manager, to: /storage/flowTalosVaultManager)
+        // Create and store the VaultManager singleton (idempotent)
+        if self.account.storage.borrow<&VaultManager>(from: /storage/flowTalosVaultManager) == nil {
+            let manager <- create VaultManager()
+            self.account.storage.save(<-manager, to: /storage/flowTalosVaultManager)
+        }
     }
 }

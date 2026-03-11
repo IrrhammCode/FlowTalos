@@ -105,12 +105,28 @@ access(all) contract FlowTalosStrategyHandler {
             let token     = strategyData["token"]     as? String ?? "Unknown"
             let amount    = strategyData["amount"]    as? UFix64 ?? 0.0
 
+            // ── Input Validation ─────────────────────────────────────────
+            // Guard: Reject empty batches (malformed payload or AI error)
+            assert(calls.length > 0, message: "Strategy has no EVM calls to execute")
+
+            // Guard: Validate action is one of the expected values
+            assert(
+                action == "BUY" || action == "SELL",
+                message: "Invalid action '".concat(action).concat("' — must be BUY or SELL")
+            )
+
+            // Guard: Amount must be positive
+            assert(amount > 0.0, message: "Trade amount must be greater than 0")
+
             // ── Borrow EVM Bridge ───────────────────────────────────────────
             let vaultManager = FlowTalosStrategyHandler.account.storage
                 .borrow<&FlowTalosVault.VaultManager>(from: /storage/flowTalosVaultManager)
                 ?? panic("VaultManager not found — run InitVaultAndHandler.cdc first")
 
             // ── Execute the EVM Batch ───────────────────────────────────────
+            // mustPass=true ensures atomic execution: if ANY call reverts,
+            // the entire transaction rolls back. This prevents partial fills
+            // that could leave the vault in an inconsistent state.
             let success = vaultManager.executeEVMCalls(calls: calls, mustPass: true)
 
             // ── Emit On-Chain Audit Event ───────────────────────────────────
