@@ -156,27 +156,75 @@ Here is the step-by-step lifecycle of an autonomous AI trade:
 
 - **Flow Blockchain (Cadence)** 
   * [`FlowTalosVault.cdc (Line 19)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L19) - Vault execution interface
-  * [`FlowTalosVault.cdc (Line 60)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L60) - Deposit capability
-  * [`setup_vault.cdc (Line 15)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/transactions/setup_vault.cdc#L15) - User Setup TX
+  * [`FlowTalosVault.cdc (Line 38)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L38) - Vault Resource Definition
+  * [`FlowTalosVault.cdc (Line 60)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L60) - Public Deposit capability
+  * [`FlowTalosVault.cdc (Line 75)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L75) - Admin Withdraw capability
+  * [`FlowTalosVault.cdc (Line 93)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L93) - executeEVMCalls function
+  * [`FlowTalosStrategyHandler.cdc (Line 45)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosStrategyHandler.cdc#L45) - AI Strategy Payload Struct
+  * [`FlowTalosStrategyHandler.cdc (Line 102)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosStrategyHandler.cdc#L102) - Controller Scheduling capability
+  * [`FlowTalosStrategyHandler.cdc (Line 125)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosStrategyHandler.cdc#L125) - executeStrategy execution path
+  * [`InitVaultAndHandler.cdc (Line 25)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/transactions/InitVaultAndHandler.cdc#L25) - Network Deployment Script
+  * [`setup_vault.cdc (Line 15)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/transactions/setup_vault.cdc#L15) - End-User Genesis Setup TX
+
 - **Flow EVM Cross-VM**
+  * [`ai-agent/main.py (Line 150)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L150) - Calldata EVM parameter initialization
+  * [`ai-agent/main.py (Line 365)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L365) - EVM Calldata Generation Engine
+  * [`ai-agent/main.py (Line 382)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L382) - Uniswap V2 Router ABI Hex formatting
   * [`ai-agent/main.py (Line 387)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L387) - ABI Encoding swapExactTokensForTokens
-  * [`FlowTalosVault.cdc (Line 95)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L95) - COA bridging isolation
-  * [`ai-agent/main.py (Line 382)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L382) - Uniswap V2 Router ABI Hex
+  * [`FlowTalosVault.cdc (Line 29)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L29) - Native Flow EVM library import
+  * [`FlowTalosVault.cdc (Line 95)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L95) - COA bridging isolation wrapper
+  * [`FlowTalosVault.cdc (Line 103)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L103) - Direct EVM layer call invocation
+  * [`FlowTalosVault.cdc (Line 112)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L112) - EVM execution response result handling
+  * [`FlowTalosVault.cdc (Line 120)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L120) - EVM Gas limit algorithmic definitions
+  * [`FlowTalosVault.cdc (Line 135)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L135) - EVM Token structural bridging logic
+
 - **Lit Protocol**
-  * [`lit-action/src/action.js (Line 15)`](https://github.com/IrrhammCode/FlowTalos/blob/main/lit-action/src/action.js#L15) - PKP Threshold network
-  * [`lit-action/src/action.js (Line 210)`](https://github.com/IrrhammCode/FlowTalos/blob/main/lit-action/src/action.js#L210) - LitActions.signEcdsa() invocation
-  * [`ai-agent/main.py (Line 529)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L529) - Python Lit RPC Trigger
+  * [`lit-action/src/action.js (Line 15)`](https://github.com/IrrhammCode/FlowTalos/blob/main/lit-action/src/action.js#L15) - PKP Threshold network validation logic
+  * [`lit-action/src/action.js (Line 43)`](https://github.com/IrrhammCode/FlowTalos/blob/main/lit-action/src/action.js#L43) - Lit PKP Public Key validation check
+  * [`lit-action/src/action.js (Line 49)`](https://github.com/IrrhammCode/FlowTalos/blob/main/lit-action/src/action.js#L49) - Invalid amount validation halt
+  * [`lit-action/src/action.js (Line 74)`](https://github.com/IrrhammCode/FlowTalos/blob/main/lit-action/src/action.js#L74) - Unauthorized DEX router validation
+  * [`lit-action/src/action.js (Line 126)`](https://github.com/IrrhammCode/FlowTalos/blob/main/lit-action/src/action.js#L126) - Flow transaction signer wrapper
+  * [`lit-action/src/action.js (Line 146)`](https://github.com/IrrhammCode/FlowTalos/blob/main/lit-action/src/action.js#L146) - Cadence scheduler auth payload
+  * [`lit-action/src/action.js (Line 210)`](https://github.com/IrrhammCode/FlowTalos/blob/main/lit-action/src/action.js#L210) - LitActions.signEcdsa() network invocation
+  * [`lit-action/src/action.js (Line 223)`](https://github.com/IrrhammCode/FlowTalos/blob/main/lit-action/src/action.js#L223) - Payload valid Signature Response Handler
+  * [`ai-agent/main.py (Line 529)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L529) - Python JS Lit Node RPC Trigger
+  * [`ai-agent/main.py (Line 560)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L560) - Lit Protocol Node Offline Fallback Hashing
+
 - **Storacha / IPFS**
-  * [`storacha-logger/src/index.ts (Line 70)`](https://github.com/IrrhammCode/FlowTalos/blob/main/storacha-logger/src/index.ts#L70) - Filecoin Directory upload
-  * [`storacha-logger/src/index.ts (Line 104)`](https://github.com/IrrhammCode/FlowTalos/blob/main/storacha-logger/src/index.ts#L104) - Valid CIDv1 Fallback Generation
-  * [`ai-agent/main.py (Line 460)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L460) - Python to Storacha RPC Trigger
+  * [`storacha-logger/src/index.ts (Line 49)`](https://github.com/IrrhammCode/FlowTalos/blob/main/storacha-logger/src/index.ts#L49) - IPFS Node Pinning metadata logging
+  * [`storacha-logger/src/index.ts (Line 54)`](https://github.com/IrrhammCode/FlowTalos/blob/main/storacha-logger/src/index.ts#L54) - Storacha Client Connection Initialization
+  * [`storacha-logger/src/index.ts (Line 70)`](https://github.com/IrrhammCode/FlowTalos/blob/main/storacha-logger/src/index.ts#L70) - Web3.Storage Filecoin Directory Payload Upload
+  * [`storacha-logger/src/index.ts (Line 77)`](https://github.com/IrrhammCode/FlowTalos/blob/main/storacha-logger/src/index.ts#L77) - IPFS Network failure fallback computation trigger
+  * [`storacha-logger/src/index.ts (Line 104)`](https://github.com/IrrhammCode/FlowTalos/blob/main/storacha-logger/src/index.ts#L104) - Valid CIDv1 Fallback Generation via manual SHA256
+  * [`storacha-logger/src/index.ts (Line 140)`](https://github.com/IrrhammCode/FlowTalos/blob/main/storacha-logger/src/index.ts#L140) - Storacha Developer Credentials validation checking
+  * [`storacha-logger/src/index.ts (Line 158)`](https://github.com/IrrhammCode/FlowTalos/blob/main/storacha-logger/src/index.ts#L158) - Full Storacha Web3 Storage API submission handler
+  * [`ai-agent/main.py (Line 395)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L395) - Python local Base32 CID formulation algorithm
+  * [`ai-agent/main.py (Line 415)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L415) - Simulated Web3.Storage handler execution
+  * [`ai-agent/main.py (Line 460)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L460) - Async Python to Node.js Storacha RPC Subprocess Trigger
+
 - **Next.js**
-  * [`web/src/app/dashboard/page.tsx (Line 185)`](https://github.com/IrrhammCode/FlowTalos/blob/main/web/src/app/dashboard/page.tsx#L185) - Auto-Polling Hook
-  * [`web/src/app/dashboard/page.tsx (Line 315)`](https://github.com/IrrhammCode/FlowTalos/blob/main/web/src/app/dashboard/page.tsx#L315) - CID hyperlink generation
+  * [`web/src/app/page.tsx (Line 45)`](https://github.com/IrrhammCode/FlowTalos/blob/main/web/src/app/page.tsx#L45) - Glass-Box UI Connection Hook State Management
+  * [`web/src/app/page.tsx (Line 88)`](https://github.com/IrrhammCode/FlowTalos/blob/main/web/src/app/page.tsx#L88) - Flow FCL Wallet Authentication and Discovery
+  * [`web/src/app/dashboard/page.tsx (Line 120)`](https://github.com/IrrhammCode/FlowTalos/blob/main/web/src/app/dashboard/page.tsx#L120) - Live FlowTalos Vault Cadence Balance Fetching
+  * [`web/src/app/dashboard/page.tsx (Line 155)`](https://github.com/IrrhammCode/FlowTalos/blob/main/web/src/app/dashboard/page.tsx#L155) - Smart Contract Deposit/Withdraw interaction logic
+  * [`web/src/app/dashboard/page.tsx (Line 185)`](https://github.com/IrrhammCode/FlowTalos/blob/main/web/src/app/dashboard/page.tsx#L185) - 3-Second Auto-Polling Hook syncing with AI Daemon
+  * [`web/src/app/dashboard/page.tsx (Line 230)`](https://github.com/IrrhammCode/FlowTalos/blob/main/web/src/app/dashboard/page.tsx#L230) - TVL Metrics and Strategy Allocation Display UI
+  * [`web/src/app/dashboard/page.tsx (Line 275)`](https://github.com/IrrhammCode/FlowTalos/blob/main/web/src/app/dashboard/page.tsx#L275) - Trade Log History map looping rendering
+  * [`web/src/app/dashboard/page.tsx (Line 302)`](https://github.com/IrrhammCode/FlowTalos/blob/main/web/src/app/dashboard/page.tsx#L302) - Read-only IPFS Audit Log Hash verification Table
+  * [`web/src/app/dashboard/page.tsx (Line 315)`](https://github.com/IrrhammCode/FlowTalos/blob/main/web/src/app/dashboard/page.tsx#L315) - IPFS URL Gateway dynamic CID hyperlink generation
+  * [`web/src/app/layout.tsx (Line 20)`](https://github.com/IrrhammCode/FlowTalos/blob/main/web/src/app/layout.tsx#L20) - Next.js App Router Root Layout and global font CSS
+
 - **AI Engine (Python/CoinGecko/CryptoCompare)**
-  * [`ai-agent/main.py (Line 292)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L292) - Core Dual-Signal Matrix Loop
-  * [`ai-agent/main.py (Line 113)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L113) - CoinGecko Simple Price V3 invocation
-  * [`ai-agent/main.py (Line 207)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L207) - CryptoCompare V2 Article Fetch
+  * [`ai-agent/main.py (Line 74)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L74) - API URL Injection Protection via Coingecko Symbol whitelist
+  * [`ai-agent/main.py (Line 93)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L93) - fetch_market_data Method and quantitative modeling
+  * [`ai-agent/main.py (Line 113)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L113) - CoinGecko Simple Price V3 invocation and parsing
+  * [`ai-agent/main.py (Line 131)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L131) - Mathematical 24H Price Volume/Drop heuristic calculation
+  * [`ai-agent/main.py (Line 192)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L192) - fetch_news_sentiment core qualitative categorization
+  * [`ai-agent/main.py (Line 207)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L207) - CryptoCompare V2 Article Fetch JSON serialization
+  * [`ai-agent/main.py (Line 227)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L227) - Primitive NLP Textual mapping for Fear/Greed sentiment
+  * [`ai-agent/main.py (Line 263)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L263) - Optional X API V2 Recent Search parameter request
+  * [`ai-agent/main.py (Line 292)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L292) - The actual Core Dual-Signal Matrix Loop implementation
+  * [`ai-agent/main.py (Line 719)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L719) - Autonomous Trade Object Initiation and scheduling state
 </details>
 
 ---
