@@ -151,8 +151,7 @@ Here is the step-by-step lifecycle of an autonomous AI trade:
 | Signing | **Lit Protocol** | Decentralized JS threshold signature generation |
 | Frontend | **Next.js** | Glass-box real-time investor dashboard UI |
 
-<details>
-<summary><b>🔍 Click here to view Exact Source Code Evidences per Technology</b></summary>
+### 🔍 Exact Source Code Evidences per Technology
 
 - **Flow Blockchain (Cadence)** 
   * [`FlowTalosVault.cdc (Line 19)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L19) - Vault execution interface
@@ -225,7 +224,16 @@ Here is the step-by-step lifecycle of an autonomous AI trade:
   * [`ai-agent/main.py (Line 263)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L263) - Optional X API V2 Recent Search parameter request
   * [`ai-agent/main.py (Line 292)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L292) - The actual Core Dual-Signal Matrix Loop implementation
   * [`ai-agent/main.py (Line 719)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L719) - Autonomous Trade Object Initiation and scheduling state
-</details>
+
+---
+
+## 🏆 Hackathon Tracks & Challenges
+
+FlowTalos is proudly built for the **PL_Genesis: Frontiers of Collaboration Hackathon**, targeting the following strategic tracks:
+
+1. **Flow Blockchain Track:** Demonstrating advanced Cross-VM execution utilizing **Cadence-Owned-Accounts (COA)** to merge the security of pristine Cadence with the massive liquidity of Flow EVM.
+2. **Lit Protocol Track:** Innovating beyond basic encryption by employing **Threshold Cryptography (PKP)** securely isolated from human custody, preventing Centralized AI manipulation.
+3. **Storacha (Filecoin/IPFS) Track:** Replacing typical ephemeral off-chain AI reasoning with **Permanent Verifiable Audit Logs**, pushing JSON metadata directly to Filecoin/IPFS for absolute decentralized dispute resolution.
 
 ---
 
