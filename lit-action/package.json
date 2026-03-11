@@ -4,7 +4,8 @@
     "description": "Lit Protocol Action for signing FlowTalos transactions",
     "main": "src/action.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "jest",
+        "simulate": "node src/simulateLitNode.js"
     },
     "dependencies": {
         "@lit-protocol/lit-node-client": "^3.0.0",

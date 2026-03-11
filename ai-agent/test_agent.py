@@ -148,3 +148,103 @@ class TestImpulseAIAnalyze:
         assert signal["amount"] == 0.0
         assert signal["evm_calldata"] == "0x"
         assert signal["dex_router"] is None
+
+    def test_hold_on_bullish_negative_conflict(self):
+        """Signal conflict: Bullish technicals + negative sentiment → HOLD (preserves capital)."""
+        market = {
+            "symbol": "FLOW", "price": 0.03, "change_24h": -8.0,
+            "rsi": 20.0, "trend": "bullish"
+        }
+        news = {
+            "overall_sentiment": "negative",
+            "headlines": ["Flow hacked!", "Major exploit discovered"]
+        }
+
+        signal = impulse_ai_analyze(market, news)
+
+        assert signal["action"] == "HOLD"
+        assert signal["amount"] == 0.0
+        assert "Signal Conflict" in signal["reasoning"]
+
+    def test_hold_on_bearish_positive_conflict(self):
+        """Signal conflict: Bearish technicals + positive sentiment → HOLD (ride catalyst)."""
+        market = {
+            "symbol": "FLOW", "price": 0.08, "change_24h": 20.0,
+            "rsi": 90.0, "trend": "bearish"
+        }
+        news = {
+            "overall_sentiment": "positive",
+            "headlines": ["Flow partners with Google Cloud", "Flow TVL hits $1B"]
+        }
+
+        signal = impulse_ai_analyze(market, news)
+
+        assert signal["action"] == "HOLD"
+        assert signal["amount"] == 0.0
+        assert "Signal Conflict" in signal["reasoning"]
+
+
+# =============================================================================
+# Fallback Function Tests
+# =============================================================================
+
+class TestFallbackFunctions:
+    """Tests for the security-critical fallback functions."""
+
+    def test_fallback_cid_deterministic(self):
+        """Fallback CID must be deterministic for the same input."""
+        from main import _storacha_fallback_cid
+        cid1 = _storacha_fallback_cid('{"test": 1}', "test reason")
+        cid2 = _storacha_fallback_cid('{"test": 1}', "test reason")
+        assert cid1 == cid2
+
+    def test_fallback_signature_format(self):
+        """Fallback signature must be 0x-prefixed hex of correct length."""
+        from main import _generate_fallback_signature
+        sig = _generate_fallback_signature('{"action":"BUY"}', "test")
+        assert sig.startswith("0x")
+        assert len(sig) == 68  # 0x + 64 SHA-256 hex + 2 verification chars
+
+    def test_fallback_signature_deterministic(self):
+        """Same payload must produce same fallback signature."""
+        from main import _generate_fallback_signature
+        sig1 = _generate_fallback_signature('{"action":"BUY"}', "test")
+        sig2 = _generate_fallback_signature('{"action":"BUY"}', "test")
+        assert sig1 == sig2
+
+
+# =============================================================================
+# Security Tests
+# =============================================================================
+
+class TestSecurityGuards:
+    """Tests for security hardening measures."""
+
+    def test_symbol_whitelist_allows_flow(self):
+        """The 'flow' symbol should pass the whitelist check."""
+        from main import ALLOWED_SYMBOLS
+        assert "flow" in ALLOWED_SYMBOLS
+
+    def test_symbol_whitelist_blocks_injection(self):
+        """Malicious symbol strings should not be in the whitelist."""
+        from main import ALLOWED_SYMBOLS
+        assert "flow&inject=true" not in ALLOWED_SYMBOLS
+        assert "../etc/passwd" not in ALLOWED_SYMBOLS
+
+    def test_sanitized_env_excludes_secrets(self):
+        """Sanitized env should NOT forward dangerous keys."""
+        import os
+        os.environ["AWS_SECRET_KEY"] = "super_secret"
+        os.environ["OPENAI_API_KEY"] = "sk-test"
+
+        from main import _sanitize_env_for_subprocess
+        safe_env = _sanitize_env_for_subprocess()
+
+        assert "AWS_SECRET_KEY" not in safe_env
+        assert "OPENAI_API_KEY" not in safe_env
+        assert "PATH" in safe_env
+
+        # Cleanup
+        del os.environ["AWS_SECRET_KEY"]
+        del os.environ["OPENAI_API_KEY"]
+
