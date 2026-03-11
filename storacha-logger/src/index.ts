@@ -1,3 +1,29 @@
+/**
+ * FlowTalos — Storacha IPFS Audit Logger
+ * ========================================
+ * Creates an immutable, content-addressed proof of the AI Agent's reasoning
+ * by uploading it to the Storacha network (Filecoin/IPFS).
+ *
+ * The resulting CID (Content Identifier) is embedded in the on-chain Cadence
+ * transaction, creating a permanent, verifiable link between the AI's decision
+ * and its execution — this is the "Glass-Box" transparency mechanism.
+ *
+ * Fallback Strategy (3-tier, never crashes):
+ *   Tier 1: Full Storacha upload → Real pinned IPFS CID
+ *   Tier 2: Local SHA-256 CID    → Same algorithm as IPFS, computed locally
+ *   Tier 3: Emergency hash       → Raw crypto.createHash('sha256') last resort
+ *
+ * Communication Protocol:
+ *   Outputs CIDs to stdout using the `__CID_OUTPUT__:<cid>` marker format,
+ *   which the Python AI Agent parses from subprocess output.
+ *
+ * Usage (called by Python AI Agent via subprocess):
+ *   $ npx ts-node src/index.ts <path_to_json_file>
+ *
+ * @module storacha-logger
+ * @author FlowTalos Team
+ */
+
 import { create } from '@web3-storage/w3up-client'
 import * as dotenv from 'dotenv';
 import { sha256 } from 'multiformats/hashes/sha2';
@@ -5,6 +31,7 @@ import { CID } from 'multiformats/cid';
 import * as raw from 'multiformats/codecs/raw';
 
 dotenv.config();
+
 
 /**
  * Computes a real content-addressed CID (CIDv1) from raw data using SHA-256.

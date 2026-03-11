@@ -1,10 +1,43 @@
+/// ============================================================================
+/// ScheduleAIStrategy — Forte Scheduled Transaction
+/// ============================================================================
+///
+/// Purpose:
+///   Schedules an AI-generated DeFi strategy for future autonomous execution
+///   on the Flow blockchain using the Forte Scheduled Transactions framework.
+///
+/// Flow (1 Transaction → 6 Steps):
+///   1. Calculate the target execution timestamp (current block + delay)
+///   2. Estimate the FLOW token fee required by the scheduler
+///   3. Withdraw the fee from the signer's FlowToken vault
+///   4. Initialize the Scheduler Manager (if first-time setup)
+///   5. Resolve the FlowTalosStrategyHandler capability
+///   6. Schedule the job with full strategy metadata
+///
+/// Arguments:
+///   - delaySeconds:     UFix64 — How far in the future to execute (e.g. 5.0)
+///   - executionEffort:  UInt64 — Computational gas budget for the job
+///   - transactionData:  [{String: AnyStruct}] — EVM batch call descriptors
+///   - ipfsProofCID:     String — Storacha CID for the AI's Glass-Box reasoning
+///   - action:           String — "BUY" or "SELL"
+///   - token:            String — Target token symbol (e.g. "FLOW")
+///   - amount:           UFix64 — Trade size in human-readable units
+///
+/// Security:
+///   The signer must have:
+///     - A FlowToken vault with sufficient balance for scheduler fees
+///     - A FlowTalosStrategyHandler saved at /storage/FlowTalosStrategyHandler
+///       (set up by InitVaultAndHandler.cdc)
+///
+/// Author: FlowTalos Team — Flow Hackathon 2026
+/// ============================================================================
+
 import "FlowTransactionScheduler"
 import "FlowTransactionSchedulerUtils"
 import "FlowTalosStrategyHandler"
 import "FlowToken"
 import "FungibleToken"
 
-/// Schedule an AI Strategy with a delay
 transaction(
     delaySeconds: UFix64,
     executionEffort: UInt64,
@@ -15,12 +48,12 @@ transaction(
     amount: UFix64
 ) {
     prepare(signer: auth(Storage, Capabilities) &Account) {
-        
-        // 1. Calculate future timestamp and preset priority to high for AI arbitrage/vault ops
+
+        // ── Step 1: Calculate Future Timestamp ──────────────────────────────
         let future = getCurrentBlock().timestamp + delaySeconds
         let pr = FlowTransactionScheduler.Priority.High
 
-        // 2. Estimate the Flow Token cost for execution
+        // ── Step 2: Estimate Execution Fee ──────────────────────────────────
         let est = FlowTransactionScheduler.estimate(
             data: transactionData,
             timestamp: future,
@@ -30,42 +63,50 @@ transaction(
 
         assert(
             est.timestamp != nil,
-            message: est.error ?? "Scheduler estimation failed"
+            message: est.error ?? "Forte scheduler estimation failed"
         )
 
-        // 3. Withdraw the estimated execution fees from the signer's Vault
+        // ── Step 3: Withdraw Fees from Signer's Vault ───────────────────────
         let vaultRef = signer.storage
             .borrow<auth(FungibleToken.Withdraw) &FlowToken.Vault>(from: /storage/flowTokenVault)
-            ?? panic("Missing FlowToken vault")
-            
+            ?? panic("Signer does not have a FlowToken vault")
+
         let fees <- vaultRef.withdraw(amount: est.flowFee ?? 0.0) as! @FlowToken.Vault
 
-        // 4. If a transaction scheduler manager has not been created, create one
+        // ── Step 4: Initialize Scheduler Manager (First-Time) ───────────────
         if !signer.storage.check<@{FlowTransactionSchedulerUtils.Manager}>(from: FlowTransactionSchedulerUtils.managerStoragePath) {
             let manager <- FlowTransactionSchedulerUtils.createManager()
             signer.storage.save(<-manager, to: FlowTransactionSchedulerUtils.managerStoragePath)
 
-            let managerRef = signer.capabilities.storage.issue<&{FlowTransactionSchedulerUtils.Manager}>(FlowTransactionSchedulerUtils.managerStoragePath)
+            let managerRef = signer.capabilities.storage
+                .issue<&{FlowTransactionSchedulerUtils.Manager}>(FlowTransactionSchedulerUtils.managerStoragePath)
             signer.capabilities.publish(managerRef, at: FlowTransactionSchedulerUtils.managerPublicPath)
         }
 
-        // 5. Get the capability to our AI Strategy handler
+        // ── Step 5: Resolve the Strategy Handler Capability ─────────────────
+        // Try the first capability controller; fall back to the second if the
+        // first doesn't carry the required Execute entitlement.
         var handlerCap: Capability<auth(FlowTransactionScheduler.Execute) &{FlowTransactionScheduler.TransactionHandler}>? = nil
 
-        if let cap = signer.capabilities.storage
-            .getControllers(forPath: /storage/FlowTalosStrategyHandler)[0]
-            .capability as? Capability<auth(FlowTransactionScheduler.Execute) &{FlowTransactionScheduler.TransactionHandler}> {
-            handlerCap = cap
-        } else {
-            handlerCap = signer.capabilities.storage
-                .getControllers(forPath: /storage/FlowTalosStrategyHandler)[1]
-                .capability as! Capability<auth(FlowTransactionScheduler.Execute) &{FlowTransactionScheduler.TransactionHandler}>
+        let controllers = signer.capabilities.storage
+            .getControllers(forPath: /storage/FlowTalosStrategyHandler)
+
+        if controllers.length > 0 {
+            if let cap = controllers[0].capability as? Capability<auth(FlowTransactionScheduler.Execute) &{FlowTransactionScheduler.TransactionHandler}> {
+                handlerCap = cap
+            } else if controllers.length > 1 {
+                handlerCap = controllers[1].capability as! Capability<auth(FlowTransactionScheduler.Execute) &{FlowTransactionScheduler.TransactionHandler}>
+            }
         }
 
-        // 6. Borrow the manager and schedule the transaction with full context
-        let manager = signer.storage.borrow<auth(FlowTransactionSchedulerUtils.Owner) &{FlowTransactionSchedulerUtils.Manager}>(from: FlowTransactionSchedulerUtils.managerStoragePath)
-            ?? panic("Could not borrow a Manager reference")
+        assert(handlerCap != nil, message: "No valid FlowTalosStrategyHandler capability found — run InitVaultAndHandler.cdc first")
 
+        // ── Step 6: Schedule the AI Strategy ────────────────────────────────
+        let manager = signer.storage
+            .borrow<auth(FlowTransactionSchedulerUtils.Owner) &{FlowTransactionSchedulerUtils.Manager}>(from: FlowTransactionSchedulerUtils.managerStoragePath)
+            ?? panic("Could not borrow Scheduler Manager reference")
+
+        // Bundle all AI metadata into a single dictionary for the handler
         let schedulingData: {String: AnyStruct} = {
             "evmCalls": transactionData,
             "ipfsProof": ipfsProofCID,
@@ -83,6 +124,11 @@ transaction(
             fees: <-fees
         )
 
-        log("AI Strategy Scheduled for ".concat(future.toString()).concat(" | Proof: ").concat(ipfsProofCID))
+        log("FlowTalos AI Strategy Scheduled → Timestamp: "
+            .concat(future.toString())
+            .concat(" | Action: ").concat(action)
+            .concat(" | Token: ").concat(token)
+            .concat(" | Amount: ").concat(amount.toString())
+            .concat(" | Proof: ipfs://").concat(ipfsProofCID))
     }
 }
