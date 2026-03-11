@@ -2,80 +2,89 @@
   <img src="./assets/logo.png" alt="FlowTalos Logo" width="150" />
 </p>
 
-# FlowTalos — Decentralized AI Wealth Management Protocol
+# 🤖 FlowTalos — Decentralized AI Wealth Management Protocol
 
 > **Trustless, autonomous, and mathematically verifiable AI-driven asset management built natively for the Flow Blockchain.**
 
-[![Hackathon: Flow The Future of Finance](https://img.shields.io/badge/Hackathon-Flow_The_Future_of_Finance-10B981?style=for-the-badge&logo=flow&logoColor=white)](https://flow.com/)
-[![Built with Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
-[![Lit Protocol](https://img.shields.io/badge/Lit_Protocol-Threshold_Crypto-purple?style=for-the-badge)](https://litprotocol.com/)
-[![Storacha](https://img.shields.io/badge/Storacha-IPFS_Pinning-blue?style=for-the-badge)](https://storacha.network/)
-
-
-
----
-
-## 📑 Table of Contents
-
-1. [Problem Statement](#1-problem-statement)
-2. [Solution](#2-solution)
-3. [Key Features](#3-key-features)
-4. [System Architecture](#4-system-architecture)
-5. [Technology Stack](#5-technology-stack)
-6. [Protocol Execution Flow](#6-protocol-execution-flow)
-7. [Smart Contract Architecture](#7-smart-contract-architecture)
-8. [AI Engine Design](#8-ai-engine-design)
-9. [Security Model](#9-security-model)
-10. [Folder Structure](#10-folder-structure)
-11. [Installation Guide](#11-installation-guide)
-12. [Environment Variables](#12-environment-variables)
-13. [Running the Project](#13-running-the-project)
-14. [Example Trade Log](#14-example-trade-log)
-15. [Dashboard](#15-dashboard)
-16. [Roadmap](#16-roadmap)
-17. [Screenshots](#17-screenshots)
-18. [Demo Section](#18-demo-section)
-19. [Contributing Guide](#19-contributing-guide)
-20. [Security Disclosure](#20-security-disclosure)
-21. [FAQ](#21-faq)
-22. [License](#22-license)
-23. [Credits](#23-credits)
+[![Flow Blockchain](https://img.shields.io/badge/Flow-Blockchain-10B981?style=for-the-badge&logo=flow&logoColor=white)](https://flow.com/)
+[![Hackathon: PL_Genesis](https://img.shields.io/badge/Hackathon-PL__Genesis:_Frontiers_of_Collaboration-blue?style=for-the-badge)](#)
+[![AI Powered](https://img.shields.io/badge/AI-Powered-purple?style=for-the-badge&logo=openai)](https://github.com/IrrhammCode/FlowTalos)
+[![Web3 DeFi](https://img.shields.io/badge/Web3-DeFi-black?style=for-the-badge)](https://github.com/IrrhammCode/FlowTalos)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 ---
 
-## 1. Problem Statement
+## ⚡ Quick Start
 
-The integration of Artificial Intelligence into Decentralized Finance (DeFi) trading has introduced a massive trust deficit. Current implementations suffer from critical flaws:
+Get the AI agent and the frontend running locally in under 60 seconds:
 
-- **Black Box AI Execution:** Users surrender their assets to smart contracts with zero visibility into *why* the off-chain AI decided to swap tokens or rebalance liquidity at an exact moment.
-- **Custodial AI Funds:** AI agents are typically granted direct access to a hot wallet or a custodial contract, requiring users to give up sovereignty over their assets.
-- **Centralized Strategy Execution:** A single centralized server typically executes the trades, creating a massive single point of failure and centralization risk.
-- **Lack of Transparency & Immutability:** Reasoning models are ephemeral. If an AI executes a catastrophic trade, there is no immutable audit trail to prove malfeasance versus natural market volatility.
+```bash
+# 1. Clone the repository
+git clone https://github.com/IrrhammCode/FlowTalos.git
+cd FlowTalos
 
----
+# 2. Install and run the Next.js Glass-Box frontend
+cd web && npm install && npm run dev
 
-## 2. Solution
-
-FlowTalos completely reimagines AI wealth management by introducing a **"Glass-Box" architecture**, replacing blind trust with cryptographic verification.
-
-- **Glass-Box AI:** Every single decision, mathematical calculation, and sentiment analysis made by the intelligence engine is exposed, logged, and verifiable.
-- **Non-Custodial Vault:** The AI does *not* hold funds. Users deposit into native Cadence smart contracts. The AI functions strictly as an unprivileged *Strategist* that can only schedule predefined actions.
-- **Cryptographic Reasoning Logs:** The exact parameters that triggered a trade are hashed and pinned to a decentralized storage network (IPFS/Storacha) before the trade even executes.
-- **Threshold Transaction Signing:** The AI cannot blindly execute trades. Its proposed trades are validated and threshold-signed by a decentralized network of Lit Protocol nodes.
-
----
-
-## 3. Key Features
-
-- **Non-Custodial AI Trading:** Your keys, your crypto. The AI has delegated scheduling rights, not absolute withdrawal permissions.
-- **Transparent Reasoning Logs:** Audit the AI's "thought process" for every single transaction via immutable IPFS CIDs.
-- **Lit Protocol Decentralized Signatures:** Eliminates the centralized hot-wallet risk by utilizing Programmable Key Pairs (PKPs) and Threshold ECDSA signatures.
-- **Flow EVM Cross-Liquidity Execution:** Leverages Cadence-Owned Accounts (COA) to allow highly secure Cadence vaults to execute deep-liquidity swaps on Flow EVM DEXs like IncrementFi.
-- **On-Chain Scheduled Execution:** Trades are placed into a trustless execution queue utilizing the native Flow Transaction Scheduler.
+# 3. (New terminal) Boot the Synapse AI Daemon
+cd ai-agent
+python3 -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+python main.py --daemon
+```
 
 ---
 
-## 4. System Architecture
+## 🌍 Project Overview
+
+**What is FlowTalos?**
+FlowTalos is a decentralized, non-custodial asset management protocol powered by an autonomous multi-threaded artificial intelligence agent. It bridges the gap between sophisticated quantitative AI trading and trustless Web3 security.
+
+**Why does it exist?**
+To permanently solve the "Black-Box" trust issue inherent in AI-driven DeFi agents. By utilizing cryptographic threshold signatures and IPFS storage, FlowTalos mathematically proves *why* an AI made a trade.
+
+**Who is it for?**
+For DeFi investors seeking algorithmic yield generation without sacrificing self-custody or surrendering their private keys to a centralized server.
+
+**How does it improve DeFi AI trading?**
+It separates the "Brain" from the "Vault". The AI can only schedule algorithmically proven strategies to a queue. The native Cadence smart contract enforcing security utilizes Cross-VM execution (Cadence-Owned-Accounts) to safely access deep Flow EVM liquidity.
+
+---
+
+## 🚨 Problem Statement
+
+The integration of Artificial Intelligence into DeFi trading has introduced a massive trust and security deficit. Current implementations suffer from critical flaws:
+
+- **Black Box Decision Making:** Users surrender their assets to smart contracts with zero visibility into *why* the off-chain AI decided to swap tokens at a specific moment.
+- **Custodial AI Wallets:** AI agents are typically granted direct access to a hot wallet's private keys, requiring users to explicitly give up asset sovereignty.
+- **Centralized Strategy Execution:** A single centralized script executes the trades, creating a massive single point of failure and hacking risk.
+- **Lack of Verifiable Reasoning:** Reasoning models are ephemeral. If an AI executes a catastrophic trade, there is no immutable audit trail to prove malfeasance versus natural market volatility.
+
+---
+
+## 💡 Solution
+
+FlowTalos completely reimagines AI wealth management by replacing blind trust with cryptographic verification. Our innovations include:
+
+- **Glass-Box AI:** Every mathematical calculation and sentiment analysis step is exposed, logged, and verifiable.
+- **Non-Custodial Cadence Vault:** The AI does *not* hold funds. Users deposit into pristine Cadence smart contracts. The AI acts merely as an unprivileged *strategist*.
+- **IPFS Reasoning Logs:** The exact parameters that triggered a trade are hashed and pinned to Storacha/IPFS before execution.
+- **Lit Protocol Threshold Signing:** The AI cannot blindly execute trades. Its proposed payload is validated and threshold-signed by a decentralized network of Lit nodes.
+- **Flow EVM Liquidity Execution:** Combines Cadence’s unmatched resource-oriented security with the massive liquidity pools available on the Flow EVM.
+
+---
+
+## 💎 Key Features
+
+- **Transparent AI decision logs** pinned to decentralized storage.
+- **Non-custodial vault contracts** enforcing strict capability-based access control.
+- **Threshold-signed AI transactions** utilizing Programmable Key Pairs (PKP).
+- **Autonomous trade scheduling** natively via the Forte Flow Scheduler.
+- **Cross-VM execution** allowing secure Cadence logic to swap tokens on EVM DEXs like IncrementFi natively.
+
+---
+
+## 🏗️ Architecture Overview
 
 ```text
     [USER] 
@@ -106,246 +115,204 @@ FlowTalos completely reimagines AI wealth management by introducing a **"Glass-B
                                 └─────────────────────────┘
 ```
 
-1. The **AI Engine** calculates a strategy.
-2. It pushes its reasoning to **Storacha** (IPFS) to get a CID.
-3. It sends the EVM Calldata + CID to **Lit Protocol**.
-4. Lit Nodes validate the payload and sign a **Flow Cadence** transaction.
-5. The transaction is submitted to the **Flow Scheduler**.
-6. The Scheduler calls the **FlowTalos Vault** at the set time.
-7. The Vault bridges the call to **Flow EVM** to execute the DEX swap.
+**Architecture Breakdown:**
+1. **User:** Deposits FLOW/USDC into the strictly non-custodial Cadence Vault.
+2. **AI Engine:** Analyzes markets off-chain and generates an EVM encoded byte payload.
+3. **Storacha IPFS Logs:** The reasoning for the payload is hashed and stored immutably.
+4. **Lit Protocol Validation:** Decentralized nodes check the payload structure and ECDSA sign it collaboratively.
+5. **Flow Scheduler:** The signed transaction is placed in the native Flow timer queue.
+6. **Flow EVM DEX Swap:** The Vault executes the EVM byte payload at the appropriate epoch, securing trades with deepest liquidity.
 
 ---
 
-## 5. Technology Stack
+## ⚙️ Protocol Execution Flow
 
-FlowTalos is built on a cutting-edge Web3 stack:
+Here is the step-by-step lifecycle of an autonomous AI trade:
 
-- **Flow Blockchain (Cadence):** The secure settlement layer. Manages the non-custodial user vaults and implements the transaction scheduling logic using resources and capabilities.
-  * *Implementation Evidence:* 
-    - [`FlowTalosVault.cdc (Line 19)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L19) - Vault execution interface
-    - [`FlowTalosVault.cdc (Line 93)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L93) - executeEVMCalls function
-    - [`FlowTalosVault.cdc (Line 38)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L38) - Vault Resource Definition
-    - [`FlowTalosVault.cdc (Line 60)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L60) - Deposit capability
-    - [`FlowTalosStrategyHandler.cdc (Line 45)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosStrategyHandler.cdc#L45) - Strategy Payload Struct
-    - [`setup_vault.cdc (Line 15)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/transactions/setup_vault.cdc#L15) - User Setup TX
-    - [`FlowTalosStrategyHandler.cdc (Line 102)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosStrategyHandler.cdc#L102) - Scheduling capability
-    - [`ai-agent/main.py (Line 590)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L590) - Cadence Tx Builder
-
-- **Flow EVM:** The liquidity layer. Executed via Cadence-Owned Accounts (COA) to access standard Solidity-based Automated Market Makers.
-  * *Implementation Evidence:* 
-    - [`ai-agent/main.py (Line 365)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L365) - EVM Calldata Generation Engine
-    - [`ai-agent/main.py (Line 387)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L387) - ABI Encoding swapExactTokensForTokens
-    - [`FlowTalosVault.cdc (Line 29)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L29) - Native EVM import
-    - [`FlowTalosVault.cdc (Line 95)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L95) - COA bridging isolation
-    - [`FlowTalosVault.cdc (Line 112)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L112) - EVM execution result handling
-    - [`ai-agent/main.py (Line 150)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L150) - Calldata parameters logic
-    - [`ai-agent/main.py (Line 382)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L382) - Uniswap V2 Router ABI Hex formatting
-
-- **Lit Protocol:** Threshold cryptography sandbox. Validates AI payloads and applies decentralized signatures, preventing centralized AI key compromise.
-  * *Implementation Evidence:* 
-    - [`lit-action/src/action.js (Line 15)`](https://github.com/IrrhammCode/FlowTalos/blob/main/lit-action/src/action.js#L15) - Threshold network config
-    - [`lit-action/src/action.js (Line 49)`](https://github.com/IrrhammCode/FlowTalos/blob/main/lit-action/src/action.js#L49) - Invalid amount validation
-    - [`lit-action/src/action.js (Line 74)`](https://github.com/IrrhammCode/FlowTalos/blob/main/lit-action/src/action.js#L74) - Unauthorized DEX validation
-    - [`lit-action/src/action.js (Line 146)`](https://github.com/IrrhammCode/FlowTalos/blob/main/lit-action/src/action.js#L146) - Cadence scheduler auth payload
-    - [`lit-action/src/action.js (Line 210)`](https://github.com/IrrhammCode/FlowTalos/blob/main/lit-action/src/action.js#L210) - LitActions.signEcdsa() invocation
-    - [`lit-action/src/action.js (Line 223)`](https://github.com/IrrhammCode/FlowTalos/blob/main/lit-action/src/action.js#L223) - Payload Response Handler
-    - [`ai-agent/main.py (Line 529)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L529) - Python to Lit RPC Trigger
-    - [`ai-agent/main.py (Line 560)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L560) - Lit Node Fallback Hashing
-
-- **Storacha / IPFS:** The decentralized ledger for AI reasoning. Ensures the "why" behind every trade is permanent and verifiable.
-  * *Implementation Evidence:* 
-    - [`storacha-logger/src/index.ts (Line 54)`](https://github.com/IrrhammCode/FlowTalos/blob/main/storacha-logger/src/index.ts#L54) - IPFS Pinning Initialization
-    - [`storacha-logger/src/index.ts (Line 70)`](https://github.com/IrrhammCode/FlowTalos/blob/main/storacha-logger/src/index.ts#L70) - Filecoin Directory upload
-    - [`storacha-logger/src/index.ts (Line 158)`](https://github.com/IrrhammCode/FlowTalos/blob/main/storacha-logger/src/index.ts#L158) - Full Storacha integration
-    - [`storacha-logger/src/index.ts (Line 104)`](https://github.com/IrrhammCode/FlowTalos/blob/main/storacha-logger/src/index.ts#L104) - Valid CIDv1 Fallback Generation
-    - [`ai-agent/main.py (Line 460)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L460) - Python to Storacha RPC Trigger
-    - [`ai-agent/main.py (Line 395)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L395) - local Base32 CID formulation
-    - [`ai-agent/main.py (Line 415)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L415) - Simulated Web3.Storage handler
-    - [`ai-agent/main.py (Line 751)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L751) - IPFS JSON DB Update
-
-- **Next.js:** The frontend "Glass-Box" dashboard providing users with real-time portfolio metrics and IPFS proof streaming.
-  * *Implementation Evidence:* 
-    - [`web/src/app/dashboard/page.tsx (Line 185)`](https://github.com/IrrhammCode/FlowTalos/blob/main/web/src/app/dashboard/page.tsx#L185) - React Auto-Polling Effect hook
-    - [`web/src/app/dashboard/page.tsx (Line 230)`](https://github.com/IrrhammCode/FlowTalos/blob/main/web/src/app/dashboard/page.tsx#L230) - TVL Metrics Display
-    - [`web/src/app/dashboard/page.tsx (Line 302)`](https://github.com/IrrhammCode/FlowTalos/blob/main/web/src/app/dashboard/page.tsx#L302) - IPFS Audit Log Table
-    - [`web/src/app/dashboard/page.tsx (Line 315)`](https://github.com/IrrhammCode/FlowTalos/blob/main/web/src/app/dashboard/page.tsx#L315) - CID hyperlink generation
-    - [`web/src/app/page.tsx (Line 72)`](https://github.com/IrrhammCode/FlowTalos/blob/main/web/src/app/page.tsx#L72) - Connect Wallet FCL Logic
-    - [`web/src/app/layout.tsx (Line 20)`](https://github.com/IrrhammCode/FlowTalos/blob/main/web/src/app/layout.tsx#L20) - Next.js App Router Setup
-
-- **Python AI Agent (Synapse AI):** The autonomous multi-threaded backend engine responsible for scanning market geometry.
-  * *Implementation Evidence:* 
-    - [`ai-agent/main.py (Line 292)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L292) - Core Dual-Signal Matrix Loop
-    - [`ai-agent/main.py (Line 310)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L310) - BUY signal condition mapping
-    - [`ai-agent/main.py (Line 312)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L312) - SELL signal condition mapping
-    - [`ai-agent/main.py (Line 316)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L316) - Conflict HOLD resolution
-    - [`ai-agent/main.py (Line 719)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L719) - Trade Object Initiation
-    - [`ai-agent/main.py (Line 766)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L766) - Local Graph JSON Database write
-    - [`ai-agent/main.py (Line 810)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L810) - Multi-threaded Daemon start
-
-- **CoinGecko API:** Provides real-time quantitative price and volume data for RSI processing.
-  * *Implementation Evidence:* 
-    - [`ai-agent/main.py (Line 93)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L93) - fetch_market_data Method
-    - [`ai-agent/main.py (Line 74)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L74) - Coingecko Symbol whitelist
-    - [`ai-agent/main.py (Line 113)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L113) - CoinGecko Simple Price V3 invocation
-    - [`ai-agent/main.py (Line 131)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L131) - 24H Price Drop Math logic
-    - [`ai-agent/main.py (Line 142)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L142) - Quantitative Fallback return
-    - [`ai-agent/main.py (Line 821)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L821) - API Rejection error handling
-
-- **CryptoCompare API & Twitter Sentiment:** Ingests aggregate news headlines and social signals for real-time fundamental analysis.
-  * *Implementation Evidence:* 
-    - [`ai-agent/main.py (Line 192)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L192) - fetch_news_sentiment core method
-    - [`ai-agent/main.py (Line 207)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L207) - CryptoCompare V2 Article Fetch
-    - [`ai-agent/main.py (Line 227)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L227) - NLP Textual categorization map
-    - [`ai-agent/main.py (Line 247)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L247) - fetch_twitter_sentiment method
-    - [`ai-agent/main.py (Line 263)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L263) - X API V2 Recent Search request
-    - [`ai-agent/main.py (Line 635)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L635) - Dual-Signal aggregation pipeline
+1. **Data Ingestion:** The Synapse AI agent fetches current FLOW prices (CoinGecko) and global news headlines (CryptoCompare).
+2. **AI Signal Generation:** The algorithm calculates the RSI and evaluates social sentiment (e.g., Bullish Technicals + Positive News = **BUY**).
+3. **EVM Calldata Generation:** The agent constructs the exact EVM bytecode required to swap tokens on an EVM decentralized exchange.
+4. **Reasoning Log Creation & IPFS Pinning:** A JSON payload detailing the price, sentiment, and reasoning is pinned to Storacha/IPFS, returning a CIDv1 hash.
+5. **Lit Validation:** The EVM payload and CID are sent to Lit. The JS Action network validates the target contract and issues a Threshold ECDSA signature.
+6. **Flow Scheduling:** The validated transaction is broadcast to the Flow testnet queue.
+7. **EVM Execution:** At the scheduled block, the Cadence Vault triggers its Cadence-Owned Account (COA) boundary, routing the transaction onto Flow EVM safely.
 
 ---
 
-## 6. Protocol Execution Flow
+## 🛠️ Technology Stack
 
-1. **Data Ingestion:** The Synapse AI agent fetches current FLOW prices and global news headlines.
-2. **Matrix Analysis:** The AI calculates the RSI and evaluates social sentiment (e.g., Bullish Technicals + Positive News = **BUY**).
-3. **Payload Generation:** The agent constructs the exact EVM calldata required to swap tokens on a decentralized exchange.
-4. **Audit Logging:** A JSON payload detailing the price, sentiment, and reasoning is pinned to Storacha/IPFS for an immutable CID.
-5. **Decentralized Signing:** The payload and CID are sent to the Lit Action network. Lit validates the target contract and issues an ECDSA signature.
-6. **Cadence Scheduling:** The signed transaction is broadcast to the Flow Testnet, pushing it into the Forte Scheduler queue.
-7. **EVM Execution:** At the scheduled block, the FlowTalos Vault triggers its COA boundary, executing the raw calldata natively on Flow EVM.
+| Layer | Technology | Purpose |
+|------|------------|--------|
+| Blockchain | **Flow** | High-throughput transparent settlement layer |
+| Smart Contracts | **Cadence** | Unparalleled capability-based vault security |
+| Execution Liquidity | **Flow EVM** | Deep liquidity AMM access via Cross-VM |
+| AI Engine | **Python** | Multi-threaded algorithmic trading intelligence |
+| Storage | **Storacha / IPFS** | Immutable, cryptographically pinned reasoning logs |
+| Signing | **Lit Protocol** | Decentralized JS threshold signature generation |
+| Frontend | **Next.js** | Glass-box real-time investor dashboard UI |
 
----
+<details>
+<summary><b>🔍 Click here to view Exact Source Code Evidences per Technology</b></summary>
 
-## 7. Smart Contract Architecture
-
-The protocol leverages the unique advantages of Cadence's resource-oriented paradigm:
-
-- **Vault Contract (`FlowTalosVault.cdc`):** Holds human funds securely. It orchestrates the Cadence-to-EVM bridge (`executeEVMCalls()`) ensuring atomic batch execution.
-- **Capability-Based Access:** The AI and Scheduler are granted restricted `Capabilities`. They do not have arbitrary withdrawal rights.
-- **Scheduling Mechanism (`FlowTalosStrategyHandler.cdc`):** Integrates with the Forte Transaction Scheduler. Trades are queued and executed securely without hot-wallet cron jobs.
-- **EVM Execution Bridge:** Uses a Cadence-Owned Account (COA) to securely wrap Solidity execution within Cadence transactions.
-
----
-
-## 8. AI Engine Design
-
-The **Synapse AI Engine** operates on a rigorous Dual-Signal matrix:
-
-- **Market Analysis:** Computes Relative Strength Index (RSI) and 24-hour volatility metrics using CoinGecko time-series data.
-- **Sentiment Analysis:** Parses textual news headlines and categorizes them into Negative, Neutral, or Positive vectors.
-- **Signal Scoring:** A trade is *only* authorized if both signals align (e.g., Oversold Technicals + Positive Sentiment = BUY). If signals conflict, the AI preserves capital and holds.
-- **Trade Execution Planner:** Autonomously encodes the precise `swapExactTokensForTokens` ABI hex strings utilizing the `eth-abi` library.
-
----
-
-## 9. Security Model
-
-Our zero-trust architecture protects user funds relentlessly:
-
-- **Non-Custodial Vault:** The AI cannot withdraw your funds. Period.
-- **Threshold Signatures:** No single server holds the private key that authorizes trades. A decentralized committee of Lit nodes must agree.
-- **Deterministic Execution:** Smart contracts only accept specifically formatted ABI calls to whitelisted DEX router addresses.
-- **Verifiable Reasoning Logs:** If a trade loses money, the exact dataset the AI was looking at is permanently etched into IPFS for public scrutiny.
-- **Permission Boundaries:** Cadence strictly isolates user accounts from the strategy handler routines.
+- **Flow Blockchain (Cadence)** 
+  * [`FlowTalosVault.cdc (Line 19)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L19) - Vault execution interface
+  * [`FlowTalosVault.cdc (Line 60)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L60) - Deposit capability
+  * [`setup_vault.cdc (Line 15)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/transactions/setup_vault.cdc#L15) - User Setup TX
+- **Flow EVM Cross-VM**
+  * [`ai-agent/main.py (Line 387)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L387) - ABI Encoding swapExactTokensForTokens
+  * [`FlowTalosVault.cdc (Line 95)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L95) - COA bridging isolation
+  * [`ai-agent/main.py (Line 382)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L382) - Uniswap V2 Router ABI Hex
+- **Lit Protocol**
+  * [`lit-action/src/action.js (Line 15)`](https://github.com/IrrhammCode/FlowTalos/blob/main/lit-action/src/action.js#L15) - PKP Threshold network
+  * [`lit-action/src/action.js (Line 210)`](https://github.com/IrrhammCode/FlowTalos/blob/main/lit-action/src/action.js#L210) - LitActions.signEcdsa() invocation
+  * [`ai-agent/main.py (Line 529)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L529) - Python Lit RPC Trigger
+- **Storacha / IPFS**
+  * [`storacha-logger/src/index.ts (Line 70)`](https://github.com/IrrhammCode/FlowTalos/blob/main/storacha-logger/src/index.ts#L70) - Filecoin Directory upload
+  * [`storacha-logger/src/index.ts (Line 104)`](https://github.com/IrrhammCode/FlowTalos/blob/main/storacha-logger/src/index.ts#L104) - Valid CIDv1 Fallback Generation
+  * [`ai-agent/main.py (Line 460)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L460) - Python to Storacha RPC Trigger
+- **Next.js**
+  * [`web/src/app/dashboard/page.tsx (Line 185)`](https://github.com/IrrhammCode/FlowTalos/blob/main/web/src/app/dashboard/page.tsx#L185) - Auto-Polling Hook
+  * [`web/src/app/dashboard/page.tsx (Line 315)`](https://github.com/IrrhammCode/FlowTalos/blob/main/web/src/app/dashboard/page.tsx#L315) - CID hyperlink generation
+- **AI Engine (Python/CoinGecko/CryptoCompare)**
+  * [`ai-agent/main.py (Line 292)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L292) - Core Dual-Signal Matrix Loop
+  * [`ai-agent/main.py (Line 113)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L113) - CoinGecko Simple Price V3 invocation
+  * [`ai-agent/main.py (Line 207)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L207) - CryptoCompare V2 Article Fetch
+</details>
 
 ---
 
-## 10. Folder Structure
+## 🔐 Smart Contract Architecture
+
+- **Vault contract:** Highly secure Cadence resource holding human-deposited funds. Ensures the AI cannot arbitrary withdraw assets.
+- **Strategy handler:** Validates whether proposed transactions align with predefined yield mechanisms.
+- **Capabilities system:** Implements Cadence’s robust access-control ensuring zero overlap between agent planning access and vault settlement loops.
+- **EVM bridge execution:** Allows the Cadence vault to encode Solidity calldata strings natively, transferring tokens to a Cadence-Owned Account (COA) to access Flow EVM without trust sacrifices.
+
+---
+
+## 🧠 AI Engine Design
+
+- **Market data ingestion:** CoinGecko API hooks providing time-series pricing data for mathematical modeling.
+- **Sentiment analysis:** Aggregates real-time news headlines (and Twitter variables natively) to establish global psychological bias matrices.
+- **Signal matrix:** Fuses technical (RSI overbought/oversold) and fundamental sentiment variables. Operations trigger strictly on bidirectional signal agreement.
+- **Trade execution encoding:** Bypasses central node servers by actively hashing raw `swapExactTokensForTokens` EVM calldata locally.
+
+---
+
+## 🛡️ Security Model
+
+- **Non-custodial vault:** Absolute investor autonomy. Withdrawals happen independently from AI status.
+- **Capability isolation:** Vault assets are firewalled from the scheduling apparatus via pure Cadence `auth()` restrictions.
+- **Threshold signatures:** No single entity possesses the private key capable of green-lighting a transaction (Lit Protocol).
+- **Deterministic execution:** Strict checks prevent the engine from arbitrarily communicating with malicious EVM routers.
+- **Immutable reasoning logs:** Every action is eternally auditable via hash-matched Storacha JSON pins.
+
+---
+
+## 📁 Folder Structure
 
 ```text
 FlowTalos/
 ├── ai-agent/           # 🧠 Python intelligence daemon
-│   ├── main.py         # Core analytical loop
-│   └── test_agent.py   # Unit testing suite
 ├── cadence/            # ⛓️ Flow smart contracts & CLI config
-│   ├── contracts/      # Vault and Strategy Handler
-│   └── transactions/   # Setup scripts
 ├── lit-action/         # 🔑 Lit Protocol Javascript nodes
-│   └── src/action.js   # Threshold validation script
 ├── storacha-logger/    # 📦 IPFS/Web3.Storage upload scripts
-│   └── src/index.ts    # CIDv1 Hash generator
-└── web/                # 🖥️ Next.js Glass-Box Frontend
-    └── src/app/        # React components and dashboard UI
+└── web/                # 🖥️ Next.js Glass-Box Frontend Dashboard
 ```
 
 ---
 
-## 11. Installation Guide
+## 💻 Installation Guide
 
-### Prerequisites
-- Node.js (v18+)
-- Python (3.10+)
-- Flow CLI
-
-### Setup
+**Prerequisites:** Node.js (v18+), Python (3.10+), and the Flow CLI.
 
 ```bash
-# 1. Clone the protocol
+# Clone the repository
 git clone https://github.com/IrrhammCode/FlowTalos.git
 cd FlowTalos
 
-# 2. Install Web Dependencies
-cd web && npm install && cd ..
+# Install root UI and utility dependencies
+npm install --prefix web
+npm install --prefix lit-action
+npm install --prefix storacha-logger
 
-# 3. Install Lit & Storacha Dependencies
-cd lit-action && npm install && cd ..
-cd storacha-logger && npm install && cd ..
-
-# 4. Setup Python AI Environment
+# Setup Python Virtual Environment
 cd ai-agent
 python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate
 pip install -r requirements.txt
-cd ..
 ```
 
 ---
 
-## 12. Environment Variables
+## 🔑 Environment Variables
 
-Create `.env` files based on the `.env.example` templates in the respective directories. 
+Create `.env` files based on `.env.example`. Most notably for the `ai-agent/.env`:
 
-**Example `ai-agent/.env`:**
 ```ini
-# Flow Testnet Signer
+# Flow Testnet Signer Account Address
 FLOW_TESTNET_SIGNER=24c2e530f15129b7
 
-# API Integrations
+# API Integrations (Optional, graceful offline fallbacks exist)
 COINGECKO_API_KEY=your_key_here
 CRYPTOCOMPARE_API_KEY=your_key_here
 TWITTER_BEARER_TOKEN=your_token_here
 
-# EVM Node
+# EVM Node Target
 FLOW_EVM_RPC_URL=https://testnet.evm.nodes.onflow.org
 ```
-*(Note: FlowTalos includes offline cryptographic fallbacks. If API keys for Storacha or Lit are missing during local evaluation, the Python agent deterministicly simulates the cryptographic proofs locally).*
 
 ---
 
-## 13. Running the Project
+## 🚀 Running the Project
 
-FlowTalos utilizes concurrent architecture. To boot the platform:
-
-**Start the Next.js Frontend:**
+**1. Frontend Dashboard:**
 ```bash
-cd web
-npm run dev
-# Dashboard live at http://localhost:3000
+cd web && npm run dev
 ```
 
-**Boot the Synapse AI Daemon (New Terminal):**
+**2. Backend AI Daemon:**
 ```bash
 cd ai-agent
 source venv/bin/activate
-python3 main.py --daemon
+python main.py --daemon
 ```
-
-*For smart contract administration, refer to the deploy scripts within the `cadence/README.md` file.*
 
 ---
 
-## 14. Example Trade Log
+## 🧪 Testing
 
-Every trade generates an immutable cryptographic footprint. Example Storacha IPFS JSON payload (`trade_log.json`):
+Execute Python logic analysis tests:
+```bash
+cd ai-agent
+pytest test_agent.py
+```
 
+Deploy cadence integration checks locally (Emulator):
+```bash
+flow emulator
+flow project deploy --network=emulator
+```
+
+---
+
+## 📤 Deployment
+
+- **Flow testnet contracts:**
+  ```bash
+  flow project deploy --network=testnet
+  ```
+- **Frontend deployment:**
+  ```bash
+  cd web && npx vercel deploy --prod
+  ```
+- **AI daemon:** Designed to be containerized via Docker and executed on any secure cloud VM instance.
+
+---
+
+## 📜 Example Trade Log
+
+*Every executed node generates a verifiable reason payload via Storacha IPFS:*
 ```json
 {
   "timestamp": "2026-03-11T21:45:10.123456",
@@ -357,7 +324,7 @@ Every trade generates an immutable cryptographic footprint. Example Storacha IPF
   "target_dex_evm": "IncrementFi",
   "evm_calldata": "0x38ed173900000000000...",
   "dex_router": "0xRouterAddress",
-  "reasoning": "Dual-Signal Alignment! Technicals: FLOW shows oversold conditions (Drop of -5.4%). Qualitative: Social sentiment is POSITIVE. Executing BUY via IncrementFi.",
+  "reasoning": "Dual-Signal Alignment! Technicals: FLOW shows oversold conditions. Qualitative: Social sentiment POSITIVE.",
   "ipfs_cid": "bafybeicm... (Base32 CIDv1)",
   "tx_status": "PENDING"
 }
@@ -365,74 +332,74 @@ Every trade generates an immutable cryptographic footprint. Example Storacha IPF
 
 ---
 
-## 15. Dashboard
+## 📊 Dashboard
 
-The Next.js Glass-Box dashboard is the investor's command center:
-- **Portfolio Overview:** Real-time metrics on Total Value Locked (TVL) and automated yields.
-- **AI Execution Stream:** A live, auto-polling terminal interface displaying the absolute latest decisions transmitted by the Python Daemon.
-- **Cryptographic Receipts:** A secure table detailing recent trades, specifically highlighting the clickable **IPFS Proof CID** and transaction statuses.
-- **Strategy Performance:** Visual charts plotting asset prices against the AI's execution epochs.
-
----
-
-## 16. Roadmap
-
-1. **Phase 1: Hackathon MVP (Current)** - Read-only Testnet execution, offline architectural proofs, Cadence + EVM routing.
-2. **Phase 2: Mainnet Alpha** - Live deployment on Flow Mainnet, integrated with production Lit PKP infrastructure and audited smart contracts.
-3. **Phase 3: Decentralized Autonomous Organization (DAO)** - Protocol governance for whitelisting new synthetic assets and modifying AI risk parameters.
-4. **Phase 4: Strategy Marketplace** - Permitting third-party quantitative developers to plug their own custom AI algorithms into the FlowTalos vault infrastructure securely.
-
-
-
-## 18. Demo Section
-
-Watch the FlowTalos architecture in action, demonstrating the end-to-end flow from deposit, to AI analysis, to IPFS pinning, Lit signing, and Cadence execution.
-
-**[▶️ Click here to watch the Hackathon Demo Video](#)** *(Link pending upload)*
-
-**Live Demo URL:** `https://flowtalos.vercel.app/` *(Link pending deployment)*
+The "Glass-Box" UI features:
+- **Portfolio Metrics:** Displaying vault TVL and user asset allocation.
+- **Trade Logs Table:** A real-time data stream of autonomous transaction executions.
+- **Reasoning CID:** Clickable links bridging users cleanly to their transparent Storacha network proofs.
+- **Execution Metrics:** Live terminal emulation showing absolute real-time Python daemon thoughts.
 
 ---
 
-## 19. Contributing Guide
+## 🗺️ Roadmap
 
-We welcome contributions from Web3 developers, quantitative analysts, and Cypherpunks.
-1. Fork the repository.
-2. Create a feature branch (`git checkout -b feature/AdvancedRSIStrategy`).
-3. Commit your changes strictly using Conventional Commits.
-4. Push to the branch and open a Pull Request against `main`.
-
----
-
-## 20. Security Disclosure
-
-FlowTalos is a Hackathon prototype. **DO NOT DEPLOY OR USE IN PRODUCTION WITH REAL ASSETS.** The Cadence smart contracts, Node wrappers, and Python algorithms have not undergone independent third-party mathematical or security audits. 
-
-If you discover a vulnerability in the COA bridging mechanism or the Forte scheduling queue, please open an Issue with the prefix `[SECURITY]`.
+- **Phase 1 — Hackathon MVP:** Core FlowTalos Cadence bridging routing testnets and establishing structural viability.
+- **Phase 2 — Mainnet deployment:** Full smart-contract audits and real-world capital deployment integrations on Flow Network.
+- **Phase 3 — DAO governance:** Transfer of capability limits and AI-algorithm modification governance to a community DAO.
+- **Phase 4 — Strategy marketplace:** Permitting independent quantitative researchers to inject hyper-specific AI models natively into the platform ecosystem.
 
 ---
 
-## 21. FAQ
+## 🎥 Demo
 
-**Q: Does the AI hold my private keys?**
-No. The AI agent holds absolutely no keys. It constructs unsigned payloads and relies on Lit Protocol to threshold-sign transactions, which only authorize pre-approved execution bounds.
-
-**Q: What happens if the AI server goes offline?**
-User funds remain 100% safe in the Cadence smart contract. The AI simply ceases to schedule new trades until rebooted. Users can manually withdraw their deposits at any time.
-
-**Q: Why Flow Blockchain?**
-Flow allows native execution of both resource-oriented (Cadence) logic—which is vastly superior for vault security—and Account Abstraction-style EVM interactions through Cadence-Owned Accounts (COA). It is the perfect ecosystem for cross-VM artificial intelligence.
+**▶️ [Demo Video Link]((https://youtu.be/fake_url))** *(Placeholder for submission)*  
+**🌐 Live Dashboard Link:** `https://flowtalos.vercel.app/` *(Awaiting deployment)*
 
 ---
 
-## 22. License
+## 🤝 Contributing Guide
 
-This protocol is released under the **MIT License**. See the `LICENSE` file for full disclosure.
+1. Fork the repo and create your branch from `main`.
+2. Implement your features or bugfixes using Conventional Commits.
+3. Test your integration extensively against the `flow emulator`.
+4. Open a Pull Request detailing architectural justifications. We welcome Web3 cryptographers, Cypherpunks, and AI analysts.
 
 ---
 
-## 23. Credits
+## 🔐 Security Disclosure
 
-Engineered for the **"Flow: The Future of Finance" Hackathon**.
-- Built by [IrhammCode](https://github.com/IrrhammCode)
-- Powered by **Flow**, **Next.js**, **Lit Protocol**, and **Storacha**.
+FlowTalos is an experimental hackathon concept protocol. **DO NOT DEPLOY MAINNET FUNDS WITHOUT FULL SMART CONTRACT AUDITS.** The codebase has not been formally proven regarding its COA mapping vectors.
+
+Vulnerability reporting: Please DO NOT open a public GitHub Issue. Create a security advisory or email the maintainers directly.
+
+---
+
+## ⚠️ Known Limitations
+
+- **Rule-based AI constraints:** The intelligence matrix currently utilizes deterministic math scoring (RSI + Sentiment mapped weights) rather than deep-learning LLM prediction generation to guarantee execution speed.
+- **Limited assets:** Native swaps presently restricted to primary liquid tokens (FLOW/USDC).
+- **Testnet environment:** Relies on testnet API keys which face aggressive rate limits during high throughput.
+
+---
+
+## 🆘 Troubleshooting
+
+- **Flow CLI not detected:** Ensure `flow` binary is added to your `$PATH`. Re-run `sh -ci "$(curl -fsSL https://raw.githubusercontent.com/onflow/flow-cli/master/install.sh)"`.
+- **API keys missing:** The python daemon will cleanly revert to "local hashing modes". You will still see functionality, but Storacha CIDs will only render locally on your dashboard.
+- **EVM Fallbacks failed:** Check EVM RPC provider statuses within Cadence.
+
+---
+
+## 📄 License
+
+This repository is distributed under the **MIT License**. Read `LICENSE` for details.
+
+---
+
+## 🙌 Credits
+
+- **PL_Genesis: Frontiers of Collaboration Hackathon**
+- **Flow Blockchain**
+- **Lit Protocol**
+- **Storacha**
