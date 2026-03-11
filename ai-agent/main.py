@@ -326,87 +326,141 @@ def compute_local_cid(data_str: str) -> str:
     content_hash = hashlib.sha256(data_str.encode('utf-8')).hexdigest()
     return f"bafylocal{content_hash[:48]}"
 
-def upload_to_storacha(signal_data):
+# =============================================================================
+# INTERNAL HELPERS — DRY Fallback Functions
+# =============================================================================
+
+def _storacha_fallback_cid(json_payload: str, reason: str) -> str:
     """
-    Saves the AI signal to a temporary JSON file and calls the Node.js Storacha Logger
-    to upload it to IPFS. Returns the immutable CID.
-    Falls back to pure-Python SHA-256 CID computation if Node.js is unavailable.
+    Generates a fallback CID when Storacha upload fails.
+
+    Centralised helper to avoid repeating the same 3-line pattern
+    across every except branch in upload_to_storacha().
+
+    Args:
+        json_payload: The raw JSON string to hash.
+        reason:       Human-readable reason for the fallback (for logging).
+
+    Returns:
+        A 'bafylocal...' CID string.
+    """
+    print(f"[⚠] {reason}. Using Python SHA-256 fallback...")
+    fallback_cid = compute_local_cid(json_payload)
+    print(f"[✔] Python Fallback CID (SHA-256): {fallback_cid}")
+    return fallback_cid
+
+
+def _generate_fallback_signature(payload: str, reason: str) -> str:
+    """
+    Generates a deterministic cryptographic signature when Lit Protocol is unavailable.
+
+    Uses double-SHA-256 hashing to produce a 66-char hex string (0x-prefixed)
+    that is deterministic for the same payload input.
+
+    Args:
+        payload: JSON-serialized signal payload to hash.
+        reason:  Human-readable reason for the fallback (for logging).
+
+    Returns:
+        A '0x...' prefixed deterministic signature string.
+    """
+    print(f"  [⚠] {reason}. Using Python cryptographic fallback...")
+    payload_hash = hashlib.sha256(payload.encode()).hexdigest()
+    signature = "0x" + payload_hash + hashlib.sha256(payload_hash.encode()).hexdigest()[:2]
+    print(f"  [✔] Fallback signature (SHA-256): {signature[:20]}...")
+    return signature
+
+
+# =============================================================================
+# PIPELINE STEP 4 — Storacha IPFS Upload
+# =============================================================================
+
+def upload_to_storacha(signal_data: Dict[str, Any]) -> str:
+    """
+    Uploads the AI signal's reasoning log to Storacha (Filecoin/IPFS).
+
+    Saves the signal to a temporary JSON file, invokes the Node.js Storacha
+    Logger via subprocess, and parses the CID from stdout.
+
+    Fallback: If any step fails (timeout, subprocess error, Node.js missing),
+    falls back to `compute_local_cid()` for a deterministic SHA-256 CID.
+
+    Args:
+        signal_data: The full AI signal dictionary to upload.
+
+    Returns:
+        An IPFS CID string (either from Storacha or local SHA-256 fallback).
     """
     temp_file = "temp_reasoning.json"
     json_payload = json.dumps(signal_data, indent=2)
     with open(temp_file, "w") as f:
         f.write(json_payload)
-    
+
     print(f"\n[{datetime.now().time()}] Triggering Storacha IPFS Upload via Node.js...")
-    
-    # Path to the storacha-logger project
+
     logger_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'storacha-logger')
-    
+
     try:
-        # Run the TS-Node script, passing the absolute path to the temp file
         result = subprocess.run(
             ["npx", "ts-node", "src/index.ts", os.path.abspath(temp_file)],
             cwd=logger_dir,
             capture_output=True,
             text=True,
             check=True,
-            timeout=30  # 30 second timeout to prevent infinite hangs
+            timeout=30,
         )
-        
-        # Parse the custom CID output format
-        output_lines = result.stdout.split('\n')
+
+        # Parse the __CID_OUTPUT__:<cid> marker from stdout
         cid = None
-        for line in output_lines:
+        for line in result.stdout.split('\n'):
             if "__CID_OUTPUT__:" in line:
                 cid = line.split("__CID_OUTPUT__:")[1].strip()
                 break
-                
+
         if cid:
             print(f"[✔] Storacha Upload Success! IPFS CID: {cid}")
             return cid
         else:
-            print(f"[⚠] Failed to parse CID from Node.js output. Using Python fallback...")
-            fallback_cid = compute_local_cid(json_payload)
-            print(f"[✔] Python Fallback CID (SHA-256): {fallback_cid}")
-            return fallback_cid
-            
+            return _storacha_fallback_cid(json_payload, "Failed to parse CID from Node.js output")
+
     except subprocess.TimeoutExpired:
-        print(f"[⚠] Storacha Upload Timed Out. Using Python SHA-256 fallback...")
-        fallback_cid = compute_local_cid(json_payload)
-        print(f"[✔] Python Fallback CID (SHA-256): {fallback_cid}")
-        return fallback_cid
+        return _storacha_fallback_cid(json_payload, "Storacha Upload Timed Out (30s)")
     except subprocess.CalledProcessError as e:
-        print(f"[⚠] Storacha subprocess error (code {e.returncode}). Using Python SHA-256 fallback...")
-        fallback_cid = compute_local_cid(json_payload)
-        print(f"[✔] Python Fallback CID (SHA-256): {fallback_cid}")
-        return fallback_cid
+        return _storacha_fallback_cid(json_payload, f"Storacha subprocess error (code {e.returncode})")
     except FileNotFoundError:
-        print(f"[⚠] Node.js/npx not found on this system. Using Python SHA-256 fallback...")
-        fallback_cid = compute_local_cid(json_payload)
-        print(f"[✔] Python Fallback CID (SHA-256): {fallback_cid}")
-        return fallback_cid
+        return _storacha_fallback_cid(json_payload, "Node.js/npx not found on this system")
     except Exception as e:
-        print(f"[⚠] Unexpected Storacha error: {e}. Using Python SHA-256 fallback...")
-        fallback_cid = compute_local_cid(json_payload)
-        print(f"[✔] Python Fallback CID (SHA-256): {fallback_cid}")
-        return fallback_cid
+        return _storacha_fallback_cid(json_payload, f"Unexpected Storacha error: {e}")
     finally:
-        # Cleanup
         if os.path.exists(temp_file):
             os.remove(temp_file)
 
-def trigger_lit_action(signal_data):
+# =============================================================================
+# PIPELINE STEP 5 — Lit Protocol Threshold Signing
+# =============================================================================
+
+def trigger_lit_action(signal_data: Dict[str, Any]) -> str:
     """
-    Triggers the Lit Protocol Action by executing the action.js script via Node.js.
-    In production, this would run on Lit Nodes with PKP signing.
-    For the hackathon, we execute the same action code locally to demonstrate
+    Triggers the Lit Protocol Action by executing action.js via Node.js.
+
+    In production, this runs inside Lit Protocol's decentralised threshold
+    network (2/3+ staked node consensus). For the hackathon, we execute
+    the same action code locally via `simulateLitNode.js` to demonstrate
     the full Cadence transaction construction pipeline.
+
+    Fallback: If Node.js or Lit execution fails, falls back to a
+    deterministic double-SHA-256 signature.
+
+    Args:
+        signal_data: The full AI signal dictionary.
+
+    Returns:
+        A signature string (Cadence script hash or SHA-256 fallback).
     """
     print(f"\n[{datetime.now().time()}] Invoking Lit Protocol Threshold Signer...")
-    
+
     lit_action_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'lit-action')
-    action_script = os.path.join(lit_action_dir, 'src', 'action.js')
-    
+
     # Prepare the signal payload for the Lit Action
     payload = json.dumps({
         "action": signal_data["action"],
@@ -415,76 +469,64 @@ def trigger_lit_action(signal_data):
         "evm_calldata": signal_data["evm_calldata"],
         "dex_router": signal_data.get("dex_router", ""),
         "price_snapshot": signal_data["price_snapshot"],
-        "reasoning": signal_data["reasoning"][:200]
+        "reasoning": signal_data["reasoning"][:200],
     })
+
     try:
-        # Execute the Lit Action script with the signal data as env var
         env = os.environ.copy()
         env["FLOWTALOS_SIGNAL"] = payload
-        env["FLOWTALOS_ACTION_MODE"] = "local"  # Indicates local execution (not on Lit nodes)
-        
+        env["FLOWTALOS_ACTION_MODE"] = "local"
+
         result = subprocess.run(
             ["node", os.path.join(lit_action_dir, 'src', 'simulateLitNode.js')],
             capture_output=True,
             text=True,
             env=env,
-            timeout=15
+            timeout=15,
         )
-        
+
         if result.returncode == 0 and result.stdout.strip():
             lit_output = json.loads(result.stdout.strip())
-            
+
             if lit_output.get("status") == "SUCCESS":
-                print(f"  → PKP Public Key (Mocked): {lit_output['payload']['arguments'][0]['value']}...") # Delay seconds arg etc
-                print(f"  → Action IPFS Proof: {lit_output['payload']['arguments'][3]['value']}")
+                args = lit_output['payload']['arguments']
+                print(f"  → PKP Public Key (Mocked): {args[0]['value']}...")
+                print(f"  → Action IPFS Proof: {args[3]['value']}")
                 print(f"  [✔] Lit Protocol Execution Succeeded! Cadence payload constructed.")
-                # We return the serialized Cadence script hash or simulated sig
                 return lit_output['payload']['script'].strip().replace('\\n', '')[:40] + "..."
             else:
-                print(f"  [⚠] Lit Action execution returned ERROR: {lit_output.get('message')}")
-                # Fallback implementation
-                import hashlib
-                payload_hash = hashlib.sha256(payload.encode()).hexdigest()
-                signature = "0x" + payload_hash + hashlib.sha256(payload_hash.encode()).hexdigest()[:2]
-                print(f"  [✔] Fallback signature generated: {signature[:20]}...")
-                return signature
+                return _generate_fallback_signature(payload, f"Lit Action returned ERROR: {lit_output.get('message')}")
         else:
-            print(f"  [⚠] Lit Action returned: {result.stderr[:200]}")
-            # Generate a real cryptographic signature as fallback
-            import hashlib
-            payload_hash = hashlib.sha256(payload.encode()).hexdigest()
-            signature = "0x" + payload_hash + hashlib.sha256(payload_hash.encode()).hexdigest()[:2]
-            print(f"  [✔] Fallback signature generated: {signature[:20]}...")
-            return signature
+            return _generate_fallback_signature(payload, f"Lit Action stderr: {result.stderr[:200]}")
 
     except subprocess.TimeoutExpired:
-        print(f"  [⚠] Lit Action execution timed out. Using Python cryptographic fallback...")
-        import hashlib
-        payload_hash = hashlib.sha256(payload.encode()).hexdigest()
-        signature = "0x" + payload_hash + hashlib.sha256(payload_hash.encode()).hexdigest()[:2]
-        print(f"  [✔] Fallback signature (SHA-256): {signature[:20]}...")
-        return signature
-
+        return _generate_fallback_signature(payload, "Lit Action execution timed out (15s)")
     except FileNotFoundError:
-        print(f"  [⚠] Node.js not found. Using Python cryptographic fallback...")
-        import hashlib
-        payload_hash = hashlib.sha256(payload.encode()).hexdigest()
-        signature = "0x" + payload_hash + hashlib.sha256(payload_hash.encode()).hexdigest()[:2]
-        print(f"  [✔] Fallback signature (SHA-256): {signature[:20]}...")
-        return signature
-            
+        return _generate_fallback_signature(payload, "Node.js not found")
     except Exception as e:
-        print(f"  [⚠] Lit Action execution error: {e}. Using Python cryptographic fallback...")
-        import hashlib
-        payload_hash = hashlib.sha256(payload.encode()).hexdigest()
-        signature = "0x" + payload_hash + hashlib.sha256(payload_hash.encode()).hexdigest()[:2]
-        print(f"  [✔] Fallback cryptographic signature: {signature[:20]}...")
-        return signature
+        return _generate_fallback_signature(payload, f"Lit Action error: {e}")
 
-def submit_to_flow(signal_data, ipfs_cid=None):
+# =============================================================================
+# PIPELINE STEP 6 — Flow Testnet Submission
+# =============================================================================
+
+def submit_to_flow(signal_data: Dict[str, Any], ipfs_cid: Optional[str] = None) -> Optional[Dict[str, Any]]:
     """
     Submits the AI's scheduled transaction to the Flow Testnet using Flow CLI.
-    This sends the ScheduleAIStrategy.cdc transaction with the AI-generated calldata.
+
+    Two-step process:
+        Step 1: Initialize the Vault Handler (idempotent — skips if already exists).
+        Step 2: Construct and log the ScheduleAIStrategy.cdc execution payload.
+
+    Fallback: On timeout or missing CLI, returns a partial offline payload
+    so the state machine and trade log remain consistent.
+
+    Args:
+        signal_data: The full AI signal dictionary.
+        ipfs_cid:    The Storacha CID for proof attachment (optional).
+
+    Returns:
+        Dict with the execution payload, or None on catastrophic failure.
     """
     print(f"\n[{datetime.now().time()}] Submitting Scheduled Transaction to Flow Testnet...")
     
@@ -582,11 +624,23 @@ def submit_to_flow(signal_data, ipfs_cid=None):
         print(f"  [X] Flow submission error: {e}")
         return None
 
-import uuid
-import time
+# =============================================================================
+# TRADE STATE MACHINE — Persists execution progress to trade_log.json
+# =============================================================================
 
-def init_trade(signal):
-    """Initializes the trade state machine in trade_log.json"""
+def init_trade(signal: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Initialises a new trade entry in the state machine.
+
+    Creates a UUID-identified trade record with status 'ANALYZING' and
+    persists it to `trade_log.json` for the dashboard API to read.
+
+    Args:
+        signal: The AI signal dictionary from impulse_ai_analyze().
+
+    Returns:
+        The newly created trade entry dict.
+    """
     trade_id = str(uuid.uuid4())
     trade_entry = {
         "id": trade_id,
@@ -606,15 +660,28 @@ def init_trade(signal):
     _save_or_update_trade(trade_entry)
     return trade_entry
 
-def update_trade_state(trade_entry, new_state, ipfs_cid=None, lit_sig=None):
-    """Updates the state of an existing trade in the log"""
+def update_trade_state(trade_entry: Dict[str, Any], new_state: str, ipfs_cid: Optional[str] = None, lit_sig: Optional[str] = None) -> None:
+    """
+    Transitions a trade to a new state and persists the change.
+
+    Args:
+        trade_entry: The trade dict to update (mutated in-place).
+        new_state:   New status string (e.g. 'SIGNING', '✅ CONFIRMED').
+        ipfs_cid:    Attach the Storacha CID if available.
+        lit_sig:     Attach the Lit Protocol signature if available.
+    """
     trade_entry["tx_status"] = new_state
     if ipfs_cid: trade_entry["ipfs_cid"] = ipfs_cid
     if lit_sig: trade_entry["lit_signature"] = lit_sig[:20] + "..."
     _save_or_update_trade(trade_entry)
 
-def _save_or_update_trade(trade_entry):
-    """Internal helper to persist the trade state machine to disk"""
+def _save_or_update_trade(trade_entry: Dict[str, Any]) -> None:
+    """
+    Internal helper: persists the trade state machine to `trade_log.json`.
+
+    If the trade ID already exists in the log array, it is updated in-place.
+    Otherwise, the trade is appended. The log is capped at MAX_TRADE_LOG_ENTRIES.
+    """
     log_file = os.path.join(os.path.dirname(__file__), "trade_log.json")
     trades = []
     if os.path.exists(log_file):
