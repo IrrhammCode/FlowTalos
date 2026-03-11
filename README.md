@@ -321,19 +321,7 @@ The Next.js Glass-Box dashboard is the investor's command center:
 3. **Phase 3: Decentralized Autonomous Organization (DAO)** - Protocol governance for whitelisting new synthetic assets and modifying AI risk parameters.
 4. **Phase 4: Strategy Marketplace** - Permitting third-party quantitative developers to plug their own custom AI algorithms into the FlowTalos vault infrastructure securely.
 
----
 
-## 17. Screenshots placeholders
-
-### Web Dashboard
-<p align="center">
-  <img src="./assets/illustration.png" alt="Dashboard" width="600" />
-</p>
-
-### Cryptographic Audits
-*(Space reserved for future on-chain FlowTx Explorer screenshots)*
-
----
 
 ## 18. Demo Section
 
