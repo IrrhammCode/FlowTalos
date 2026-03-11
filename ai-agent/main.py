@@ -25,8 +25,10 @@ Author: FlowTalos Team — Built for Flow Hackathon 2026
 
 import json
 import hashlib
+import fcntl
 import os
 import subprocess
+import tempfile
 import time
 import uuid
 from datetime import datetime
@@ -417,10 +419,15 @@ def upload_to_storacha(signal_data: Dict[str, Any]) -> str:
     Returns:
         An IPFS CID string (either from Storacha or local SHA-256 fallback).
     """
-    temp_file = "temp_reasoning.json"
-    json_payload = json.dumps(signal_data, indent=2)
-    with open(temp_file, "w") as f:
-        f.write(json_payload)
+    # Security: Use unpredictable temp file to prevent local file injection
+    tmp_fd, temp_file = tempfile.mkstemp(suffix='.json', prefix='flowtalos_')
+    try:
+        json_payload = json.dumps(signal_data, indent=2)
+        with os.fdopen(tmp_fd, 'w') as f:
+            f.write(json_payload)
+    except Exception:
+        os.close(tmp_fd)
+        raise
 
     print(f"\n[{datetime.now().time()}] Triggering Storacha IPFS Upload via Node.js...")
 
@@ -499,7 +506,8 @@ def trigger_lit_action(signal_data: Dict[str, Any]) -> str:
     })
 
     try:
-        env = os.environ.copy()
+        # Security: Use sanitized env to prevent leaking secrets to Node.js subprocess
+        env = _sanitize_env_for_subprocess()
         env["FLOWTALOS_SIGNAL"] = payload
         env["FLOWTALOS_ACTION_MODE"] = "local"
 
@@ -709,27 +717,41 @@ def _save_or_update_trade(trade_entry: Dict[str, Any]) -> None:
     Otherwise, the trade is appended. The log is capped at MAX_TRADE_LOG_ENTRIES.
     """
     log_file = os.path.join(os.path.dirname(__file__), "trade_log.json")
-    trades = []
-    if os.path.exists(log_file):
-        try:
-            with open(log_file, "r") as f:
-                trades = json.load(f)
-        except (json.JSONDecodeError, IOError):
-            pass
-            
-    updated = False
-    for i, t in enumerate(trades):
-        if t.get("id") == trade_entry["id"]:
-            trades[i] = trade_entry
-            updated = True
-            break
-            
-    if not updated:
-        trades.append(trade_entry)
-        
-    trades = trades[-50:]
-    with open(log_file, "w") as f:
-        json.dump(trades, f, indent=2)
+    trades: List[Dict[str, Any]] = []
+
+    try:
+        # Security: Use file lock to prevent race conditions on concurrent writes
+        with open(log_file, 'a+') as f:
+            fcntl.flock(f, fcntl.LOCK_EX)  # Exclusive lock
+            try:
+                f.seek(0)
+                content = f.read()
+                if content.strip():
+                    trades = json.loads(content)
+            except (json.JSONDecodeError, IOError):
+                trades = []
+
+            # Update or append
+            updated = False
+            for i, t in enumerate(trades):
+                if t.get("id") == trade_entry["id"]:
+                    trades[i] = trade_entry
+                    updated = True
+                    break
+
+            if not updated:
+                trades.append(trade_entry)
+
+            # Cap at MAX_TRADE_LOG_ENTRIES
+            trades = trades[-MAX_TRADE_LOG_ENTRIES:]
+
+            # Overwrite file with updated data
+            f.seek(0)
+            f.truncate()
+            json.dump(trades, f, indent=2)
+            fcntl.flock(f, fcntl.LOCK_UN)  # Release lock
+    except IOError as e:
+        print(f"  [⚠] Failed to write trade log: {e}")
 
 def main():
     print("--- FlowTalos Impulse AI Service Started ---\n")

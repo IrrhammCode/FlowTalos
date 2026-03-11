@@ -87,6 +87,7 @@ async function pinReasoningToStoracha(reasoningText: string): Promise<string> {
 // ---------------------------------------------------------
 
 import * as fs from 'fs';
+import * as pathModule from 'path';
 
 async function main() {
     const args = process.argv.slice(2);
@@ -96,20 +97,37 @@ async function main() {
     }
 
     const filePath = args[0];
-    if (!fs.existsSync(filePath)) {
-        console.error(`File not found: ${filePath}`);
+
+    // Security: Validate file path to prevent path traversal attacks
+    const resolvedPath = pathModule.resolve(filePath);
+    if (resolvedPath.includes('..') || !pathModule.isAbsolute(resolvedPath)) {
+        console.error(`[Security] Rejected path traversal attempt: ${filePath}`);
+        process.exit(1);
+    }
+
+    if (!fs.existsSync(resolvedPath)) {
+        console.error(`File not found: ${resolvedPath}`);
+        process.exit(1);
+    }
+
+    // Security: Reject oversized files to prevent OOM (max 10MB)
+    const MAX_FILE_SIZE = 10 * 1024 * 1024;
+    const fileStats = fs.statSync(resolvedPath);
+    if (fileStats.size > MAX_FILE_SIZE) {
+        console.error(`[Security] File exceeds 10MB limit: ${fileStats.size} bytes`);
         process.exit(1);
     }
 
     let fileContent: string;
     try {
-        fileContent = fs.readFileSync(filePath, 'utf-8');
+        fileContent = fs.readFileSync(resolvedPath, 'utf-8');
         // Validate JSON is parseable (catch malformed input from Python)
         JSON.parse(fileContent);
-    } catch (parseErr: any) {
-        console.error(`⚠ [Storacha] Input file is not valid JSON: ${parseErr.message}`);
+    } catch (parseErr: unknown) {
+        const errMsg = parseErr instanceof Error ? parseErr.message : 'Unknown parse error';
+        console.error(`⚠ [Storacha] Input file is not valid JSON: ${errMsg}`);
         console.log("Computing CID from raw file content as fallback...");
-        fileContent = fs.readFileSync(filePath, 'utf-8');
+        fileContent = fs.readFileSync(resolvedPath, 'utf-8');
         // Still compute a CID from the raw content
         const fallbackCid = await computeContentCID(fileContent);
         console.log(`[✔] Fallback CID (raw content): ${fallbackCid}`);

@@ -39,7 +39,19 @@ async function run() {
             throw new Error('FLOWTALOS_SIGNAL environment variable is missing');
         }
 
-        const signal = JSON.parse(process.env.FLOWTALOS_SIGNAL);
+        // Security: Reject oversized payloads to prevent memory/DoS attacks
+        const MAX_SIGNAL_SIZE = 50 * 1024; // 50KB
+        const rawSignal = process.env.FLOWTALOS_SIGNAL;
+        if (rawSignal.length > MAX_SIGNAL_SIZE) {
+            throw new Error(`FLOWTALOS_SIGNAL exceeds max size (${rawSignal.length} > ${MAX_SIGNAL_SIZE} bytes)`);
+        }
+
+        let signal;
+        try {
+            signal = JSON.parse(rawSignal);
+        } catch (parseErr) {
+            throw new Error(`FLOWTALOS_SIGNAL is not valid JSON: ${parseErr.message}`);
+        }
 
         // ── 2. Inject Lit Node Globals ──────────────────────────────────────
         // These variables are normally injected by the Lit Protocol runtime
@@ -91,6 +103,12 @@ async function run() {
         console.log = () => { };
 
         const actionScriptPath = path.join(__dirname, 'action.js');
+
+        // Security: Verify action.js exists before attempting to read
+        if (!fs.existsSync(actionScriptPath)) {
+            throw new Error(`action.js not found at: ${actionScriptPath}`);
+        }
+
         const actionScript = fs.readFileSync(actionScriptPath, 'utf8');
 
         const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
