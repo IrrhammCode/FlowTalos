@@ -144,6 +144,8 @@ const IpfsProofModal = ({ isOpen, onClose, trade }: { isOpen: boolean; onClose: 
     
     // Generate some deterministic or fake reasoning based on the asset/action
     const getReasoning = () => {
+        if (trade.action.includes('DEPOSIT')) return "User securely deposited funds into the FlowTalos Vault parameter contract. Capital is now actively monitored by AI models for optimal yield deployment.";
+        if (trade.action.includes('WITHDRAW')) return "User successfully withdrew funds from the FlowTalos Vault back to their main EVM wallet. Execution secured without slippage.";
         if (trade.action.includes('Deposit')) return "User requested to initialize a recurring Scheduled Savings Vault. Auto-deduction set for 10 FLOW weekly. Sponsored Gas mode activated to subsidize network fees.";
         if (trade.action.includes('Swap')) return "Market inefficiency identified across fragmented DEX liquidity pools (IncrementFi & Metapier). Optimal route identified with < 0.12% slippage. Multi-path execute command signed and authorized.";
         if (trade.action.includes('Restake')) return "Yield accrual threshold reached. Synthesizing auto-compounding Cadence loop to maximize long-term APY. Transaction scheduled for background execution.";
@@ -394,6 +396,7 @@ export default function DashboardPage() {
     // We no longer subtract AI spends from user wallet!
     const aiFlowDelta = useRef(0);
     const aiUsdcDelta = useRef(0);
+    const simulatedTradesRef = useRef<TradeDisplayEntry[]>([]);
 
     // UI State
     const [activeTab, setActiveTab] = useState("Overview");
@@ -449,14 +452,17 @@ export default function DashboardPage() {
                     aiFlowDelta.current = totalFlow;
                     aiUsdcDelta.current = totalUsdc;
 
-                    setRecentTrades(data.map((t: any) => ({
-                        asset: t.token,
-                        action: t.action,
-                        size: `${t.amount} ${t.token}`,
-                        status: t.tx_status,
-                        fullCid: t.ipfs_cid,
-                        time: new Date(t.timestamp).toLocaleString(),
-                    })));
+                    setRecentTrades([
+                        ...simulatedTradesRef.current,
+                        ...data.map((t: any) => ({
+                            asset: t.token,
+                            action: t.action,
+                            size: `${t.amount} ${t.token}`,
+                            status: t.tx_status,
+                            fullCid: t.ipfs_cid,
+                            time: new Date(t.timestamp).toLocaleString(),
+                        }))
+                    ]);
 
                     // --- Dynamic Yield & Chart Simulation ---
                     // Calculate a faux APY based on total trade volume
@@ -583,6 +589,21 @@ export default function DashboardPage() {
                 setIsWithdrawOpen(false);
                 setSuccessMessage(`Successfully withdrawn ${amount} ${assetType} from AI Vault to your EVM wallet.`);
             }
+            
+            // Create local log simulation for Deposit/Withdraw
+            const vaultName = activeVaultModal === 'SYNAPSE' ? 'Synapse AI' : activeVaultModal === 'MOMENTUM' ? 'Momentum Arb.' : activeVaultModal === 'LP' ? 'LP Yield Opt.' : 'Vault';
+            const actionVerb = type === 'deposit' ? 'DEPOSIT' : 'WITHDRAW';
+            const newTrade: TradeDisplayEntry = {
+                asset: assetType,
+                action: `${actionVerb} (${vaultName})`,
+                size: `${amount} ${assetType}`,
+                status: '✅ CONFIRMED',
+                fullCid: `simulated_${type}_${Date.now()}`,
+                time: new Date().toLocaleString(),
+            };
+            simulatedTradesRef.current = [newTrade, ...simulatedTradesRef.current];
+            setRecentTrades(prev => [newTrade, ...prev]);
+
             setAmount("");
             setActiveVaultModal(null);
             setTimeout(() => setSuccessMessage(""), 5000);
