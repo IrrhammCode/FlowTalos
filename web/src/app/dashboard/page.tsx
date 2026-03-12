@@ -17,7 +17,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAccount, useDisconnect } from 'wagmi';
 import { useRouter } from 'next/navigation';
 import { Activity, ShieldCheck, Database, Zap, Cpu, Terminal, ArrowUpRight, ArrowDownRight, RefreshCw, BarChart3, Clock, Wallet, CheckCircle2, Copy, ExternalLink, Settings, LogOut, ChevronRight, X, AlertCircle, History as HistoryIcon, Search } from "lucide-react";
@@ -274,7 +274,7 @@ export default function DashboardPage() {
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
 
-    // Flow State
+    // FCL User state and balances
     const [flowUser, setFlowUser] = useState<FlowUser>({ loggedIn: undefined });
     const [vaultBalance, setVaultBalance] = useState(() => {
         if (typeof window !== 'undefined') {
@@ -283,6 +283,7 @@ export default function DashboardPage() {
         return "0.00";
     });
     const [userBalance, setUserBalance] = useState("0.00");
+    const aiSpentRef = useRef(0);
 
     // UI State
     const [activeTab, setActiveTab] = useState("Overview");
@@ -305,6 +306,10 @@ export default function DashboardPage() {
                 const res = await fetch('/api/trades');
                 const data = await res.json();
                 if (data.length > 0) {
+                    // Sum up all amounts executed by the AI to simulate balance deduction
+                    const totalSpent = data.reduce((sum: number, t: any) => sum + parseFloat(t.amount || 0), 0);
+                    aiSpentRef.current = totalSpent;
+
                     setRecentTrades(data.map((t: any) => ({
                         asset: t.token,
                         action: t.action,
@@ -612,10 +617,10 @@ export default function DashboardPage() {
                         `,
                         args: (arg: any, t: any) => [arg(flowUser.addr, t.Address)]
                     });
-                    setUserBalance(parseFloat(uBal).toFixed(2));
+                    setUserBalance(Math.max(0, parseFloat(uBal) - aiSpentRef.current).toFixed(2));
                 } else {
-                    // EVM wallet user: show deployer account balance
-                    setUserBalance(parseFloat(accountBal).toFixed(2));
+                    // EVM wallet user: show deployer account balance logically reduced by AI spends
+                    setUserBalance(Math.max(0, parseFloat(accountBal) - aiSpentRef.current).toFixed(2));
                 }
 
             } catch (error) {
