@@ -8,14 +8,19 @@
 
 ---
 
-## 🌍 The Role of the AI Agent (5W1H)
+## 🌍 Operational Context & Protocol Role
 
-- **What:** A continuous multi-threaded Python daemon that executes trade evaluation matrices and schedules output transactions.
-- **Why:** To eliminate emotion from trading while simultaneously generating cryptographic proof-of-thought (via Storacha IPFS logs) for every decision it makes.
-- **Who:** Operates completely autonomously on behalf of users who have deposited capital into the FlowTalos Cadence Vault.
-- **Where:** Runs entirely off-chain in any secure cloud computing environment, bridging back on-chain via the Flow testnet.
-- **When:** Executes evaluation loops persistently, scheduling trades via the Forte Flow Scheduler only when strict dual-signal criteria align.
-- **How:** Fetches CoinGecko/CryptoCompare data, calculates mathematical RSI against NLP sentiment, generates EVM swap calldata locally, and delegates signing to the decentralized Lit Protocol.
+The FlowTalos AI Agent operates as a continuous, multi-threaded Python daemon designed to entirely remove emotional human bias from DeFi trading. Running autonomously in a secure, off-chain cloud environment, it acts as the primary strategist for users who have deposited capital into the FlowTalos Cadence Vault. 
+
+By executing a strict evaluation matrix that cross-references live market data with natural language processing (NLP) sentiment, the agent ensures that trades are only scheduled when optimal conditions align. Crucially, the agent bridges its off-chain intelligence back to the Flow blockchain by cryptographically pinning its "proof-of-thought" to the Storacha (IPFS) network and securely delegating transaction threshold signing to the decentralized Lit Protocol. This guarantees that its decision-making process is fully auditable and tamper-proof before any transaction reaches the Forte Flow Scheduler perfectly natively on the Flow testnet.
+
+<details open>
+<summary><b>🔎 Proof of Implementation (Agent Code Evidence)</b></summary>
+
+*   **Continuous Autonomous Loop:** [`main.py (Line 460)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L460) — Highlights the asynchronous daemon loop continuously evaluating the market.
+*   **Dual-Signal Matrix Execution:** [`main.py (Line 312)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L312) — The core logical intersection where CoinGecko technicals meet CryptoCompare NLP sentiment.
+*   **Decentralized Infrastructure Bridging:** [`main.py (Line 380)`](https://github.com/IrrhammCode/FlowTalos/blob/main/ai-agent/main.py#L380) — Subprocess execution wrapping the Storacha IPFS pinning and Lit Action capabilities.
+</details>
 
 ---
 

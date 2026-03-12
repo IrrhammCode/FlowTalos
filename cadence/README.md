@@ -8,14 +8,19 @@
 
 ---
 
-## 🌍 The Role of the Smart Contracts (5W1H)
+## 🌍 Operational Context & Protocol Role
 
-- **What:** The base blockchain protocol layer utilizing pure Cadence resources to handle all human user deposits and AI execution limits.
-- **Why:** To guarantee Absolute Security. Cadence’s "resource-oriented" structure makes it impossible for the Python AI Agent to arbitrarily clone, destroy, or withdraw user funds.
-- **Who:** Defines the boundaries for both the human **Investor** (who holds the withdrawal capability) and the **Synapse AI** (which holds scheduling capability).
-- **Where:** Deployed on the **Flow Testnet**, utilizing Cross-VM imports to bridge deep liquidity from the Flow EVM ecosystem.
-- **When:** Invoked asynchronously whenever the Forte Flow Transaction Scheduler dictates the epoch maturity of a validated AI trade payload.
-- **How:** By separating the `Vault` (custody) and the `StrategyHandler` (execution). The Vault owns a Cadence-Owned Account (COA) explicitly capable of submitting serialized EVM calldata arrays to DEX routers safely.
+The FlowTalos Cadence Smart Contracts act as the foundational base layer of the protocol, explicitly engineered to enforce absolute security through Flow's unique resource-oriented paradigm. By establishing strict boundaries, these contracts ensure that the off-chain Python AI Agent cannot arbitrarily clone, withdraw, or compromise user deposits under any circumstance. 
+
+Deployed securely on the Flow Testnet, the protocol elegantly separates custody from execution. The `FlowTalosVault` holds the human investor's funds and manages a Cadence-Owned Account (COA) for cross-VM interactions, while the `FlowTalosStrategyHandler` acts as the execution gatekeeper. This architecture evaluates payloads verified by the Forte Flow Transaction Scheduler and delegates mathematically precise batch transactions into Flow EVM. This guarantees that liquidity is sourced from deep EVM AMMs dynamically while native Cadence resources safely handle the ultimate settlement.
+
+<details open>
+<summary><b>🔎 Proof of Implementation (Cadence Code Evidence)</b></summary>
+
+*   **Cross-VM Evm Bridge:** [`cadence/contracts/FlowTalosVault.cdc (Line 95)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosVault.cdc#L95) — Demonstrates the COA invoking `executeEVMCalls()` directly against EVM AMMs.
+*   **Execution Handler Gate:** [`cadence/contracts/FlowTalosStrategyHandler.cdc (Line 42)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosStrategyHandler.cdc#L42) — Shows the capability-restricted execution block rejecting zero-amount arrays.
+*   **Immutable On-Chain Proof:** [`cadence/contracts/FlowTalosStrategyHandler.cdc (Line 60)`](https://github.com/IrrhammCode/FlowTalos/blob/main/cadence/cadence/contracts/FlowTalosStrategyHandler.cdc#L60) — The `StrategyExecuted` event permanently recording the IPFS `CIDv1` reasoning receipt onto the Flow ledger.
+</details>
 
 ---
 

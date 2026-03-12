@@ -9,14 +9,19 @@
 
 ---
 
-## 🌍 The Role of the Dashboard (5W1H)
+## 🌍 Operational Context & Protocol Role
 
-- **What:** A high-performance, responsive Web3 application built on Next.js 14 and React 18.
-- **Why:** To fulfill the "Glass-Box" promise of FlowTalos. Decentralized trust means nothing if users cannot easily verify the AI's math. This dashboard surfaces every IPFS log and EVM calldata permutation in real time.
-- **Who:** Built for institutional fund managers and everyday retail DeFi investors to monitor their un-custodied yields.
-- **Where:** Deployed on edge networks (like Vercel) and connected simultaneously to both Ethereum EVM wallets (via Wagmi) and Flow native wallets (via FCL).
-- **When:** Provides 24/7 real-time feedback bridging the off-chain Python terminal directly to the user's browser via the `/api/trades` route.
-- **How:** By querying the local JSON ledger and parsing the immutable Storacha CIDs into clickable, verifiable explorer links while dynamically syncing Vault metrics via the Flow testnet RPC.
+The FlowTalos Dashboard serves as the definitive "Glass-Box" realization of the protocol, built upon high-performance Next.js 14 and React 18 infrastructure. Decentralized trust cannot exist if users cannot effortlessly verify algorithmic decision-making. Therefore, this dashboard is critically aligned to surface every Storacha IPFS reasoning log and Flow EVM execution payload in real-time, bridging the gap between off-chain Python terminal data and the end-user's browser.
+
+Deployed at the edge and catering to both institutional fund managers and retail DeFi investors, the frontend uniquely integrates dual-chain connectivity. Users can interact fluidly utilizing Ethereum EVM wallets via Wagmi or native Flow wallets via the Flow Client Library (FCL). By safely parsing immutable IPFS CIDs into interactive block explorer links while streaming Cadence vault television limits, the dashboard offers uninterrupted, 24/7 accountability of the autonomous system.
+
+<details open>
+<summary><b>🔎 Proof of Implementation (Web Code Evidence)</b></summary>
+
+*   **Real-time Glass-Box Terminal:** [`src/components/TerminalLog.tsx (Line 38)`](https://github.com/IrrhammCode/FlowTalos/blob/main/web/src/components/TerminalLog.tsx#L38) — The React component mapping live AI trading daemon output directly to the DOM.
+*   **Dual-Chain Protocol Connectivity:** [`src/components/Web3Provider.tsx (Line 25)`](https://github.com/IrrhammCode/FlowTalos/blob/main/web/src/components/Web3Provider.tsx#L25) — Safely abstracts the integration between RainbowKit configs and `@onflow/fcl` parameters.
+*   **Secure Trade Ledger API Guard:** [`src/app/api/trades/route.ts (Line 15)`](https://github.com/IrrhammCode/FlowTalos/blob/main/web/src/app/api/trades/route.ts#L15) — Edge function safely parsing the Python `trade_log.json` while guarding against path traversal.
+</details>
 
 ---
 

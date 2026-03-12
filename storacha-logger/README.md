@@ -9,14 +9,19 @@
 
 ---
 
-## 🌍 The Role of the Logger (5W1H)
+## 🌍 Operational Context & Protocol Role
 
-- **What:** A TypeScript Node.js dependency layer exclusively responsible for calculating Base32 CIDv1 IPFS hashes from exact JSON objects.
-- **Why:** To permanently bridge "Off-chain AI reasoning" into "On-chain auditability." By hashing the stringified thought matrices, we guarantee no one (not even the protocol creators) can alter the historical context surrounding a trade.
-- **Who:** Secures protocol governance users tracking system performance, and allows investors to understand *why* their yield increased or decreased.
-- **Where:** Pinned across the distributed web via Filecoin utilizing the Storacha `@web3-storage/w3up-client`.
-- **When:** Invoked asynchronously immediately *prior* to Lit Action execution. The Lit Node will outright refuse to sign the Cadence execution transaction without a valid IPFS Hash present.
-- **How:** Processes the JSON dump from the AI, standardizes formatting whitespace, runs SHA-256 multiformat encodings, executes upload, and returns the structural CID via a rigorous `__CID_OUTPUT__` CLI pipeline protocol.
+The Storacha IPFS Logger acts as the immutable ledger linking "Off-chain AI reasoning" directly to "On-chain auditability." To permanently solve the black-box nature of AI-managed funds, this TypeScript-based module is invoked by the Python Daemon the exact moment a trading decision is reached. Its sole mandate is to ingest the AI's stringified JSON thought matrix, standardize its spacing, and execute strict SHA-256 multiformat encodings.
+
+By calculating a rigorous Base32 CIDv1 IPFS hash and uploading the payload directly to the Filecoin network via the Storacha `@web3-storage/w3up-client`, the module provides undeniable cryptographic proof of the agent's intent. This occurs strictly *prior* to Lit Action execution—meaning the Lit Node will outright refuse to threshold-sign any Cadence transaction that lacks this verifiable IPFS hash. Ultimately, this guarantees that neither the protocol creators nor malicious actors can retroactively alter the historical context or reasoning parameters associated with a decentralized trade.
+
+<details open>
+<summary><b>🔎 Proof of Implementation (Storacha Code Evidence)</b></summary>
+
+*   **Immutable CIDv1 Compilation:** [`src/index.ts (Line 32)`](https://github.com/IrrhammCode/FlowTalos/blob/main/storacha-logger/src/index.ts#L32) — Logic that binds the raw AI reasoning payload string directly into the SHA-256 IPFS block encoding.
+*   **Web3 Storage Pinning Integration:** [`src/index.ts (Line 46)`](https://github.com/IrrhammCode/FlowTalos/blob/main/storacha-logger/src/index.ts#L46) — Seamless invocation of the W3UP Client establishing space delegations and returning explicit network CIDs.
+*   **Deterministic Offline Failovers:** [`src/index.ts (Line 79)`](https://github.com/IrrhammCode/FlowTalos/blob/main/storacha-logger/src/index.ts#L79) — The graceful degradation path that computes mathematically identical Base32 CIDs locally in the event of Storacha credentials missing.
+</details>
 
 ---
 
