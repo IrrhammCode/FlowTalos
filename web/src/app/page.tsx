@@ -207,7 +207,14 @@ const Hero = () => {
           <div className="flex items-center gap-3 font-bold text-xl"><img src="/flow-logo.svg" alt="Flow" className="w-8 h-8" /> FLOW</div>
           <div className="flex items-center gap-3 font-bold text-xl"><img src="/storacha-logo.svg" alt="Storacha" className="w-8 h-8" /> STORACHA</div>
           <div className="flex items-center gap-3 font-bold text-xl"><img src="/lit-logo.svg" alt="Lit Protocol" className="w-7 h-7" /> LIT PROTOCOL</div>
-          <div className="flex items-center gap-3 font-bold text-xl"><Cpu className="w-7 h-7 text-brand-primary" /> SYNAPSE AI</div>
+          <div className="flex items-center gap-3 font-bold text-xl uppercase tracking-widest">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-emerald-500 to-emerald-300 flex items-center justify-center p-[1px]">
+              <div className="w-full h-full bg-[#020a06] rounded-full flex items-center justify-center overflow-hidden">
+                <img src="/logo.png" alt="FlowTalos" className="w-[120%] h-[120%] object-cover mix-blend-screen opacity-90" />
+              </div>
+            </div>
+            <span>FLOW<span className="text-brand-primary font-normal">TALOS</span> AI</span>
+          </div>
         </div>
       </motion.div>
     </section>
