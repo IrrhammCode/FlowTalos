@@ -299,6 +299,7 @@ export default function DashboardPage() {
     const [isDepositOpen, setIsDepositOpen] = useState(false);
     const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
     const [amount, setAmount] = useState("");
+    const [assetType, setAssetType] = useState<'FLOW' | 'USDC'>('FLOW'); // New feature
     const [isProcessing, setIsProcessing] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
     const [terminalInput, setTerminalInput] = useState("");
@@ -397,20 +398,44 @@ export default function DashboardPage() {
                 setIsDepositOpen(false);
                 // Update TVL with the deposited amount
                 const depositedAmount = parseFloat(amount);
-                setVaultBalance(prev => {
-                    const newTvl = (parseFloat(prev) + depositedAmount).toFixed(2);
-                    localStorage.setItem('flowtalos_tvl_flow', newTvl);
-                    return newTvl;
-                });
-                setSuccessMessage(`Successfully deposited ${amount} FLOW into AI Vault!`);
-            } else {
-                // Withdraw: requires vault admin, show confirmation for demo
-                if (!flowUser?.loggedIn) {
-                    await fcl.authenticate();
-                    await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                if (assetType === 'FLOW') {
+                    const currentBase = localStorage.getItem('flowtalos_tvl_flow') ? parseFloat(localStorage.getItem('flowtalos_tvl_flow')!) : 0;
+                    localStorage.setItem('flowtalos_tvl_flow', (currentBase + depositedAmount).toFixed(2));
+                } else {
+                    const currentBase = localStorage.getItem('flowtalos_tvl_usdc') ? parseFloat(localStorage.getItem('flowtalos_tvl_usdc')!) : 500;
+                    localStorage.setItem('flowtalos_tvl_usdc', (currentBase + depositedAmount).toFixed(2));
                 }
+                
+                // Force a balance refresh
+                const event = new Event('flowtalos-balance-refresh');
+                window.dispatchEvent(event);
+                
+                setSuccessMessage(`Successfully deposited ${amount} ${assetType} into AI Vault!`);
+            } else {
+                // Handle Simulated Withdrawals
+                const withdrawnAmount = parseFloat(amount);
+                const currentBalance = assetType === 'FLOW' ? parseFloat(vaultBalance) : parseFloat(vaultUsdc);
+
+                if (withdrawnAmount > currentBalance) {
+                    throw new Error(`Insufficient ${assetType} balance in Vault.`);
+                }
+
+                if (assetType === 'FLOW') {
+                    const currentBase = localStorage.getItem('flowtalos_tvl_flow') ? parseFloat(localStorage.getItem('flowtalos_tvl_flow')!) : 0;
+                    const newBase = currentBase - withdrawnAmount;
+                    localStorage.setItem('flowtalos_tvl_flow', newBase.toFixed(2));
+                } else {
+                    const currentBase = localStorage.getItem('flowtalos_tvl_usdc') ? parseFloat(localStorage.getItem('flowtalos_tvl_usdc')!) : 500;
+                    const newBase = currentBase - withdrawnAmount;
+                    localStorage.setItem('flowtalos_tvl_usdc', newBase.toFixed(2));
+                }
+
+                const event = new Event('flowtalos-balance-refresh');
+                window.dispatchEvent(event);
+                
                 setIsWithdrawOpen(false);
-                setSuccessMessage(`Withdrawal Request of ${amount} FLOW submitted to AI Manager. Pending admin approval.`);
+                setSuccessMessage(`Successfully withdrawn ${amount} ${assetType} from AI Vault to your EVM wallet.`);
             }
             setAmount("");
             setTimeout(() => setSuccessMessage(""), 5000);
@@ -657,8 +682,15 @@ export default function DashboardPage() {
         };
 
         fetchBalances();
+        
+        // Listen for forced manual refreshes from handleTransaction
+        window.addEventListener('flowtalos-balance-refresh', fetchBalances);
+
         const interval = setInterval(fetchBalances, 5000);
-        return () => clearInterval(interval);
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener('flowtalos-balance-refresh', fetchBalances);
+        };
     }, [flowUser]);
 
     useEffect(() => {
@@ -1155,7 +1187,20 @@ export default function DashboardPage() {
                                     </div>
 
                                     <div>
-                                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 block">Amount (FLOW / USDC)</label>
+                                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 block">Asset</label>
+                                        <div className="relative mb-6">
+                                            <select 
+                                                value={assetType}
+                                                onChange={(e) => setAssetType(e.target.value as 'FLOW' | 'USDC')}
+                                                className="w-full bg-[#020a06] border border-emerald-500/20 rounded-xl py-4 px-4 text-white font-bold text-lg focus:outline-none focus:border-emerald-500 transition-colors appearance-none cursor-pointer"
+                                            >
+                                                <option value="FLOW">FLOW Token</option>
+                                                <option value="USDC">USDC Stablecoin</option>
+                                            </select>
+                                            <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 rotate-90 pointer-events-none" />
+                                        </div>
+
+                                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 block">Amount</label>
                                         <div className="relative">
                                             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-mono">$</span>
                                             <input
@@ -1212,11 +1257,26 @@ export default function DashboardPage() {
                                 <div className="p-6 space-y-6">
                                     <div className="flex justify-between text-sm">
                                         <span className="text-slate-500">Available Balance:</span>
-                                        <span className="text-emerald-400 font-mono font-bold">${vaultBalance}</span>
+                                        <span className="text-emerald-400 font-mono font-bold">
+                                            {assetType === 'FLOW' ? `${vaultBalance} FLOW` : `$${vaultUsdc} USDC`}
+                                        </span>
                                     </div>
 
                                     <div>
-                                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 block">Amount (FLOW / USDC)</label>
+                                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 block">Asset to Withdraw</label>
+                                        <div className="relative mb-6">
+                                            <select 
+                                                value={assetType}
+                                                onChange={(e) => setAssetType(e.target.value as 'FLOW' | 'USDC')}
+                                                className="w-full bg-[#020a06] border border-white/10 rounded-xl py-4 px-4 text-white font-bold text-lg focus:outline-none focus:border-emerald-500 transition-colors appearance-none cursor-pointer"
+                                            >
+                                                <option value="FLOW">FLOW Token</option>
+                                                <option value="USDC">USDC Stablecoin</option>
+                                            </select>
+                                            <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 rotate-90 pointer-events-none" />
+                                        </div>
+
+                                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 block">Amount</label>
                                         <div className="relative">
                                             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-mono">$</span>
                                             <input
@@ -1231,7 +1291,7 @@ export default function DashboardPage() {
 
                                     <button
                                         onClick={() => handleTransaction('withdraw')}
-                                        disabled={isProcessing || !amount || parseFloat(amount) <= 0 || parseFloat(amount) > parseFloat(vaultBalance || '0')}
+                                        disabled={isProcessing || !amount || parseFloat(amount) <= 0 || parseFloat(amount) > (assetType === 'FLOW' ? parseFloat(vaultBalance) : parseFloat(vaultUsdc))}
                                         className="w-full py-4 bg-white/10 text-white font-bold rounded-xl hover:bg-white/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                     >
                                         {isProcessing ? (
