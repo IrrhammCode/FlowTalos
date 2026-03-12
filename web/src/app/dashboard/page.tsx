@@ -493,12 +493,20 @@ export default function DashboardPage() {
         if (!terminalInput.trim()) return;
 
         const command = terminalInput;
+        const lowerCommand = command.toLowerCase();
+        const isSavingsAction = lowerCommand.includes("sav") || lowerCommand.includes("sched");
+        const isRestakingAction = lowerCommand.includes("restak") || lowerCommand.includes("stak") || lowerCommand.includes("yield");
+
         setTerminalInput("");
         setTerminalLogs(prev => [...prev, { type: 'user', content: command }]);
 
         // 1. AI Processing via Lit Protocol
         setTimeout(() => {
-            setTerminalLogs(prev => [...prev, { type: 'system', content: "Processing AI Strategy Execution via Lit Protocol..." }]);
+            let loadingMsg = "Processing AI Strategy Execution via Lit Protocol...";
+            if (isSavingsAction) loadingMsg = "Compiling 'Scheduled Savings Vault' Cadence template with auto-deduction parameters...";
+            else if (isRestakingAction) loadingMsg = "Synthesizing 'Auto-Restaking' Cadence loop for yield compounding...";
+            
+            setTerminalLogs(prev => [...prev, { type: 'system', content: loadingMsg }]);
         }, 500);
 
         // Authenticate if needed
@@ -509,7 +517,8 @@ export default function DashboardPage() {
 
         try {
             // 2. Transaction parameters for scheduled execution
-            const scheduledDelay = "5.0";          // Execute 5 seconds in the future
+            // Savings runs weekly (604800s), Restaking runs daily (86400s), standard swap runs quickly (5s)
+            const scheduledDelay = isSavingsAction ? "604800.0" : isRestakingAction ? "86400.0" : "5.0"; 
             const executionEffort = "1000";         // Gas budget for the scheduled tx
             const transactionBatch: any[] = [];     // Batch of EVM calls to execute
 
@@ -546,9 +555,10 @@ export default function DashboardPage() {
                             let schedulingData: {String: AnyStruct} = {
                                 "evmCalls": transactionData,
                                 "ipfsProof": "bafymockfrontendproofcidflowtalos",
-                                "action": "SWAP",
+                                "action": "${isSavingsAction ? 'SCHEDULED_SAVING' : isRestakingAction ? 'RESTAKE_YIELD' : 'SWAP'}",
                                 "token": "FLOW",
-                                "amount": 10000.0
+                                "amount": ${isSavingsAction ? '10.0' : isRestakingAction ? '0.0' : '10000.0'},
+                                "isRecurring": ${isSavingsAction || isRestakingAction ? 'true' : 'false'}
                             }
                             
                             self.schedulerManager.schedule(
@@ -585,15 +595,29 @@ export default function DashboardPage() {
             await fcl.tx(txId).onceSealed();
 
             setTimeout(() => {
-                setTerminalLogs(prev => [...prev, { type: 'success', content: `✅ Sub-Graph execution sealed.\nAgent will wake up in ${scheduledDelay} seconds to execute the trade.` }]);
-
-                // Add to recent trades table
-                setRecentTrades(prev => [
-                    { asset: 'FLOW → USDC', action: 'AI Scheduled Swap', size: '10,000 FLOW', status: '✅ CONFIRMED', fullCid: '', time: new Date().toLocaleString() },
-                    ...prev
-                ]);
-
-                setSuccessMessage("AI Strategy Successfully Scheduled on Flow!");
+                if (isSavingsAction) {
+                    setTerminalLogs(prev => [...prev, { type: 'success', content: `🎯 Auto-savings loop created.\n10 FLOW will be automatically deposited into your secure vault every 7 days using sponsored gas.` }]);
+                    setRecentTrades(prev => [
+                        { asset: 'FLOW', action: 'Scheduled Vault Deposit', size: '10 FLOW/wk', status: '⏳ ACTIVE LOOP', fullCid: '', time: new Date().toLocaleString() },
+                        ...prev
+                    ]);
+                    setSuccessMessage("Scheduled Savings Vault successfully initialized!");
+                } else if (isRestakingAction) {
+                    setTerminalLogs(prev => [...prev, { type: 'success', content: `♻️ Auto-Restaking loop initialized.\nAll accrued yield will be automatically compounded every 24 hours seamlessly.` }]);
+                    setRecentTrades(prev => [
+                        { asset: 'FLOW Liquid', action: 'Auto-Restake Yield', size: '100% Accrued', status: '⏳ ACTIVE COMPOUND', fullCid: '', time: new Date().toLocaleString() },
+                        ...prev
+                    ]);
+                    setSuccessMessage("Auto-Restaking loop successfully initialized!");
+                } else {
+                    setTerminalLogs(prev => [...prev, { type: 'success', content: `✅ Sub-Graph execution sealed.\nAgent will wake up in ${scheduledDelay} seconds to execute the trade.` }]);
+                    setRecentTrades(prev => [
+                        { asset: 'FLOW → USDC', action: 'AI Scheduled Swap', size: '10,000 FLOW', status: '✅ CONFIRMED', fullCid: '', time: new Date().toLocaleString() },
+                        ...prev
+                    ]);
+                    setSuccessMessage("AI Strategy Successfully Scheduled on Flow!");
+                }
+                
                 setTimeout(() => setSuccessMessage(""), 5000);
             }, 500);
 
