@@ -212,14 +212,14 @@ const ActiveVault = ({ vaultBalance, vaultApy, onDeposit, onWithdraw }: { vaultB
     <div className="bg-gradient-to-br from-emerald-950/40 to-[#010805] border border-emerald-500/20 rounded-2xl p-6 relative overflow-hidden h-full flex flex-col justify-between">
         <div className="absolute right-0 top-0 w-64 h-64 bg-emerald-500/10 blur-[60px] rounded-full pointer-events-none"></div>
 
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
+        <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 relative z-10 w-full">
             <div>
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                <div className="flex items-center gap-3 mb-2 flex-wrap">
+                    <div className="p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20 shrink-0">
                         <Cpu className="w-5 h-5 text-emerald-400" />
                     </div>
-                    <h2 className="text-xl font-bold text-white">Synapse AI Vault (FLOW)</h2>
-                    <span className="flex h-2.5 w-2.5 relative ml-2">
+                    <h2 className="text-xl font-bold text-white break-words">Synapse AI Vault (FLOW)</h2>
+                    <span className="flex h-2.5 w-2.5 relative shrink-0">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-emerald-400"></span>
                         <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                     </span>
@@ -227,23 +227,23 @@ const ActiveVault = ({ vaultBalance, vaultApy, onDeposit, onWithdraw }: { vaultB
                 <p className="text-slate-400 text-sm">Actively scanning market geometry. 0% management fee.</p>
             </div>
 
-            <div className="flex gap-4 w-full md:w-auto">
+            <div className="flex gap-3 w-full xl:w-auto shrink-0">
                 <button
                     onClick={onDeposit}
-                    className="flex-1 md:flex-none px-6 py-3 bg-emerald-500 text-emerald-950 font-bold rounded-xl hover:bg-emerald-400 transition-colors shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+                    className="flex-1 xl:flex-none px-4 lg:px-6 py-3 bg-emerald-500 text-emerald-950 font-bold rounded-xl hover:bg-emerald-400 transition-colors shadow-[0_0_20px_rgba(16,185,129,0.2)]"
                 >
                     Deposit
                 </button>
                 <button
                     onClick={onWithdraw}
-                    className="flex-1 md:flex-none px-6 py-3 bg-white/5 text-white font-bold rounded-xl hover:bg-white/10 border border-white/10 transition-colors"
+                    className="flex-1 xl:flex-none px-4 lg:px-6 py-3 bg-white/5 text-white font-bold rounded-xl hover:bg-white/10 border border-white/10 transition-colors"
                 >
                     Withdraw
                 </button>
             </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8 pt-6 border-t border-emerald-500/10">
+        <div className="grid grid-cols-2 gap-4 lg:gap-6 mt-8 pt-6 border-t border-emerald-500/10 w-full relative z-10">
             <div>
                 <p className="text-xs text-slate-500 uppercase tracking-widest mb-1">Total Value Locked</p>
                 <p className="text-2xl font-mono font-bold text-white">${vaultBalance || "0.00"}</p>
