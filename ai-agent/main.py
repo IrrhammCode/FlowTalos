@@ -90,6 +90,20 @@ def _sanitize_env_for_subprocess() -> Dict[str, str]:
     return {k: v for k, v in os.environ.items() if k in safe_keys}
 
 
+def check_vault_balance() -> float:
+    """
+    Queries the Flow EVM Testnet for the native FLOW balance of the Vault COA.
+    """
+    try:
+        w3 = Web3(Web3.HTTPProvider('https://testnet.evm.nodes.onflow.org'))
+        # Check native FLOW balance on EVM side
+        balance_wei = w3.eth.get_balance(w3.to_checksum_address(VAULT_COA))
+        return float(w3.from_wei(balance_wei, 'ether'))
+    except Exception as e:
+        print(f"  [⚠] Error fetching real Vault balance from Flow EVM: {e}")
+        return 0.0
+
+
 def fetch_market_data(symbol: str = "flow") -> Optional[Dict[str, Any]]:
     """
     Fetches real-time crypto market data from CoinGecko's public API.
@@ -809,6 +823,21 @@ def _save_or_update_trade(trade_entry: Dict[str, Any]) -> None:
 
 def main():
     print("--- FlowTalos Synapse AI Service Started ---\n")
+    
+    # 0. Enforce Real Balance Constraints (Hackathon Track Requirement)
+    print("[⏳] Verifying on-chain capital allocations in Synapse AI Vault...")
+    vault_balance = check_vault_balance()
+    print(f"  [✔] Vault COA ({VAULT_COA[:8]}...): {vault_balance:.4f} FLOW")
+    
+    if vault_balance <= 0.01:
+        print("\n" + "="*60)
+        print("  FLOWTALOS AI AGENT — VAULT EMPTY")
+        print("="*60)
+        print("  The Synapse AI Vault has insufficient locked FLOW tokens.")
+        print("  Security Protocol: Execution suspended to prevent zero-value ghost trades.")
+        print("  Waiting for user deposit via Smart Contract / Frontend...")
+        print("="*60)
+        return
     
     # 1. Gather Data
     market_data = fetch_market_data("flow")
