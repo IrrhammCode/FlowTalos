@@ -52,13 +52,61 @@ Deployed at the edge and catering to both institutional fund managers and retail
 
 ---
 
+## 🛠️ Tech Stack
+
+| Layer | Technology | Purpose |
+|------|------------|---------|
+| Framework | Next.js 14 | App Router & Edge API |
+| Language | TypeScript | Type-safe development |
+| Styling | Tailwind CSS | Utility-first responsive design |
+| Charts | Recharts | Dynamic portfolio metrics |
+| Wallet Integration | Wagmi + RainbowKit | Ethereum/EVM wallet modal |
+| Flow Integration | @onflow/fcl | Cadence transaction signing |
+| Runtime | Node.js | Edge rendering & API execution |
+
+---
+
+## 📂 Folder Structure
+
+```text
+web/
+├── src/
+│   ├── app/                 # Next.js App Router root
+│   │   ├── dashboard/       # Main authenticated dashboard interface
+│   │   └── api/             # Edge API routes (e.g., /api/trades)
+│   ├── components/          # Reusable React components
+│   │   ├── TerminalLog.tsx  # Live AI reasoning output stream
+│   │   └── Web3Provider.tsx # Dual-chain wallet wrapper (EVM/FCL)
+│   ├── lib/                 # Utilities and SSR polyfills
+│   └── config/              # Flow network configurations
+└── public/                  # Static assets and protocol SVGs
+```
+
+---
+
 ## 💎 Key Features
 
 - **Protocol Stats Ticker:** Live metrics including TVL and strategy uptime.
 - **Dual-Chain Wallet Connector:** Flawless integration between RainbowKit (EVM) and `@onflow/fcl` (Cadence).
 - **IPFS Proof Links:** Direct access to unalterable `CIDv1` records verifying that the Python logic was executed fairly.
 - **AI Terminal Emulation:** A React component exclusively rendering the live thoughts of the Synapse Daemon in real-time.
-- **Responsive Analytics:** Recharts charting capabilities plotting yield performance dynamically.
+---
+
+## 🎨 Screenshots
+
+To provide a visual sense of the protocol's operating environment, here are structural previews of the system in action:
+
+### 1. Landing Page
+*The protocol introduction and Web3 Wallet connectivity portal.*
+![Landing Page](../docs/landing.png)
+
+### 2. Dashboard Interface
+*Real-time monitoring of Vault TVL, portfolio metrics, and the active Vault.*
+![Dashboard Overview](../docs/dashboard.png)
+
+### 3. AI Terminal & IPFS Logs
+*Live terminal emulation rendering the thoughts of the Synapse Daemon and clickable CIDv1 immutable proofs.*
+![Terminal and Logs](../docs/terminal.png)
 
 ---
 
@@ -75,16 +123,17 @@ The `/api/trades` bridge has been intensely hardened against malicious local fil
 
 ### 1. Prerequisites
 - Node.js 18+ and `npm`
-- A WalletConnect Project ID
 
-### 2. Environment Setup
+### 2. Environment Variables
 
-Create `.env.local`:
-```ini
-NEXT_PUBLIC_WC_PROJECT_ID=your_id_here
-```
+Create a `.env.local` file at the root of the `/web` directory.
 
-### 3. Quick Boot
+| Variable | Description | Requirement |
+|--------|-------------|-------------|
+| `NEXT_PUBLIC_WC_PROJECT_ID` | WalletConnect Project ID from cloud.walletconnect.com | **Required** (For RainbowKit EVM integration) |
+| `NEXT_PUBLIC_FLOW_NETWORK` | Flow network environment (`testnet` or `mainnet`) | Optional (Defaults to `testnet`) |
+
+### 3. Local Development
 
 ```bash
 cd web
@@ -93,3 +142,45 @@ npm run dev
 ```
 
 Visit `http://localhost:3000` to interact with the Glass-Box interface.
+
+---
+
+## 🚀 Deployment
+
+The FlowTalos Dashboard is optimized for Vercel edge deployment.
+
+**Deploy via Vercel CLI:**
+```bash
+npx vercel deploy --prod
+```
+
+**Or build for production locally:**
+```bash
+npm run build
+npm start
+```
+
+---
+
+## 🆘 Troubleshooting
+
+**1. EVM Wallet not connecting or WalletConnect error:**
+- The RainbowKit modal relies on WalletConnect. Ensure `NEXT_PUBLIC_WC_PROJECT_ID` is correctly set in `.env.local` and restart the server.
+
+**2. Hydration or LocalStorage window errors:**
+- Next.js SSR occasionally conflicts during hard refreshes if states differ. Delete the build cache and restart:
+```bash
+rm -rf .next
+npm run dev
+```
+
+**3. Testnet Cadence transactions stalling:**
+- Testnet nodes undergo routine maintenance. Check Flow testnet status via the official Discord or [status.onflow.org](https://status.onflow.org/).
+
+---
+
+## 📄 License
+
+This dashboard component is distributed under the **MIT License**.
+
+Refer to the root repository `LICENSE` file for full definitions and terms.
