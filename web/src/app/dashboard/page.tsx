@@ -306,8 +306,8 @@ export default function DashboardPage() {
     const [successMessage, setSuccessMessage] = useState("");
     const [terminalInput, setTerminalInput] = useState("");
     const [terminalLogs, setTerminalLogs] = useState<TerminalLogEntry[]>([
-        { type: 'ai', content: "Based on current on-chain liquidity, what's the optimal route to swap 10,000 FLOW into USDC right now to secure profits?" },
-        { type: 'system', content: "Analyzing fragmented liquidity pools across DEXs...\n\nBest Route Detected:\n40% via IncrementFi (Price: $0.844/FLOW)\n60% via Metapier (Price: $0.846/FLOW)\nEst. Slippage: 0.11% | Gas: < $0.001\n\nShall I execute this split order to secure stablecoin profits?" }
+        { type: 'system', content: "⚡ FlowTalos AI Initialized.\nNetwork: Flow Mainnet | Gas: SPONSORED (100% Covered)\nMode: Consumer DeFi Autopilot" },
+        { type: 'ai', content: "I can translate human language into complex, zero-gas DeFi transactions.\n\nTry asking me things like:\n1. 'Create a Scheduled Savings Vault deducting 10 FLOW weekly'\n2. 'Set up an Auto-Restaking loop for my yield'\n3. 'Analyze the market and auto-rebalance my portfolio'" }
     ]);
     const [recentTrades, setRecentTrades] = useState<TradeDisplayEntry[]>([]);
 
@@ -1050,11 +1050,16 @@ export default function DashboardPage() {
                                         <Terminal className="w-5 h-5 text-emerald-400" />
                                         Talos Intelligence Hub
                                     </h2>
-                                    <p className="text-slate-400 text-sm">Direct interface with the quantitative AI engine.</p>
+                                    <p className="text-slate-400 text-sm">Human language to zero-gas Consumer DeFi execution.</p>
                                 </div>
-                                <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/10 rounded-full border border-emerald-500/20 text-xs text-emerald-400 font-bold">
-                                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                                    Model: GPT-4-Quant (v2.1)
+                                <div className="flex gap-2">
+                                    <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-blue-500/10 rounded-full border border-blue-500/20 text-xs text-blue-400 font-bold">
+                                        <Zap className="w-3 h-3" /> Sponsored Gas
+                                    </div>
+                                    <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/10 rounded-full border border-emerald-500/20 text-xs text-emerald-400 font-bold">
+                                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                        Model: GPT-4-Quant
+                                    </div>
                                 </div>
                             </div>
 
@@ -1085,7 +1090,7 @@ export default function DashboardPage() {
                                                 value={terminalInput}
                                                 onChange={(e) => setTerminalInput(e.target.value)}
                                                 onKeyDown={(e) => e.key === 'Enter' && handleTerminalExecute()}
-                                                placeholder="Type a command (e.g. Execute optimal swap...)"
+                                                placeholder="Type a command (e.g. Schedule a savings vault for 10 FLOW weekly...)"
                                                 className="w-full bg-[#010805] border border-white/10 rounded-xl py-3 pl-4 pr-12 text-white text-sm focus:outline-none focus:border-emerald-500 transition-colors"
                                             />
                                             <button onClick={handleTerminalExecute} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-emerald-500/10 text-emerald-400 rounded-lg hover:bg-emerald-500/30 transition-colors cursor-pointer">
