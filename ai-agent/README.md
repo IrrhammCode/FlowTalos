@@ -1,17 +1,32 @@
 # 🧠 FlowTalos AI Agent
 
-> **The Brain** — Autonomous DeFi strategy engine that combines quantitative market analysis with qualitative news sentiment to generate actionable on-chain signals.
+> **The Brain** — Autonomous DeFi strategy engine combining quantitative technical analysis with qualitative news sentiment to generate actionable, cryptographically verifiable on-chain signals.
+
+[![Python Core](https://img.shields.io/badge/Language-Python_3.9+-3776AB?style=for-the-badge&logo=python&logoColor=white)](#)
+[![Web3 Analytics](https://img.shields.io/badge/Web3-AI_Analytics-blueviolet?style=for-the-badge)](#)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 ---
 
-## Architecture Overview
+## 🌍 The Role of the AI Agent (5W1H)
 
-```
+- **What:** A continuous multi-threaded Python daemon that executes trade evaluation matrices and schedules output transactions.
+- **Why:** To eliminate emotion from trading while simultaneously generating cryptographic proof-of-thought (via Storacha IPFS logs) for every decision it makes.
+- **Who:** Operates completely autonomously on behalf of users who have deposited capital into the FlowTalos Cadence Vault.
+- **Where:** Runs entirely off-chain in any secure cloud computing environment, bridging back on-chain via the Flow testnet.
+- **When:** Executes evaluation loops persistently, scheduling trades via the Forte Flow Scheduler only when strict dual-signal criteria align.
+- **How:** Fetches CoinGecko/CryptoCompare data, calculates mathematical RSI against NLP sentiment, generates EVM swap calldata locally, and delegates signing to the decentralized Lit Protocol.
+
+---
+
+## 🏗️ Architecture Overview
+
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │                    FlowTalos AI Agent                        │
 ├─────────────────────────────────────────────────────────────┤
 │  1. fetch_market_data()    → CoinGecko real-time price      │
-│  2. fetch_news_sentiment() → CryptoCompare headline scoring │
+│  2. fetch_news_sentiment() → CryptoCompare headline NLP     │
 │  3. synapse_ai_analyze()   → Dual-signal matrix decision    │
 │  4. upload_to_storacha()   → Immutable IPFS proof (CID)     │
 │  5. trigger_lit_action()   → Lit Protocol threshold signing │
@@ -19,103 +34,81 @@
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## Directory Structure
+---
 
-```
-ai-agent/
-├── main.py             # Core agent logic — 6-step pipeline
-├── test_agent.py       # Pytest suite — 8 tests (3 classes)
-├── requirements.txt    # Python dependencies
-├── .env.example        # Environment variable template
-└── README.md           # This file
-```
+## 📊 Decision Matrix
 
-## Decision Matrix
+The Synapse AI engine utilizes a strict **Dual-Signal alignment matrix**. Trades only execute when technicals and sentiment explicitly agree, drastically reducing quantitative "whipsaw" false positives.
 
-The Synapse AI engine uses a dual-signal matrix to produce actionable signals:
+| Technical Variable | Positive Sentiment | Neutral Sentiment | Negative Sentiment |
+|--------------------|:------------------:|:-----------------:|:------------------:|
+| **Bullish (RSI)**  | 🟢 **BUY**         | 🟢 **BUY**        | ⚪ HOLD            |
+| **Neutral**        | ⚪ HOLD            | ⚪ HOLD           | ⚪ HOLD            |
+| **Bearish (RSI)**  | ⚪ HOLD            | 🔴 **SELL**       | 🔴 **SELL**        |
 
-|           | Positive News | Neutral News | Negative News |
-|-----------|:------------:|:------------:|:-------------:|
-| Bullish   | **BUY**      | **BUY**      | HOLD          |
-| Neutral   | HOLD         | HOLD         | HOLD          |
-| Bearish   | HOLD         | **SELL**     | **SELL**      |
+---
 
-## Tech Stack
+## 🛠️ Technology Stack & Dependencies
 
 | Technology | Purpose |
 |---|---|
-| Python 3.9+ | Core language |
-| `requests` | CoinGecko & CryptoCompare API calls |
-| `web3.py` | EVM calldata encoding (Uniswap V2 ABI) |
-| `subprocess` | Orchestrates Node.js subprocesses for Lit & Storacha |
-| `hashlib` | SHA-256 fallback CID & signature generation |
-| `fcntl` | File locking for concurrent trade log writes |
+| **Python 3.9+** | Core asynchronous loop and orchestrator |
+| **`requests`** | Time-series and qualitative API polling |
+| **`web3.py`** | ABI EVM calldata generation for Uniswap V2 forks |
+| **`subprocess`** | Sandboxed RPC execution for Lit Protocol & IPFS Node.js |
+| **`hashlib`** | Cryptographic local fallback SHA-256 validation |
+| **`fcntl`** | Aggressive file locking preventing JSON log race conditions |
 
-## Fallback Strategy
+---
 
-Every external dependency has a graceful degradation path — the agent **never crashes** mid-execution:
+## 🛡️ Security & Zero-Crash Architecture
 
-| Dependency | Fallback |
-|---|---|
-| CoinGecko API | Aborts cleanly (refuses to trade on stale data) |
-| Storacha Upload | Local SHA-256 CID computation (`bafylocal...`) |
-| Lit Protocol | Deterministic double-SHA-256 signature (`0x...`) |
-| Flow CLI | Offline payload construction (state machine preserved) |
+FlowTalos AI is designed never to panic. Every external dependency uses deterministic graceful degradation:
 
-## Security Measures
+- **CoinGecko Offline?** → Aborts cleanly, preventing invalid trades.
+- **Storacha IPFS Network Down?** → Calculates Base32 CIDv1 locally via strictly matched SHA-256 parameters.
+- **Lit Protocol Timeout?** → Generates mock double-SHA-256 deterministic arrays for continuous execution testing.
+- **Local EVM Calldata Serialization:** The `swapExactTokensForTokens` ABI is strictly coded internally, preventing external RPC-injected smart contract routing modification.
 
-- **Symbol Whitelist** — Only `ALLOWED_SYMBOLS` can be queried from CoinGecko (prevents URL injection)
-- **Sanitized Subprocess Environment** — `_sanitize_env_for_subprocess()` forwards only `PATH`, `HOME`, `NODE_PATH` to Node.js child processes; no API keys or tokens leak
-- **Unpredictable Temp Files** — Uses `tempfile.mkstemp()` instead of hardcoded filenames
-- **File Locking** — `fcntl.flock(LOCK_EX)` prevents race conditions on `trade_log.json`
-- **Payload Truncation** — Reasoning strings capped at `MAX_REASONING_FOR_SUBPROCESS` (200 chars)
+---
 
-## Getting Started
+## 💻 Installation & Usage
 
-### Prerequisites
-- Python 3.9 or later
-- `pip` package manager
-- Node.js 18+ (for Lit Action & Storacha subprocesses)
+### 1. Prerequisites
+- Python 3.9+ and `pip`
+- Node.js 18+ (Required for Lit Action & Storacha Subprocesses)
 
-### Installation
+### 2. Quick Setup
 
 ```bash
 cd ai-agent
 python3 -m venv venv
-source venv/bin/activate   # macOS/Linux
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Running the Agent
+### 3. Run the Daemon
 
 ```bash
-python3 main.py
+python3 main.py --daemon
 ```
 
-The agent will:
-1. Fetch live FLOW market data from CoinGecko
-2. Analyze news sentiment from CryptoCompare
-3. Generate a BUY/SELL/HOLD signal
-4. Upload reasoning proof to Storacha IPFS
-5. Sign via Lit Protocol threshold network
-6. Schedule the transaction on Flow Testnet
+### 4. Execute Test Suite
 
-### Running Tests
+The test suite validates the EVM ABI calldata compiler, the deterministic CID hasher, and the dual-signal matrix.
 
 ```bash
 python3 -m pytest test_agent.py -v
 ```
 
-**Expected output:** 8 tests, 3 test classes:
-- `TestGenerateEVMCalldata` — Validates Uniswap V2 calldata encoding
-- `TestComputeLocalCID` — Validates deterministic CID generation
-- `TestSynapseAIAnalyze` — Validates the decision matrix logic
+---
 
-## Environment Variables
+## 🔑 Environment Secrets
 
-See `.env.example` for full documentation. The agent runs without any environment variables (all external calls have fallbacks), but for full functionality:
+All integrations gracefully fall back to local computation if API keys are missing. For absolute production topology, see `.env.example`:
 
-| Variable | Required | Description |
-|---|---|---|
-| `FLOW_TESTNET_SIGNER` | Optional | Flow Testnet account address |
-| Node.js in `PATH` | Recommended | Required for Lit & Storacha subprocesses |
+```ini
+FLOW_TESTNET_SIGNER=24c2e530f15129b7
+COINGECKO_API_KEY=your_key_here
+CRYPTOCOMPARE_API_KEY=your_key_here
+```

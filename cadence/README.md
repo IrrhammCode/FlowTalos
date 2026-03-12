@@ -1,12 +1,27 @@
 # ⛓️ FlowTalos Cadence Smart Contracts
 
-> **The Settlement Layer** — Resource-oriented smart contracts deployed on Flow Testnet, managing autonomous AI strategy execution through the Forte Scheduled Transactions framework.
+> **The Settlement Layer** — Unparalleled capability-based smart contracts deployed on Flow Testnet, enabling cross-VM EVM liquidity access while isolating funds from AI manipulation.
+
+[![Flow Blockchain](https://img.shields.io/badge/Blockchain-Flow_Cadence-10B981?style=for-the-badge&logo=flow&logoColor=white)](#)
+[![Smart Contracts](https://img.shields.io/badge/Infrastructure-Smart_Contracts-black?style=for-the-badge)](#)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 ---
 
-## Architecture Overview
+## 🌍 The Role of the Smart Contracts (5W1H)
 
-```
+- **What:** The base blockchain protocol layer utilizing pure Cadence resources to handle all human user deposits and AI execution limits.
+- **Why:** To guarantee Absolute Security. Cadence’s "resource-oriented" structure makes it impossible for the Python AI Agent to arbitrarily clone, destroy, or withdraw user funds.
+- **Who:** Defines the boundaries for both the human **Investor** (who holds the withdrawal capability) and the **Synapse AI** (which holds scheduling capability).
+- **Where:** Deployed on the **Flow Testnet**, utilizing Cross-VM imports to bridge deep liquidity from the Flow EVM ecosystem.
+- **When:** Invoked asynchronously whenever the Forte Flow Transaction Scheduler dictates the epoch maturity of a validated AI trade payload.
+- **How:** By separating the `Vault` (custody) and the `StrategyHandler` (execution). The Vault owns a Cadence-Owned Account (COA) explicitly capable of submitting serialized EVM calldata arrays to DEX routers safely.
+
+---
+
+## 🏗️ Architecture Overview
+
+```text
 ┌───────────────────────────────────────────────────────────────┐
 │                  Flow Blockchain (Testnet)                     │
 ├───────────────────────────────────────────────────────────────┤
@@ -25,117 +40,52 @@
 │                                                               │
 │  ┌──────────────────────────────────────────────────────────┐ │
 │  │  Forte Scheduled Transactions (FlowTransactionScheduler) │ │
-│  │  • Timer queue          • Fee estimation                 │ │
-│  │  • Priority scheduling  • Capability-based access        │ │
 │  └──────────────────────────────────────────────────────────┘ │
 └───────────────────────────────────────────────────────────────┘
 ```
 
-## Directory Structure
+---
 
-```
-cadence/
-├── cadence/
-│   ├── contracts/
-│   │   ├── FlowTalosVault.cdc              # COA manager + EVM batch bridge
-│   │   └── FlowTalosStrategyHandler.cdc    # Forte scheduler handler
-│   └── transactions/
-│       ├── InitVaultAndHandler.cdc         # One-time account setup
-│       ├── ScheduleAIStrategy.cdc          # AI strategy scheduling
-│       └── InitSchedulerManager.cdc        # Scheduler manager init
-├── imports/                                # Flow standard library contracts
-│   ├── 631e88ae7f1d7c20/                   # EVM contract
-│   ├── 8c5303eaa26202d6/                   # FlowTransactionScheduler + Utils
-│   └── 9a0766d93b6608b7/                   # FlowToken + FungibleToken
-├── flow.json                               # Flow project configuration
-└── README.md                               # This file
-```
+## 🔐 Core Contract Modularity
 
-## Contracts
+### `FlowTalosVault.cdc` (The Liquidity Bridge)
+The strict non-custodial EVM Bridge Manager. It holds FLOW/USDC safely inside a Cadence resource structure, preventing any AI extraction vectors.
+- Manages an internal **Cadence-Owned Account (COA)** dynamically bridging funds to Flow EVM.
+- Exposes `executeEVMCalls()` allowing deterministic batch processing of Solidity calldata byte-arrays against AMM Routers like IncrementFi.
 
-### FlowTalosVault.cdc
-The **EVM Bridge Manager** — creates and manages a Cadence-Owned Account (COA) on Flow EVM for executing DeFi transactions.
+### `FlowTalosStrategyHandler.cdc` (The Validation Gate)
+Serves as the ultimate authority receiving queued executions from the Forte Scheduler framework.
+- Evaluates specific payload variables (e.g., rejecting `AMOUNT <= 0`).
+- Triggers immutable on-chain Audit tracking by emitting the `StrategyExecuted` event natively containing the IPFS `CIDv1` string representing the AI's cryptographic decision receipt.
 
-| Feature | Description |
-|---|---|
-| COA Management | Automatically creates a COA during deployment |
-| Batch EVM Execution | `executeEVMCalls()` processes arrays of EVM transactions |
-| Atomic Batches | `mustPass=true` ensures all-or-nothing execution |
-| Input Validation | Validates `to` and `data` fields on every call |
-| Safe Defaults | `gasLimit` defaults to 300,000; `value` defaults to 0 |
-| Idempotent Init | Safe to redeploy without panics |
+---
 
-### FlowTalosStrategyHandler.cdc
-The **Forte Handler** — receives scheduled execution calls from the Flow Transaction Scheduler.
+## 🛡️ Uncompromised Security Implementation
 
-| Feature | Description |
-|---|---|
-| TransactionHandler | Conforms to `FlowTransactionScheduler.TransactionHandler` |
-| Action Whitelist | Only accepts `BUY` or `SELL` actions |
-| Amount Guard | Rejects trades with `amount <= 0` |
-| Empty Batch Guard | Rejects strategies with no EVM calls |
-| On-Chain Audit | Emits `StrategyExecuted` with IPFS proof CID |
+- **Capability-Based Access Control:** Unlike Ethereum mappings, access is granted strictly through unforgeable Capability structs. The AI is only authorized to touch the `StrategyHandler`, inherently firewalling it away from the `VaultManager` withdrawals.
+- **Action Whitelisting:** Execution entirely aborts and rolls back if an action string falls outside approved protocol constants ("BUY" / "SELL").
+- **Atomic Batches:** `mustPass=true` is hardcoded across the cross-VM layer. If the Flow EVM DEX swap experiences massive slippage and fails, the native Cadence Vault transaction rolls back seamlessly without trailing state variables breaking.
 
-## Transactions
+---
 
-### InitVaultAndHandler.cdc
-One-time account setup that provisions the Strategy Handler and issues capabilities for the Forte scheduler. **Idempotent** — safe to call multiple times.
+## 💻 Quick Deployment
 
-### ScheduleAIStrategy.cdc
-The transaction the AI Agent signs to schedule future execution:
-1. Calculates target timestamp (current block + delay)
-2. Estimates FLOW token fee
-3. Withdraws fees from signer's vault
-4. Initializes Scheduler Manager (first-time only)
-5. Resolves Handler capability
-6. Schedules the job with full strategy metadata
+### 1. Prerequisites
+- [Flow CLI installed](https://docs.onflow.org/flow-cli/)
+- Funded account in `flow.json` mapped to the Flow Testnet
 
-## Security
-
-- **Capability-Based Access Control** — Only the Forte scheduler (with `FlowTransactionScheduler.Execute` entitlement) can invoke `executeTransaction`
-- **Action Whitelist** — Only `BUY` or `SELL` strings are accepted; any other action panics
-- **Positive Amount Assertion** — `amount > 0.0` enforced on every execution
-- **Atomic Execution** — `mustPass=true` ensures the entire EVM batch succeeds or rolls back
-- **Dictionary Key Validation** — Each EVM call descriptor is validated for required fields
-- **Idempotent Initialization** — Both `init()` and `InitVaultAndHandler.cdc` safely handle re-execution
-
-## Deployment
-
-### Prerequisites
-- [Flow CLI](https://docs.onflow.org/flow-cli/) installed
-- Flow Testnet account configured in `flow.json`
-
-### Deploy to Testnet
-
+### 2. Automated Generation
 ```bash
 cd cadence
-
-# Generate keys (first time only)
 flow keys generate
+```
 
-# Deploy all contracts
+### 3. Deploy to Flow Testnet
+```bash
+# Push smart contracts to the Flow Network
 flow project deploy --network=testnet
 
-# Initialize the vault handler (one-time)
+# Initialize the Vault capability mappings
 flow transactions send cadence/transactions/InitVaultAndHandler.cdc \
   --network testnet --signer testnet-account --gas-limit 9999
 ```
-
-### Verify Deployment
-
-```bash
-flow scripts execute --network=testnet \
-  --code "import FlowTalosVault from 0x24c2e530f15129b7; access(all) fun main() {}"
-```
-
-## Flow Standard Library Imports
-
-The `imports/` directory contains standard contracts referenced by configuration:
-
-| Address | Contract | Purpose |
-|---|---|---|
-| `631e88ae7f1d7c20` | `EVM` | Flow EVM bridge interface |
-| `8c5303eaa26202d6` | `FlowTransactionScheduler` | Forte scheduled transactions |
-| `8c5303eaa26202d6` | `FlowTransactionSchedulerUtils` | Scheduler manager utilities |
-| `9a0766d93b6608b7` | `FlowToken` | Native FLOW token |
-| `9a0766d93b6608b7` | `FungibleToken` | Fungible token standard |

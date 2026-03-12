@@ -1,145 +1,80 @@
 # 🗄️ FlowTalos Storacha IPFS Logger
 
-> **The Ledger** — Creates immutable, content-addressed proofs of the AI Agent's reasoning by computing IPFS CIDs and optionally pinning them to the Storacha network.
+> **The Ledger** — Creates immutable, content-addressed cryptographic proofs of the AI Agent's thought processes, pinning metadata arrays persistently to the decentralized Storacha network.
+
+[![Storacha](https://img.shields.io/badge/Storage-Storacha_Network-blue?style=for-the-badge)](#)
+[![TypeScript](https://img.shields.io/badge/Language-TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](#)
+[![IPFS](https://img.shields.io/badge/Protocol-IPFS_CIDv1-1BB9A6?style=for-the-badge)](#)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 ---
 
-## Architecture Overview
+## 🌍 The Role of the Logger (5W1H)
 
-```
+- **What:** A TypeScript Node.js dependency layer exclusively responsible for calculating Base32 CIDv1 IPFS hashes from exact JSON objects.
+- **Why:** To permanently bridge "Off-chain AI reasoning" into "On-chain auditability." By hashing the stringified thought matrices, we guarantee no one (not even the protocol creators) can alter the historical context surrounding a trade.
+- **Who:** Secures protocol governance users tracking system performance, and allows investors to understand *why* their yield increased or decreased.
+- **Where:** Pinned across the distributed web via Filecoin utilizing the Storacha `@web3-storage/w3up-client`.
+- **When:** Invoked asynchronously immediately *prior* to Lit Action execution. The Lit Node will outright refuse to sign the Cadence execution transaction without a valid IPFS Hash present.
+- **How:** Processes the JSON dump from the AI, standardizes formatting whitespace, runs SHA-256 multiformat encodings, executes upload, and returns the structural CID via a rigorous `__CID_OUTPUT__` CLI pipeline protocol.
+
+---
+
+## 🏗️ Architecture Overview
+
+```text
 ┌───────────────────────────────────────────────────────────────┐
 │                   Storacha IPFS Logger                         │
 ├───────────────────────────────────────────────────────────────┤
 │                                                               │
-│  Python AI Agent                                              │
-│       │                                                       │
-│       ▼                                                       │
 │  ┌─────────────────────────────────────────────────────────┐  │
 │  │  index.ts                                               │  │
 │  │  ──────────                                             │  │
 │  │  1. Read JSON file from CLI argument                    │  │
-│  │  2. Validate JSON structure                             │  │
-│  │  3. Attempt Storacha upload (if credentials present)    │  │
-│  │  4. Fall back to local CID computation (SHA-256)        │  │
-│  │  5. Output CID via __CID_OUTPUT__:<cid> protocol        │  │
+│  │  2. Validate JSON strict syntax                         │  │
+│  │  3. Execute W3UP Client (Storacha credential layer)     │  │
+│  │  4. Handle fallbacks gracefully (Local Base32 CIDv1)    │  │
+│  │  5. Export via stdout parsed protocol markers          │  │
 │  └─────────────────────────────────────────────────────────┘  │
-│       │                                                       │
-│       ▼                                                       │
-│  __CID_OUTPUT__:<cid>  →  Parsed by Python subprocess         │
-│                                                               │
 └───────────────────────────────────────────────────────────────┘
 ```
 
-## Directory Structure
+---
 
-```
-storacha-logger/
-├── src/
-│   └── index.ts            # Main entry point — CID computation + Storacha upload
-├── package.json            # Node.js dependencies
-├── tsconfig.json           # TypeScript configuration
-└── README.md               # This file
-```
+## 🛡️ Reliability & 3-Tier Fallback
 
-## How It Works
+The logging module natively prevents single points of failure, ensuring that even under severe network duress, a computationally identical hash is created and logged on-chain locally:
 
-### The Glass-Box Audit Trail
+*   **Tier 1 (Normal):** Full Web3 upload using `STORACHA_EMAIL_ADDRESS` and `STORACHA_SPACE_DID`.
+*   **Tier 2 (Offline mode):** Calculates deterministic `CIDv1` matching the precise Filecoin standard locally (begins with `bafkreig...`).
+*   **Tier 3 (Panic mode):** Fails back to standard Node.js `crypto.createHash('sha256')` hexing to prevent execution stalling.
 
-When the AI Agent makes a trading decision, it generates a JSON reasoning log:
+---
 
-```json
-{
-  "app": "FlowTalos Glass-Box Agent",
-  "timestamp": "2026-03-11T04:30:00.000Z",
-  "reasoning": "{\"action\":\"BUY\",\"token\":\"FLOW\",\"amount\":100,\"reasoning\":\"RSI oversold...\"}"
-}
-```
+## 💻 Installation & Usage
 
-This module computes a **unique, deterministic CID** (Content Identifier) for that log using the same SHA-256 algorithm that IPFS uses. The CID is then:
-1. Embedded in the on-chain Cadence transaction (`StrategyExecuted` event)
-2. Displayed on the dashboard as a verifiable "Trust Proof"
-3. Optionally pinned to Storacha/Filecoin for permanent public access
+### 1. Prerequisites
+- Node.js 18+ and `npm`
 
-### 3-Tier Fallback Strategy
-
-The logger **never crashes** — it always produces a valid CID:
-
-| Tier | Mechanism | When Used |
-|---|---|---|
-| **Tier 1** | Full Storacha upload | Credentials configured, network available |
-| **Tier 2** | Local SHA-256 CIDv1 | No credentials or upload failure |
-| **Tier 3** | Emergency `crypto.createHash` | CID library itself fails |
-
-### Communication Protocol
-
-The Python AI Agent communicates with this module via subprocess stdout parsing:
-
-```
-__CID_OUTPUT__:bafybeig...
-```
-
-This marker-based protocol ensures reliable CID extraction even when the module produces verbose logging output.
-
-## Security Measures
-
-| Protection | Implementation |
-|---|---|
-| Path Traversal Prevention | `path.resolve()` + `isAbsolute()` + reject `..` |
-| File Size Limit | Max 10MB before `readFileSync()` |
-| JSON Validation | Validates input is parseable JSON before processing |
-| Type-Safe Errors | All `catch` blocks use `unknown` type with `instanceof` |
-| Graceful Degradation | Never calls `process.exit(1)` in the upload path |
-
-## Getting Started
-
-### Prerequisites
-- Node.js 18 or later
-- npm
-
-### Installation
+### 2. Setup
 
 ```bash
 cd storacha-logger
 npm install
 ```
 
-### Usage (via Python AI Agent)
+### 3. Usage (Subprocess Context)
 
-The Storacha Logger is typically invoked by the Python AI Agent as a subprocess:
-
-```bash
-npx ts-node src/index.ts /path/to/reasoning.json
-```
-
-### Manual Test
+The logger is meant to act as a hidden bridge layer rather than a standalone app.
 
 ```bash
-echo '{"action":"BUY","token":"FLOW","amount":100}' > /tmp/test.json
-npx ts-node src/index.ts /tmp/test.json
+echo '{"action":"BUY","token":"FLOW","amount":100}' > /tmp/test-payload.json
+npx ts-node src/index.ts /tmp/test-payload.json
 ```
 
-Expected output:
-```
+**Expected Local Deterministic Output:**
+```bash
 ⚠ [Storacha] No credentials found. Computing real content-addressed CID locally...
 [✔] Real Content-Addressed CID: bafkreig...
 __CID_OUTPUT__:bafkreig...
 ```
-
-## Environment Variables
-
-| Variable | Required | Description |
-|---|---|---|
-| `STORACHA_EMAIL_ADDRESS` | Optional | Storacha account email for full IPFS upload |
-| `STORACHA_SPACE_DID` | Optional | Storacha space DID for directory targeting |
-
-Without these variables, the module operates in **local CID mode** — computing deterministic CIDs without uploading to the network.
-
-## Tech Stack
-
-| Technology | Purpose |
-|---|---|
-| TypeScript | Type-safe Node.js execution |
-| `@web3-storage/w3up-client` | Storacha network client |
-| `multiformats` | CIDv1 computation (SHA-256 + raw codec) |
-| `dotenv` | Environment variable loading |
-| `ts-node` | Direct TypeScript execution |
