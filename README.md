@@ -70,6 +70,20 @@ It separates the "Brain" from the "Vault". The AI can only schedule algorithmica
 
 ---
 
+## 📂 Repository Structure & Component Documentation
+
+FlowTalos is highly modularized to ensure maximum security through separation of concerns. Every component has its own dedicated, professionally formatted documentation. We highly encourage judges and developers to review each README:
+
+| Component | Directory | Description |
+|-----------|-----------|-------------|
+| **AI Agent** | [`/ai-agent`](./ai-agent/README.md) | The autonomous Python daemon executing the dual-signal RSI/NLP strategy matrix and orchestrating the infrastructure. |
+| **Smart Contracts** | [`/cadence`](./cadence/README.md) | The core Flow Testnet capability-based Vault bridging natively into Flow EVM liquidity. |
+| **Dashboard** | [`/web`](./web/README.md) | The Glass-Box Next.js interface for real-time AI transparency and dual-chain wallet monitoring. |
+| **Security Node** | [`/lit-action`](./lit-action/README.md) | The decentralized JavaScript threshold validation preventing the AI from hallucinating or draining Vaults. |
+| **Immutable Ledger** | [`/storacha-logger`](./storacha-logger/README.md) | The IPFS pinning tool ensuring off-chain AI reasoning is mathematically proven and permanently auditable. |
+
+---
+
 ## 🚨 Problem Statement
 
 The integration of Artificial Intelligence into DeFi trading has introduced a massive trust and security deficit. Current implementations suffer from critical flaws:
