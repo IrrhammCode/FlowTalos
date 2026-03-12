@@ -834,13 +834,17 @@ export default function DashboardPage() {
                                                 <Zap className="w-5 h-5 text-blue-400" />
                                             </div>
                                             <h2 className="text-xl font-bold text-white">Momentum Arbitrage (USDC)</h2>
-                                            <span className="px-2 py-0.5 rounded text-xs font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20 ml-2">Coming Soon</span>
                                         </div>
                                         <p className="text-slate-400 text-sm">Cross-DEX liquidity arbitrage strategy. Exploits short-term price differences between IncrementFi and Metapier.</p>
                                     </div>
-                                    <button disabled className="px-6 py-3 bg-white/5 text-slate-500 font-bold rounded-xl border border-white/5 cursor-not-allowed shrink-0">
-                                        Coming Q2 2026
-                                    </button>
+                                    <div className="flex gap-3 shrink-0">
+                                        <button onClick={() => setIsDepositOpen(true)} className="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-emerald-950 font-bold rounded-xl transition-colors">
+                                            Deposit
+                                        </button>
+                                        <button onClick={() => setIsWithdrawOpen(true)} className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl border border-white/5 transition-colors">
+                                            Withdraw
+                                        </button>
+                                    </div>
                                 </div>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8 pt-6 border-t border-white/5">
                                     <div><p className="text-xs text-slate-500 uppercase tracking-widest mb-1">Strategy</p><p className="text-sm font-medium text-slate-300">DEX Arbitrage</p></div>
@@ -860,13 +864,17 @@ export default function DashboardPage() {
                                                 <Activity className="w-5 h-5 text-purple-400" />
                                             </div>
                                             <h2 className="text-xl font-bold text-white">LP Yield Optimizer</h2>
-                                            <span className="px-2 py-0.5 rounded text-xs font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20 ml-2">Coming Soon</span>
                                         </div>
                                         <p className="text-slate-400 text-sm">Automated LP position management with impermanent loss protection via AI rebalancing.</p>
                                     </div>
-                                    <button disabled className="px-6 py-3 bg-white/5 text-slate-500 font-bold rounded-xl border border-white/5 cursor-not-allowed shrink-0">
-                                        Coming Q3 2026
-                                    </button>
+                                    <div className="flex gap-3 shrink-0">
+                                        <button onClick={() => setIsDepositOpen(true)} className="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-emerald-950 font-bold rounded-xl transition-colors">
+                                            Deposit
+                                        </button>
+                                        <button onClick={() => setIsWithdrawOpen(true)} className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl border border-white/5 transition-colors">
+                                            Withdraw
+                                        </button>
+                                    </div>
                                 </div>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8 pt-6 border-t border-white/5">
                                     <div><p className="text-xs text-slate-500 uppercase tracking-widest mb-1">Strategy</p><p className="text-sm font-medium text-slate-300">LP Farming</p></div>
