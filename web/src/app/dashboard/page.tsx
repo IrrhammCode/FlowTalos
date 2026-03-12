@@ -20,7 +20,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useAccount, useDisconnect } from 'wagmi';
 import { useRouter } from 'next/navigation';
-import { Activity, ShieldCheck, Database, Zap, Cpu, Terminal, ArrowUpRight, ArrowDownRight, RefreshCw, BarChart3, Clock, Wallet, CheckCircle2, Copy, ExternalLink, Settings, LogOut, ChevronRight, X, AlertCircle, History as HistoryIcon, Search } from "lucide-react";
+import { Activity, ShieldCheck, Database, Zap, Cpu, Terminal, ArrowUpRight, ArrowDownRight, RefreshCw, BarChart3, Clock, Wallet, CheckCircle2, Copy, ExternalLink, Settings, LogOut, ChevronRight, X, AlertCircle, History as HistoryIcon, Search, DollarSign } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -209,7 +209,7 @@ const RecentTrades = ({ trades }: { trades: TradeDisplayEntry[] }) => {
 };
 
 const ActiveVault = ({ vaultBalance, vaultApy, onDeposit, onWithdraw }: { vaultBalance: string; vaultApy: string; onDeposit: () => void; onWithdraw: () => void }) => (
-    <div className="bg-gradient-to-br from-emerald-950/40 to-[#010805] border border-emerald-500/20 rounded-2xl p-6 mt-8 relative overflow-hidden">
+    <div className="bg-gradient-to-br from-emerald-950/40 to-[#010805] border border-emerald-500/20 rounded-2xl p-6 relative overflow-hidden h-full flex flex-col justify-between">
         <div className="absolute right-0 top-0 w-64 h-64 bg-emerald-500/10 blur-[60px] rounded-full pointer-events-none"></div>
 
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
@@ -311,7 +311,7 @@ export default function DashboardPage() {
     ]);
     const [recentTrades, setRecentTrades] = useState<TradeDisplayEntry[]>([]);
 
-    // Simulated PnL / Yield state
+    // PnL / Yield state
     const [vaultApy, setVaultApy] = useState("0.00");
     const [vaultPnl, setVaultPnl] = useState("+$0.00");
     const [chartData, setChartData] = useState([
@@ -741,27 +741,31 @@ export default function DashboardPage() {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.1 }}
-                                className="grid grid-cols-1 md:grid-cols-3 gap-6"
+                                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
                             >
                                 <StatCard title="Wallet Balance" value={`$${userBalance} (FLOW)`} change="Flow Native Balance" isPositive={true} icon={<Wallet className="w-6 h-6" />} />
                                 <StatCard title="Vault FLOW Position" value={`${vaultBalance} FLOW`} change="AI Managed Asset" isPositive={true} icon={<Database className="w-6 h-6" />} />
-                                <StatCard title="Vault USDC Position" value={`$${vaultUsdc}`} change="Stablecoin Reserve" isPositive={false} icon={<Activity className="w-6 h-6" />} />
+                                <StatCard title="Vault USDC Position" value={`$${vaultUsdc}`} change="Stablecoin Reserve" isPositive={false} icon={<DollarSign className="w-6 h-6" />} />
+                                <StatCard title="Active Vault Yield" value={`${vaultApy}%`} change={`${vaultPnl} All-Time`} isPositive={true} icon={<Activity className="w-6 h-6" />} />
                             </motion.div>
 
-                            {/* Portfolio Chart */}
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.15 }}
-                                className="bg-[#010805] border border-emerald-500/10 rounded-2xl p-6 mt-6 relative overflow-hidden"
-                            >
+                            {/* Main Content Split View */}
+                            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-6">
+                                <div className="xl:col-span-2 flex flex-col gap-6">
+                                    {/* Portfolio Chart */}
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.15 }}
+                                        className="bg-[#010805] border border-emerald-500/10 rounded-2xl p-6 relative overflow-hidden flex-1"
+                                    >
                                 <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 blur-[50px] rounded-full pointer-events-none"></div>
                                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 relative z-10">
                                     <div>
                                         <h3 className="font-bold text-lg text-white">Vault Performance (7D Equity Curve)</h3>
                                         <p className="text-sm font-mono text-emerald-400 mt-1 flex items-center gap-2">
                                             <ArrowUpRight className="w-4 h-4" />
-                                            {vaultPnl} Simulated Net Profit
+                                            {vaultPnl} Net Profit
                                         </p>
                                     </div>
                                     <div className="flex gap-2 mt-4 md:mt-0">
@@ -794,20 +798,25 @@ export default function DashboardPage() {
                                     </ResponsiveContainer>
                                 </div>
                             </motion.div>
+                            </div>
 
-                            {/* Active Vault */}
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2 }}
-                            >
-                                <ActiveVault
-                                    vaultBalance={vaultBalance}
-                                    vaultApy={vaultApy}
-                                    onDeposit={() => setIsDepositOpen(true)}
-                                    onWithdraw={() => setIsWithdrawOpen(true)}
-                                />
-                            </motion.div>
+                            <div className="xl:col-span-1 flex flex-col gap-6">
+                                {/* Active Vault */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.2 }}
+                                    className="h-full"
+                                >
+                                    <ActiveVault
+                                        vaultBalance={vaultBalance}
+                                        vaultApy={vaultApy}
+                                        onDeposit={() => setIsDepositOpen(true)}
+                                        onWithdraw={() => setIsWithdrawOpen(true)}
+                                    />
+                                </motion.div>
+                            </div>
+                        </div>
 
                             {/* Recent Trades Table */}
                             <motion.div
