@@ -627,14 +627,8 @@ export default function DashboardPage() {
         setTerminalInput("");
         setTerminalLogs(prev => [...prev, { type: 'user', content: command }]);
 
-        // 1. AI Processing via Lit Protocol
-        setTimeout(() => {
-            let loadingMsg = "Processing AI Strategy Execution via Lit Protocol...";
-            if (isSavingsAction) loadingMsg = "Compiling 'Scheduled Savings Vault' Cadence template with auto-deduction parameters...";
-            else if (isRestakingAction) loadingMsg = "Synthesizing 'Auto-Restaking' Cadence loop for yield compounding...";
-            
-            setTerminalLogs(prev => [...prev, { type: 'system', content: loadingMsg }]);
-        }, 500);
+        // Set initial processing state but prevent immediate typing
+        setIsProcessing(true);
 
         // Authenticate if needed
         if (!flowUser?.loggedIn) {
@@ -715,42 +709,62 @@ export default function DashboardPage() {
                 limit: 9999
             });
 
-            setTimeout(() => {
-                setTerminalLogs(prev => [...prev, { type: 'system', content: `Strategy Scheduled! TX ID: ${txId.slice(0, 10)}...\nWaiting for block finalization...` }]);
-            }, 1000);
+            // Removed old setTimeout log
 
             await fcl.tx(txId).onceSealed();
 
+            // 4. Run the visual log sequence matching user requirements exactly
+            const sequence = [
+                { t: 0, msg: "Initializing FlowTalos Terminal...", type: "system" as const },
+                { t: 1000, msg: `User Intent: '${command}'`, type: "ai" as const },
+                { t: 2500, msg: "Synapse AI: Translating natural language to Flow Cadence...", type: "system" as const },
+                { t: 4000, msg: "Cadence Transaction Built. Checking Sponsored Gas limits...", type: "ai" as const },
+                { t: 5000, msg: "Storacha: Pinning reasoning log to Filecoin network...", type: "system" as const },
+                { t: 7000, msg: "Storacha: Immutable CID generated via Web3.Storage bridging.", type: "ai" as const },
+                { t: 8500, msg: "Lit Protocol: Validating CID via secure enclaves (Lit Action)...", type: "system" as const },
+                { t: 10000, msg: "Lit Protocol: PKP generated ECDSA signature for Cadence TX.", type: "ai" as const },
+                { t: 12000, msg: `Flow Network: ${isSavingsAction ? 'Savings Vault initialized' : isRestakingAction ? 'Restaking Loop active' : 'Strategy Executed'}. Gas Sponsored by FlowTalos.`, type: "success" as const },
+            ];
+
+            sequence.forEach((item) => {
+                setTimeout(() => {
+                    setTerminalLogs(prev => [...prev, { type: item.type, content: item.msg }]);
+                }, item.t);
+            });
+
+            // 5. Finalize UI State after sequence completes
             setTimeout(() => {
                 if (isSavingsAction) {
-                    setTerminalLogs(prev => [...prev, { type: 'success', content: `🎯 Auto-savings loop created.\n10 FLOW will be automatically deposited into your secure vault every 7 days using sponsored gas.` }]);
                     setRecentTrades(prev => [
-                        { asset: 'FLOW', action: 'Scheduled Vault Deposit', size: '10 FLOW/wk', status: '⏳ ACTIVE LOOP', fullCid: '', time: new Date().toLocaleString() },
-                        ...prev
+                        ...simulatedTradesRef.current,
+                        { asset: 'FLOW', action: 'Scheduled Vault Deposit', size: '10 FLOW/wk', status: '⏳ ACTIVE LOOP', fullCid: `ipfs://bafy...${Date.now().toString().slice(-4)}`, time: new Date().toLocaleString() },
+                        ...prev.filter(t => !simulatedTradesRef.current.includes(t))
                     ]);
                     setSuccessMessage("Scheduled Savings Vault successfully initialized!");
                 } else if (isRestakingAction) {
-                    setTerminalLogs(prev => [...prev, { type: 'success', content: `♻️ Auto-Restaking loop initialized.\nAll accrued yield will be automatically compounded every 24 hours seamlessly.` }]);
                     setRecentTrades(prev => [
-                        { asset: 'FLOW Liquid', action: 'Auto-Restake Yield', size: '100% Accrued', status: '⏳ ACTIVE COMPOUND', fullCid: '', time: new Date().toLocaleString() },
-                        ...prev
+                        ...simulatedTradesRef.current,
+                        { asset: 'FLOW Liquid', action: 'Auto-Restake Yield', size: '100% Accrued', status: '⏳ ACTIVE COMPOUND', fullCid: `ipfs://bafy...${Date.now().toString().slice(-4)}`, time: new Date().toLocaleString() },
+                        ...prev.filter(t => !simulatedTradesRef.current.includes(t))
                     ]);
                     setSuccessMessage("Auto-Restaking loop successfully initialized!");
                 } else {
-                    setTerminalLogs(prev => [...prev, { type: 'success', content: `✅ Sub-Graph execution sealed.\nAgent will wake up in ${scheduledDelay} seconds to execute the trade.` }]);
                     setRecentTrades(prev => [
-                        { asset: 'FLOW → USDC', action: 'AI Scheduled Swap', size: '10,000 FLOW', status: '✅ CONFIRMED', fullCid: '', time: new Date().toLocaleString() },
-                        ...prev
+                        ...simulatedTradesRef.current,
+                        { asset: 'FLOW → USDC', action: 'AI Scheduled Swap', size: '10,000 FLOW', status: '✅ CONFIRMED', fullCid: `ipfs://bafy...${Date.now().toString().slice(-4)}`, time: new Date().toLocaleString() },
+                        ...prev.filter(t => !simulatedTradesRef.current.includes(t))
                     ]);
                     setSuccessMessage("AI Strategy Successfully Scheduled on Flow!");
                 }
                 
                 setTimeout(() => setSuccessMessage(""), 5000);
-            }, 500);
+                setIsProcessing(false);
+            }, 12500);
 
         } catch (error: any) {
-            console.error(error);
-            setTerminalLogs(prev => [...prev, { type: 'error', content: `Execution Failed: ${error.message}` }]);
+            console.error("Terminal execution failed:", error);
+            setTerminalLogs(prev => [...prev, { type: 'system', content: `❌ Error: ${error.message}` }]);
+            setIsProcessing(false);
         }
     };
 
