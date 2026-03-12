@@ -167,8 +167,8 @@ const Hero = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
         >
-          Autonomous DeFi. <br className="hidden md:block" />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 via-emerald-400 to-emerald-600 pb-2 inline-block drop-shadow-[0_0_30px_rgba(16,185,129,0.4)]">Verifiably Transparent.</span>
+          Consumer DeFi. <br className="hidden md:block" />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 via-emerald-400 to-emerald-600 pb-2 inline-block drop-shadow-[0_0_30px_rgba(16,185,129,0.4)]">Fully Autonomous.</span>
         </motion.h1>
 
         <motion.p
@@ -177,7 +177,7 @@ const Hero = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
         >
-          FlowTalos is a Glass-Box AI agent. It actively manages your portfolio on Flow, <strong className="text-slate-200 font-medium">cryptographically publishing its reasoning to IPFS</strong> before every single trade.
+          FlowTalos is a Glass-Box AI agent. Tell it what you want in human language. Deploy into Momentum Arbitrage or LP Yield Vaults. It pays your gas fees and <strong className="text-slate-200 font-medium">cryptographically publishes its decisions to IPFS.</strong>
         </motion.p>
 
         <motion.div
@@ -187,7 +187,7 @@ const Hero = () => {
           transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
         >
           <button className="w-full sm:w-auto px-8 py-4 bg-emerald-500 text-emerald-950 font-bold rounded-full hover:bg-emerald-400 hover:scale-105 transition-all duration-300 shadow-[0_0_30px_rgba(16,185,129,0.3)] flex items-center justify-center gap-2">
-            Deploy Strategy <ArrowRight className="w-5 h-5" />
+            Enter AI Dashboard <ArrowRight className="w-5 h-5" />
           </button>
           <button className="w-full sm:w-auto px-8 py-4 glass-pill text-white font-medium hover:bg-white/10 hover:border-white/30 transition-all duration-300 flex items-center justify-center gap-2 group">
             Explore Architecture <ChevronDown className="w-5 h-5 group-hover:translate-y-1 transition-transform" />
@@ -380,8 +380,8 @@ const Features = () => {
             <div className="pointer-events-none">
               <img src="/flow-logo.svg" alt="Flow Blockchain" className="w-12 h-12 mb-6 opacity-80" />
               <div>
-                <h3 className="text-2xl font-bold text-white mb-3">Walletless UX</h3>
-                <p className="text-slate-400 font-light">Set strategy once. The agent operates continuously on Flow without transaction signing fatigue.</p>
+                <h3 className="text-2xl font-bold text-white mb-3">Walletless & Gasless UX</h3>
+                <p className="text-slate-400 font-light">Experience true Consumer DeFi. Abstracted wallets and zero gas fees—completely sponsored by the protocol.</p>
               </div>
             </div>
           </GlowCard>
@@ -484,15 +484,15 @@ const HowItWorks = () => {
   const steps = [
     {
       num: "01",
-      title: "Connect & Deposit",
-      desc: "Link your wallet and deposit USDC into the non-custodial Flow smart contract. You maintain full ownership.",
+      title: "Deposit into AI Vaults",
+      desc: "Link your wallet and deposit USDC or FLOW into FlowTalos Vaults. You maintain full ownership at all times.",
       icon: <Lock className="w-8 h-8 text-emerald-400" />
     },
     {
       num: "02",
-      title: "AI Analysis",
-      desc: "Synapse AI continuously scans the market. When an opportunity arises, it formulates a strategy and mathematical reasoning.",
-      icon: <Zap className="w-8 h-8 text-emerald-400" />
+      title: "Human Language Intent",
+      desc: "Type what you want to achieve. Synapse AI translates your human language into an optimized Cadence strategy.",
+      icon: <Terminal className="w-8 h-8 text-emerald-400" />
     },
     {
       num: "03",
@@ -502,8 +502,8 @@ const HowItWorks = () => {
     },
     {
       num: "04",
-      title: "Automated Execution",
-      desc: "Lit Protocol signs the transaction using decentralized keys, executing the trade securely on Flow.",
+      title: "Gasless Execution",
+      desc: "Lit Protocol signs the transaction and executes the trade on Flow. Gas is 100% sponsored, for a seamless UX.",
       icon: <Activity className="w-8 h-8 text-emerald-400" />
     }
   ];
@@ -557,15 +557,15 @@ const AgentPreview = () => {
     setStep(1);
 
     const sequence = [
-      { t: 0, msg: "Initializing FlowTalos Instance...", type: "info" as const },
-      { t: 800, msg: "Connecting to Non-Custodial Flow Vault...", type: "info" as const, s: 2 },
-      { t: 2000, msg: "Synapse AI: Analyzing FLOW order book geometry...", type: "action" as const },
-      { t: 3500, msg: "Synapse AI Signal: BUY 1500 FLOW. RSI is 28.5 (Oversold).", type: "success" as const, s: 3 },
-      { t: 4500, msg: "Storacha: Pinning reasoning log to Filecoin network...", type: "info" as const },
-      { t: 6500, msg: "Storacha: Immutable CID generated via Web3.Storage bridging.", type: "success" as const, s: 4 },
-      { t: 8000, msg: "Lit Protocol: Validating CID via secure enclaves (Lit Action)...", type: "action" as const },
-      { t: 9500, msg: "Lit Protocol: PKP generated ECDSA signature for Cadence TX.", type: "success" as const, s: 5 },
-      { t: 11500, msg: "Flow Network: executeStrategy() confirmed on-chain.", type: "success" as const, s: 6 },
+      { t: 0, msg: "Initializing FlowTalos Terminal...", type: "info" as const },
+      { t: 1000, msg: "User Intent: 'Create a Scheduled Savings Vault deducting 10 FLOW weekly'", type: "success" as const, s: 2 },
+      { t: 2500, msg: "Synapse AI: Translating natural language to Flow Cadence...", type: "action" as const },
+      { t: 4000, msg: "Cadence Transaction Built. Checking Sponsored Gas limits...", type: "success" as const, s: 3 },
+      { t: 5000, msg: "Storacha: Pinning reasoning log to Filecoin network...", type: "info" as const },
+      { t: 7000, msg: "Storacha: Immutable CID generated via Web3.Storage bridging.", type: "success" as const, s: 4 },
+      { t: 8500, msg: "Lit Protocol: Validating CID via secure enclaves (Lit Action)...", type: "action" as const },
+      { t: 10000, msg: "Lit Protocol: PKP generated ECDSA signature for Cadence TX.", type: "success" as const, s: 5 },
+      { t: 12000, msg: "Flow Network: Savings Vault initialized. Gas Sponsored by FlowTalos.", type: "success" as const, s: 6 },
     ];
 
     sequence.forEach((item) => {
