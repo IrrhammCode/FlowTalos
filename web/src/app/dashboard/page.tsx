@@ -307,23 +307,23 @@ const RecentTrades = ({ trades, onViewProof }: { trades: TradeDisplayEntry[], on
     );
 };
 
-const ActiveVault = ({ vaultBalance, vaultApy, onDeposit, onWithdraw }: { vaultBalance: string; vaultApy: string; onDeposit: () => void; onWithdraw: () => void }) => (
-    <div className="bg-gradient-to-br from-emerald-950/40 to-[#010805] border border-emerald-500/20 rounded-2xl p-6 relative overflow-hidden h-full flex flex-col justify-between">
-        <div className="absolute right-0 top-0 w-64 h-64 bg-emerald-500/10 blur-[60px] rounded-full pointer-events-none"></div>
+const ActiveVault = ({ vaultBalance, vaultApy, onDeposit, onWithdraw, title, asset, description, icon, iconColor, bgGlow }: { vaultBalance: string; vaultApy: string; onDeposit: () => void; onWithdraw: () => void; title: string; asset: string; description: string; icon: React.ReactNode; iconColor: string; bgGlow: string }) => (
+    <div className={`bg-gradient-to-br from-[#010805] to-[#020a06] border border-white/5 rounded-2xl p-6 relative overflow-hidden h-full flex flex-col justify-between`}>
+        <div className={`absolute right-0 top-0 w-64 h-64 ${bgGlow} blur-[60px] rounded-full pointer-events-none opacity-20`}></div>
 
         <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 relative z-10 w-full">
             <div>
                 <div className="flex items-center gap-3 mb-2 flex-wrap">
-                    <div className="p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20 shrink-0">
-                        <Cpu className="w-5 h-5 text-emerald-400" />
+                    <div className={`p-2 bg-white/5 rounded-lg border border-white/10 shrink-0`}>
+                        {icon}
                     </div>
-                    <h2 className="text-xl font-bold text-white break-words">Synapse AI Vault (FLOW)</h2>
+                    <h2 className="text-xl font-bold text-white break-words">{title}</h2>
                     <span className="flex h-2.5 w-2.5 relative shrink-0">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-emerald-400"></span>
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                        <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${iconColor}`}></span>
+                        <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${iconColor.replace('bg-', 'bg-').replace('text-', 'bg-')}`}></span>
                     </span>
                 </div>
-                <p className="text-slate-400 text-sm">Actively scanning market geometry. 0% management fee.</p>
+                <p className="text-slate-400 text-sm max-w-lg">{description}</p>
             </div>
 
             <div className="flex gap-3 w-full xl:w-auto shrink-0">
@@ -342,10 +342,10 @@ const ActiveVault = ({ vaultBalance, vaultApy, onDeposit, onWithdraw }: { vaultB
             </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 lg:gap-6 mt-8 pt-6 border-t border-emerald-500/10 w-full relative z-10">
+        <div className="grid grid-cols-2 gap-4 lg:gap-6 mt-8 pt-6 border-t border-white/5 w-full relative z-10">
             <div>
                 <p className="text-xs text-slate-500 uppercase tracking-widest mb-1">Total Value Locked</p>
-                <p className="text-2xl font-mono font-bold text-white">${vaultBalance || "0.00"}</p>
+                <p className="text-2xl font-mono font-bold text-white">{asset === 'USDC' ? '$' : ''}{vaultBalance || "0.00"} {asset === 'FLOW' ? 'FLOW' : ''}</p>
             </div>
             <div>
                 <p className="text-xs text-slate-500 uppercase tracking-widest mb-1">Agent Status</p>
@@ -399,9 +399,10 @@ export default function DashboardPage() {
     const [activeTab, setActiveTab] = useState("Overview");
     const [isDepositOpen, setIsDepositOpen] = useState(false);
     const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
+    const [activeVaultModal, setActiveVaultModal] = useState<'SYNAPSE' | 'MOMENTUM' | 'LP' | null>(null);
     const [selectedProof, setSelectedProof] = useState<TradeDisplayEntry | null>(null);
     const [amount, setAmount] = useState("");
-    const [assetType, setAssetType] = useState<'FLOW' | 'USDC'>('FLOW'); // New feature
+    const [assetType, setAssetType] = useState<'FLOW' | 'USDC'>('FLOW');
     const [isProcessing, setIsProcessing] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
     const [terminalInput, setTerminalInput] = useState("");
@@ -540,10 +541,10 @@ export default function DashboardPage() {
                 // Update TVL with the deposited amount
                 const depositedAmount = parseFloat(amount);
                 
-                if (assetType === 'FLOW') {
+                if (activeVaultModal === 'SYNAPSE' || assetType === 'FLOW') {
                     const currentBase = localStorage.getItem('flowtalos_tvl_flow') ? parseFloat(localStorage.getItem('flowtalos_tvl_flow')!) : 0;
                     localStorage.setItem('flowtalos_tvl_flow', (currentBase + depositedAmount).toFixed(2));
-                } else {
+                } else if (activeVaultModal === 'MOMENTUM') {
                     const currentBase = localStorage.getItem('flowtalos_tvl_usdc') ? parseFloat(localStorage.getItem('flowtalos_tvl_usdc')!) : 500;
                     localStorage.setItem('flowtalos_tvl_usdc', (currentBase + depositedAmount).toFixed(2));
                 }
@@ -556,17 +557,21 @@ export default function DashboardPage() {
             } else {
                 // Handle Simulated Withdrawals
                 const withdrawnAmount = parseFloat(amount);
-                const currentBalance = assetType === 'FLOW' ? parseFloat(vaultBalance) : parseFloat(vaultUsdc);
+                
+                let currentBalance = 0;
+                if (activeVaultModal === 'SYNAPSE') currentBalance = parseFloat(vaultBalance);
+                else if (activeVaultModal === 'MOMENTUM') currentBalance = parseFloat(vaultUsdc);
+                else currentBalance = parseFloat(vaultBalance); // Fallback to FLOW
 
                 if (withdrawnAmount > currentBalance) {
                     throw new Error(`Insufficient ${assetType} balance in Vault.`);
                 }
 
-                if (assetType === 'FLOW') {
+                if (activeVaultModal === 'SYNAPSE' || assetType === 'FLOW') {
                     const currentBase = localStorage.getItem('flowtalos_tvl_flow') ? parseFloat(localStorage.getItem('flowtalos_tvl_flow')!) : 0;
                     const newBase = currentBase - withdrawnAmount;
                     localStorage.setItem('flowtalos_tvl_flow', newBase.toFixed(2));
-                } else {
+                } else if (activeVaultModal === 'MOMENTUM') {
                     const currentBase = localStorage.getItem('flowtalos_tvl_usdc') ? parseFloat(localStorage.getItem('flowtalos_tvl_usdc')!) : 500;
                     const newBase = currentBase - withdrawnAmount;
                     localStorage.setItem('flowtalos_tvl_usdc', newBase.toFixed(2));
@@ -579,6 +584,7 @@ export default function DashboardPage() {
                 setSuccessMessage(`Successfully withdrawn ${amount} ${assetType} from AI Vault to your EVM wallet.`);
             }
             setAmount("");
+            setActiveVaultModal(null);
             setTimeout(() => setSuccessMessage(""), 5000);
         } catch (error: any) {
             console.error("Transaction failed:", error);
@@ -933,10 +939,16 @@ export default function DashboardPage() {
                                     className="h-full"
                                 >
                                     <ActiveVault
+                                        title="Synapse AI Vault"
+                                        asset="FLOW"
+                                        description="Actively scanning market geometry. Fully automated with zero gas fees. 0% management fee."
+                                        icon={<Cpu className="w-5 h-5 text-emerald-400" />}
+                                        iconColor="bg-emerald-500"
+                                        bgGlow="bg-emerald-500"
                                         vaultBalance={vaultBalance}
                                         vaultApy={vaultApy}
-                                        onDeposit={() => setIsDepositOpen(true)}
-                                        onWithdraw={() => setIsWithdrawOpen(true)}
+                                        onDeposit={() => { setActiveVaultModal('SYNAPSE'); setAssetType('FLOW'); setIsDepositOpen(true); }}
+                                        onWithdraw={() => { setActiveVaultModal('SYNAPSE'); setAssetType('FLOW'); setIsWithdrawOpen(true); }}
                                     />
                                 </motion.div>
                             </div>
@@ -963,71 +975,44 @@ export default function DashboardPage() {
                                 </button>
                             </div>
                             <ActiveVault
+                                title="Synapse AI Vault"
+                                asset="FLOW"
+                                description="Actively scanning market geometry. Fully automated with zero gas fees. 0% management fee."
+                                icon={<Cpu className="w-5 h-5 text-emerald-400" />}
+                                iconColor="bg-emerald-500"
+                                bgGlow="bg-emerald-500"
                                 vaultBalance={vaultBalance}
                                 vaultApy={vaultApy}
-                                onDeposit={() => setIsDepositOpen(true)}
-                                onWithdraw={() => setIsWithdrawOpen(true)}
+                                onDeposit={() => { setActiveVaultModal('SYNAPSE'); setAssetType('FLOW'); setIsDepositOpen(true); }}
+                                onWithdraw={() => { setActiveVaultModal('SYNAPSE'); setAssetType('FLOW'); setIsWithdrawOpen(true); }}
                             />
 
-                            {/* Upcoming Vault */}
-                            <div className="bg-[#010805] border border-white/5 rounded-2xl p-6 relative overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent pointer-events-none"></div>
-                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
-                                    <div>
-                                        <div className="flex items-center gap-3 mb-2">
-                                            <div className="p-2 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                                                <Zap className="w-5 h-5 text-blue-400" />
-                                            </div>
-                                            <h2 className="text-xl font-bold text-white">Momentum Arbitrage (USDC)</h2>
-                                        </div>
-                                        <p className="text-slate-400 text-sm">Cross-DEX liquidity arbitrage strategy. Exploits short-term price differences between IncrementFi and Metapier.</p>
-                                    </div>
-                                    <div className="flex gap-3 shrink-0">
-                                        <button onClick={() => setIsDepositOpen(true)} className="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-emerald-950 font-bold rounded-xl transition-colors">
-                                            Deposit
-                                        </button>
-                                        <button onClick={() => setIsWithdrawOpen(true)} className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl border border-white/5 transition-colors">
-                                            Withdraw
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8 pt-6 border-t border-white/5">
-                                    <div><p className="text-xs text-slate-500 uppercase tracking-widest mb-1">Strategy</p><p className="text-sm font-medium text-slate-300">DEX Arbitrage</p></div>
-                                    <div><p className="text-xs text-slate-500 uppercase tracking-widest mb-1">Risk Level</p><p className="text-sm font-bold text-yellow-400">Medium</p></div>
-                                    <div><p className="text-xs text-slate-500 uppercase tracking-widest mb-1">Fee</p><p className="text-sm font-mono text-slate-300">2% mgmt</p></div>
-                                    <div><p className="text-xs text-slate-500 uppercase tracking-widest mb-1">Target APY</p><p className="text-sm font-mono text-blue-400">12-18%</p></div>
-                                </div>
-                            </div>
+                            {/* Upcoming Vaults powered by the exact same component structure */}
+                            <ActiveVault
+                                title="Momentum Arbitrage"
+                                asset="USDC"
+                                description="Cross-DEX liquidity arbitrage strategy. Exploits short-term price differences between IncrementFi and Metapier."
+                                icon={<Zap className="w-5 h-5 text-blue-400" />}
+                                iconColor="bg-blue-500"
+                                bgGlow="bg-blue-500"
+                                vaultBalance={vaultUsdc}
+                                vaultApy="14.20"
+                                onDeposit={() => { setActiveVaultModal('MOMENTUM'); setAssetType('USDC'); setIsDepositOpen(true); }}
+                                onWithdraw={() => { setActiveVaultModal('MOMENTUM'); setAssetType('USDC'); setIsWithdrawOpen(true); }}
+                            />
 
-                            {/* LP Farming Vault */}
-                            <div className="bg-[#010805] border border-white/5 rounded-2xl p-6 relative overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent pointer-events-none"></div>
-                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
-                                    <div>
-                                        <div className="flex items-center gap-3 mb-2">
-                                            <div className="p-2 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                                                <Activity className="w-5 h-5 text-purple-400" />
-                                            </div>
-                                            <h2 className="text-xl font-bold text-white">LP Yield Optimizer</h2>
-                                        </div>
-                                        <p className="text-slate-400 text-sm">Automated LP position management with impermanent loss protection via AI rebalancing.</p>
-                                    </div>
-                                    <div className="flex gap-3 shrink-0">
-                                        <button onClick={() => setIsDepositOpen(true)} className="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-emerald-950 font-bold rounded-xl transition-colors">
-                                            Deposit
-                                        </button>
-                                        <button onClick={() => setIsWithdrawOpen(true)} className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl border border-white/5 transition-colors">
-                                            Withdraw
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8 pt-6 border-t border-white/5">
-                                    <div><p className="text-xs text-slate-500 uppercase tracking-widest mb-1">Strategy</p><p className="text-sm font-medium text-slate-300">LP Farming</p></div>
-                                    <div><p className="text-xs text-slate-500 uppercase tracking-widest mb-1">Risk Level</p><p className="text-sm font-bold text-emerald-400">Low</p></div>
-                                    <div><p className="text-xs text-slate-500 uppercase tracking-widest mb-1">Fee</p><p className="text-sm font-mono text-slate-300">1% mgmt</p></div>
-                                    <div><p className="text-xs text-slate-500 uppercase tracking-widest mb-1">Target APY</p><p className="text-sm font-mono text-purple-400">6-10%</p></div>
-                                </div>
-                            </div>
+                            <ActiveVault
+                                title="LP Yield Optimizer"
+                                asset="FLOW"
+                                description="Automated LP position management with impermanent loss protection via AI rebalancing."
+                                icon={<Activity className="w-5 h-5 text-purple-400" />}
+                                iconColor="bg-purple-500"
+                                bgGlow="bg-purple-500"
+                                vaultBalance={vaultBalance} // using Flow for LP
+                                vaultApy="8.50"
+                                onDeposit={() => { setActiveVaultModal('LP'); setAssetType('FLOW'); setIsDepositOpen(true); }}
+                                onWithdraw={() => { setActiveVaultModal('LP'); setAssetType('FLOW'); setIsWithdrawOpen(true); }}
+                            />
                         </motion.div>
                     ) : activeTab === "Execution Logs" ? (
                         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -1035,7 +1020,7 @@ export default function DashboardPage() {
                                 <h2 className="text-xl font-bold text-white mb-1">On-Chain Activity</h2>
                                 <p className="text-slate-400 text-sm">Immutable record of all AI agent trading decisions.</p>
                             </div>
-                            <RecentTrades trades={recentTrades} />
+                            <RecentTrades trades={recentTrades} onViewProof={(trade) => setSelectedProof(trade)} />
                             {recentTrades.length > 0 && (
                                 <div className="mt-4 flex justify-center">
                                     <button className="px-4 py-2 text-slate-400 hover:text-white text-sm font-medium transition-colors">Load More Logs...</button>
