@@ -274,16 +274,25 @@ export default function DashboardPage() {
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
 
-    // FCL User state and balances
+    // Flow State
     const [flowUser, setFlowUser] = useState<FlowUser>({ loggedIn: undefined });
     const [vaultBalance, setVaultBalance] = useState(() => {
         if (typeof window !== 'undefined') {
-            return localStorage.getItem('flowtalos_tvl') || "0.00";
+            return localStorage.getItem('flowtalos_tvl_flow') || "0.00";
         }
         return "0.00";
     });
+    const [vaultUsdc, setVaultUsdc] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('flowtalos_tvl_usdc') || "500.00";
+        }
+        return "500.00";
+    });
     const [userBalance, setUserBalance] = useState("0.00");
-    const aiSpentRef = useRef(0);
+
+    // We no longer subtract AI spends from user wallet!
+    const aiFlowDelta = useRef(0);
+    const aiUsdcDelta = useRef(0);
 
     // UI State
     const [activeTab, setActiveTab] = useState("Overview");
@@ -306,9 +315,22 @@ export default function DashboardPage() {
                 const res = await fetch('/api/trades');
                 const data = await res.json();
                 if (data.length > 0) {
-                    // Sum up all amounts executed by the AI to simulate balance deduction
-                    const totalSpent = data.reduce((sum: number, t: any) => sum + parseFloat(t.amount || 0), 0);
-                    aiSpentRef.current = totalSpent;
+                    // Calculate relative Vault exposure (buying FLOW means +FLOW, -USDC)
+                    let totalFlow = 0;
+                    let totalUsdc = 0;
+                    
+                    data.forEach((t: any) => {
+                        if (t.action.toUpperCase() === 'BUY') {
+                            totalFlow += parseFloat(t.amount || 0);
+                            totalUsdc -= (parseFloat(t.amount || 0) * (t.price || 0.8)); // simulated avg price
+                        } else if (t.action.toUpperCase() === 'SELL') {
+                            totalFlow -= parseFloat(t.amount || 0);
+                            totalUsdc += (parseFloat(t.amount || 0) * (t.price || 0.8));
+                        }
+                    });
+
+                    aiFlowDelta.current = totalFlow;
+                    aiUsdcDelta.current = totalUsdc;
 
                     setRecentTrades(data.map((t: any) => ({
                         asset: t.token,
@@ -377,7 +399,7 @@ export default function DashboardPage() {
                 const depositedAmount = parseFloat(amount);
                 setVaultBalance(prev => {
                     const newTvl = (parseFloat(prev) + depositedAmount).toFixed(2);
-                    localStorage.setItem('flowtalos_tvl', newTvl);
+                    localStorage.setItem('flowtalos_tvl_flow', newTvl);
                     return newTvl;
                 });
                 setSuccessMessage(`Successfully deposited ${amount} FLOW into AI Vault!`);
@@ -597,10 +619,15 @@ export default function DashboardPage() {
                 });
 
                 // 2. TVL is tracked via localStorage (updated on deposit/withdraw)
-                const storedTvl = localStorage.getItem('flowtalos_tvl');
-                if (storedTvl) {
-                    setVaultBalance(storedTvl);
-                }
+                const storedFlow = localStorage.getItem('flowtalos_tvl_flow');
+                const storedUsdc = localStorage.getItem('flowtalos_tvl_usdc');
+                
+                // Adjust Vault balances by the AI Execution Delta
+                const baseFlow = storedFlow ? parseFloat(storedFlow) : 0;
+                const baseUsdc = storedUsdc ? parseFloat(storedUsdc) : 500.0;
+                
+                setVaultBalance(Math.max(0, baseFlow + aiFlowDelta.current).toFixed(2));
+                setVaultUsdc(Math.max(0, baseUsdc + aiUsdcDelta.current).toFixed(2));
 
                 // If user is logged in via FCL, show their personal balance
                 if (flowUser?.loggedIn && flowUser?.addr) {
@@ -617,10 +644,11 @@ export default function DashboardPage() {
                         `,
                         args: (arg: any, t: any) => [arg(flowUser.addr, t.Address)]
                     });
-                    setUserBalance(Math.max(0, parseFloat(uBal) - aiSpentRef.current).toFixed(2));
+                    // Personal wallet is NEVER affected by AI trades!
+                    setUserBalance(parseFloat(uBal).toFixed(2));
                 } else {
-                    // EVM wallet user: show deployer account balance logically reduced by AI spends
-                    setUserBalance(Math.max(0, parseFloat(accountBal) - aiSpentRef.current).toFixed(2));
+                    // EVM wallet user: show deployer account total balance
+                    setUserBalance(parseFloat(accountBal).toFixed(2));
                 }
 
             } catch (error) {
@@ -680,9 +708,9 @@ export default function DashboardPage() {
                                 transition={{ delay: 0.1 }}
                                 className="grid grid-cols-1 md:grid-cols-3 gap-6"
                             >
-                                <StatCard title="Wallet Balance" value={`$${userBalance} (FLOW)`} change="Live FCL sync" isPositive={true} icon={<Wallet className="w-6 h-6" />} />
-                                <StatCard title="Total Value Locked" value={`$${vaultBalance} (FLOW)`} change="AI Vault Balance" isPositive={true} icon={<Database className="w-6 h-6" />} />
-                                <StatCard title="Active Trades" value="0" change="Awaiting deployment" isPositive={false} icon={<Activity className="w-6 h-6" />} />
+                                <StatCard title="Wallet Balance" value={`$${userBalance} (FLOW)`} change="Flow Native Balance" isPositive={true} icon={<Wallet className="w-6 h-6" />} />
+                                <StatCard title="Vault FLOW Position" value={`${vaultBalance} FLOW`} change="AI Managed Asset" isPositive={true} icon={<Database className="w-6 h-6" />} />
+                                <StatCard title="Vault USDC Position" value={`$${vaultUsdc}`} change="Stablecoin Reserve" isPositive={false} icon={<Activity className="w-6 h-6" />} />
                             </motion.div>
 
                             {/* Portfolio Chart */}
