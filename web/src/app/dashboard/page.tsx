@@ -166,7 +166,7 @@ const RecentTrades = ({ trades }: { trades: TradeDisplayEntry[] }) => {
                             <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                                 <td className="p-4 font-bold text-white flex items-center gap-2">
                                     <img src="/flow-logo.svg" alt="FLOW" className="w-5 h-5 opacity-80" />
-                                    {trade.action.includes('Buy') ? 'FLOW' : trade.action.includes('Sell') ? 'USDC' : 'FLOW/USDC'}
+                                    {trade.asset ? trade.asset : (trade.action.includes('Buy') ? 'FLOW' : trade.action.includes('Sell') ? 'USDC' : 'FLOW/USDC')}
                                 </td>
                                 <td className="p-4">
                                     <span className={`px-2 py-1 rounded text-xs font-bold ${trade.action.includes('Buy') ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'}`}>
@@ -306,8 +306,8 @@ export default function DashboardPage() {
     const [successMessage, setSuccessMessage] = useState("");
     const [terminalInput, setTerminalInput] = useState("");
     const [terminalLogs, setTerminalLogs] = useState<TerminalLogEntry[]>([
-        { type: 'ai', content: "Based on current on-chain liquidity, what's the optimal route to swap 10,000 USDC into FLOW right now?" },
-        { type: 'system', content: "Analyzing fragmented liquidity pools across DEXs...\n\nBest Route Detected:\n40% via IncrementFi (Price: $0.841)\n60% via Metapier (Price: $0.842)\nEst. Slippage: 0.12% | Gas: < $0.001\n\nShall I execute this split order for optimal pricing?" }
+        { type: 'ai', content: "Based on current on-chain liquidity, what's the optimal route to swap 10,000 FLOW into USDC right now to secure profits?" },
+        { type: 'system', content: "Analyzing fragmented liquidity pools across DEXs...\n\nBest Route Detected:\n40% via IncrementFi (Price: $0.844/FLOW)\n60% via Metapier (Price: $0.846/FLOW)\nEst. Slippage: 0.11% | Gas: < $0.001\n\nShall I execute this split order to secure stablecoin profits?" }
     ]);
     const [recentTrades, setRecentTrades] = useState<TradeDisplayEntry[]>([]);
 
@@ -546,9 +546,9 @@ export default function DashboardPage() {
                             let schedulingData: {String: AnyStruct} = {
                                 "evmCalls": transactionData,
                                 "ipfsProof": "bafymockfrontendproofcidflowtalos",
-                                "action": "BUY",
+                                "action": "SWAP",
                                 "token": "FLOW",
-                                "amount": 100.0
+                                "amount": 10000.0
                             }
                             
                             self.schedulerManager.schedule(
@@ -589,7 +589,7 @@ export default function DashboardPage() {
 
                 // Add to recent trades table
                 setRecentTrades(prev => [
-                    { asset: 'FLOW', action: 'AI Scheduled Swap', size: '10,000 USDC', status: '✅ CONFIRMED', fullCid: '', time: new Date().toLocaleString() },
+                    { asset: 'FLOW → USDC', action: 'AI Scheduled Swap', size: '10,000 FLOW', status: '✅ CONFIRMED', fullCid: '', time: new Date().toLocaleString() },
                     ...prev
                 ]);
 
