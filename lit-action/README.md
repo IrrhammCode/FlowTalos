@@ -46,13 +46,39 @@ Operating within the secure enclaves of the Lit Protocol Yellowstone Testnet, th
 
 ---
 
-## 🛡️ Validation & Constraints
+## 🛠️ Tech Stack
 
-The `action.js` script actively protects the FlowTalos smart contracts from hallucinated or malicious AI intents.
+| Layer | Technology | Purpose |
+|------|------------|---------|
+| Runtime | Node.js Vanilla JS | Isolated execution across Lit Nodes |
+| Cryptography | `ethers` (Injected) | `keccak256` hashing & ABI encoding |
+| Core SDK | `@lit-protocol/lit-node-client` | Threshold ecdsa signing interface |
+| Testing | Jest | Local simulation & constraint verification |
 
-- **Delay Bounds Constraints:** Rejects scheduling values exceeding 86,400 seconds (24 Hours max).
-- **Size Bounds Constraints:** Blocks transaction strings exceeding 10,000 serialized characters.
-- **Input Type Completeness:** Fails the signing procedure instantly if any of the 7 core arguments (including the IPFS reasoning `CID`) are omitted.
+---
+
+## 📂 Folder Structure
+
+```text
+lit-action/
+├── src/
+│   ├── action.js            # The exact code pinned to IPFS/Lit
+│   └── simulateLitNode.js   # Local sandbox replicating Lit Global objects
+├── tests/
+│   └── action.test.js       # Jest suite for boundary/payload validation
+├── package.json             # NPM dependencies
+└── README.md                # Component documentation
+```
+
+---
+
+## 🎨 Screenshots
+
+To provide a visual sense of the Lit Action operating environment:
+
+### 1. Local Simulation Output
+*Execution of `simulateLitNode.js` demonstrating successful injection of global dependencies and Cadence transaction hashing.*
+![Lit Action Console](../docs/terminal.png)
 
 ---
 
@@ -60,25 +86,65 @@ The `action.js` script actively protects the FlowTalos smart contracts from hall
 
 For deterministic hackathon demonstration and testing, `simulateLitNode.js` fully recreates the Lit SDK environment using Node.js `AsyncFunction` sandboxing. It injects the `ethers` library and global `LitActions` mocks, providing a completely identical code execution path to mainnet Lit node validation logic.
 
-### 1. Setup
+---
+
+## 💻 Installation & Usage
+
+### 1. Prerequisites
+- Node.js 18+ and `npm`
+
+### 2. Environment Variables
+
+Create `.env` at the root of the `/lit-action` directory.
+
+| Variable | Description | Requirement |
+|--------|-------------|-------------|
+| `LIT_NETWORK` | The Lit network to target (e.g., `yellowstone`) | Optional |
+| `PKP_PUBLIC_KEY` | Your minted Programmable Key Pair pubkey | Optional (For live deployment) |
+
+### 3. Local Setup
 
 ```bash
 cd lit-action
 npm install
 ```
 
-### 2. Manual Invocation
-
-```bash
-FLOWTALOS_SIGNAL='{"action":"BUY","token":"FLOW","amount":100,"reasoning":"RSI oversold"}' \
-FLOWTALOS_ACTION_MODE=local \
-node src/simulateLitNode.js
-```
-
-### 3. Test Coverage
+### 4. Test Coverage
 
 Comprehensive Jest suites validate Cadence string generation, domain separator hashing, and ECDSA threshold response encapsulation:
 
 ```bash
 npx jest
 ```
+
+---
+
+## 🚀 Deployment
+
+The `action.js` code is designed to be immutable once deployed to the Lit Network.
+
+**To deploy the action to IPFS/Lit:**
+1. Pin the raw contents of `src/action.js` to IPFS.
+2. Mint a PKP on the Lit Chronicle testnet/mainnet.
+3. Grant the resulting IPFS CID authorization to use your PKP via the Lit Explorer or smart contracts.
+
+---
+
+## 🆘 Troubleshooting
+
+**1. `LitActions is not defined` in Local Node:**
+- Ensure you are running the `simulateLitNode.js` wrapper, not `action.js` directly. The Lit global objects are only injected at runtime by the Lit nodes (or our simulator).
+
+**2. Invalid Signature Hash (Flow Rejection):**
+- Flow Cadence requires exact domain separation tags. If you modify the `action.js` transaction string builder, ensure you do not break the `FLOW-V0.0-transaction` prefix logic before hashing.
+
+**3. Test Suite Hanging:**
+- Jest may hang if asynchronous tests aren't properly resolved. Ensure `--detectOpenHandles` is used if tweaking core logic.
+
+---
+
+## 📄 License
+
+This Lit Protocol Action component is distributed under the **MIT License**.
+
+Refer to the root repository `LICENSE` file for full definitions and terms.

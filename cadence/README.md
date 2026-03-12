@@ -51,17 +51,41 @@ Deployed securely on the Flow Testnet, the protocol elegantly separates custody 
 
 ---
 
-## 🔐 Core Contract Modularity
+## 🛠️ Tech Stack
 
-### `FlowTalosVault.cdc` (The Liquidity Bridge)
-The strict non-custodial EVM Bridge Manager. It holds FLOW/USDC safely inside a Cadence resource structure, preventing any AI extraction vectors.
-- Manages an internal **Cadence-Owned Account (COA)** dynamically bridging funds to Flow EVM.
-- Exposes `executeEVMCalls()` allowing deterministic batch processing of Solidity calldata byte-arrays against AMM Routers like IncrementFi.
+| Layer | Technology | Purpose |
+|------|------------|---------|
+| Smart Contracts | Flow Cadence | Secure Vault and capability management |
+| Cross-VM Execution | Cadence EVM Bridge | Transaction execution against Ethereum/Solidity DEXs |
+| Tooling | Flow CLI | Contract compilation, testing, and deployment |
+| Automation | Forte Scheduler | Autonomously triggered execution queues |
 
-### `FlowTalosStrategyHandler.cdc` (The Validation Gate)
-Serves as the ultimate authority receiving queued executions from the Forte Scheduler framework.
-- Evaluates specific payload variables (e.g., rejecting `AMOUNT <= 0`).
-- Triggers immutable on-chain Audit tracking by emitting the `StrategyExecuted` event natively containing the IPFS `CIDv1` string representing the AI's cryptographic decision receipt.
+---
+
+## 📂 Folder Structure
+
+```text
+cadence/
+├── contracts/                   # Core protocol logic
+│   ├── FlowTalosVault.cdc       # Fund custody & EVM Bridge
+│   └── FlowTalosStrategy.cdc    # Validation & Payload Gate
+├── transactions/                # Client execution scripts
+│   ├── InitVault.cdc            # Account capability bootstrapping
+│   └── ScheduleAI.cdc           # Forte Scheduler payload injection
+├── scripts/                     # Read-only chain state queries
+│   └── GetVaultBalance.cdc      # Returns live portfolio metrics
+└── flow.json                    # Flow CLI network configuration
+```
+
+---
+
+## 🎨 Screenshots
+
+To provide a visual sense of the Smart Contract operating environment:
+
+### 1. On-Chain Ledger Proofs
+*Flow testnet explorer demonstrating immutable CIDv1 execution hashes embedded directly into the blockchain event log.*
+![On-chain Events](../docs/tradelogs.png)
 
 ---
 
@@ -73,24 +97,62 @@ Serves as the ultimate authority receiving queued executions from the Forte Sche
 
 ---
 
-## 💻 Quick Deployment
+## 💻 Installation & Usage
 
 ### 1. Prerequisites
-- [Flow CLI installed](https://docs.onflow.org/flow-cli/)
-- Funded account in `flow.json` mapped to the Flow Testnet
+- [Flow CLI installed](https://docs.onflow.org/flow-cli/) v3.0+
+- A funded Flow Testnet Account
 
-### 2. Automated Generation
+### 2. Environment Variables
+
+While Cadence naturally relies on `flow.json`, you must configure the following key-pairs to interact with the Forte Scheduler locally:
+
+| Variable | Description | Requirement |
+|--------|-------------|-------------|
+| `testnet-account` (in flow.json) | The exact deployment and signing account address | **Required** |
+| Private Key | The ECDSA key matching the `testnet-account` | **Required** |
+
+### 3. Local Setup
+
 ```bash
 cd cadence
 flow keys generate
 ```
 
-### 3. Deploy to Flow Testnet
-```bash
-# Push smart contracts to the Flow Network
-flow project deploy --network=testnet
+---
 
-# Initialize the Vault capability mappings
+## 🚀 Deployment
+
+The protocol utilizes Flow CLI to manage network deployments.
+
+**Deploy to Flow Testnet:**
+```bash
+flow project deploy --network=testnet
+```
+
+**Initialize Capabilities (One-time Setup):**
+```bash
 flow transactions send cadence/transactions/InitVaultAndHandler.cdc \
   --network testnet --signer testnet-account --gas-limit 9999
 ```
+
+---
+
+## 🆘 Troubleshooting
+
+**1. Cross-VM Bridge Failures (Execution Reverted):**
+- If an EVM call fails (e.g., insufficient liquidity or extreme slippage on IncrementFi), the *entire* Cadence wrapper effectively rolls back to defend state integrity. Check your `mustPass` flag boolean inside `executeEVMCalls`.
+
+**2. Missing Capability Errors:**
+- Attempting to schedule a Forte transaction will fail abruptly if the `StrategyHandler` capability was never linked to the `/public/` path. Re-run `InitVaultAndHandler.cdc`.
+
+**3. Flow CLI Network Timeout:**
+- Standard testnet RPC congestion. Try appending `--gas-limit 9999` to ensure the complex batch transaction isn't reverting due to computation limits.
+
+---
+
+## 📄 License
+
+This Cadence Smart Contract component is distributed under the **MIT License**.
+
+Refer to the root repository `LICENSE` file for full definitions and terms.

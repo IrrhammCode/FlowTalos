@@ -53,16 +53,43 @@ The Synapse AI engine utilizes a strict **Dual-Signal alignment matrix**. Trades
 
 ---
 
-## 🛠️ Technology Stack & Dependencies
+## 🛠️ Tech Stack
 
-| Technology | Purpose |
-|---|---|
-| **Python 3.9+** | Core asynchronous loop and orchestrator |
-| **`requests`** | Time-series and qualitative API polling |
-| **`web3.py`** | ABI EVM calldata generation for Uniswap V2 forks |
-| **`subprocess`** | Sandboxed RPC execution for Lit Protocol & IPFS Node.js |
-| **`hashlib`** | Cryptographic local fallback SHA-256 validation |
-| **`fcntl`** | Aggressive file locking preventing JSON log race conditions |
+| Layer | Technology | Purpose |
+|------|------------|---------|
+| Core Logic | Python 3.9+ | High-performance asynchronous execution |
+| Networking | `requests` | Time-series and qualitative API polling |
+| EVM Bridge | `web3.py` | ABI EVM calldata generation for AMMs |
+| Infrastructure | `subprocess` | Sandboxed RPC bridge for Node.js modules |
+| Cryptography | `hashlib` | Local fallback SHA-256 validation |
+| Concurrency | `fcntl` | Aggressive file locking to prevent race conditions |
+
+---
+
+## 📂 Folder Structure
+
+```text
+ai-agent/
+├── src/                 # Core Python modules
+│   ├── config.py        # Environment & protocol constants
+│   ├── fetcher.py       # CoinGecko & CryptoCompare API clients
+│   └── synapse.py       # Dual-signal alignment matrix logic
+├── tests/               # Pytest suite
+│   └── test_agent.py    # Unit tests for calldata and CID generation
+├── main.py              # Application entrypoint & daemon loop
+├── trade_log.json       # Local state ledger read by Dashboard
+└── requirements.txt     # Python dependencies
+```
+
+---
+
+## 🎨 Screenshots
+
+To provide a visual sense of the AI operating environment:
+
+### 1. Terminal Execution
+*The continuous daemon calculating standard deviations and NLP logic.*
+![Agent Console](../docs/terminal.png)
 
 ---
 
@@ -81,9 +108,21 @@ FlowTalos AI is designed never to panic. Every external dependency uses determin
 
 ### 1. Prerequisites
 - Python 3.9+ and `pip`
-- Node.js 18+ (Required for Lit Action & Storacha Subprocesses)
+- Node.js 18+ (Required for Lit Action & Storacha subprocesses)
 
-### 2. Quick Setup
+### 2. Environment Variables
+
+Create `.env` at the root of the `/ai-agent` directory.
+
+| Variable | Description | Requirement |
+|--------|-------------|-------------|
+| `FLOW_TESTNET_SIGNER` | Wallet private key mapped to the active Flow Testnet account | **Required** |
+| `COINGECKO_API_KEY` | Pro API key for aggressive rate limits | Optional |
+| `CRYPTOCOMPARE_API_KEY` | Real-time news NLP dataset access | Optional |
+
+*Note: All integrations gracefully fall back to local computation if API keys are missing.*
+
+### 3. Local Setup
 
 ```bash
 cd ai-agent
@@ -92,28 +131,44 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Run the Daemon
+### 4. Run the Daemon
 
 ```bash
 python3 main.py --daemon
 ```
 
-### 4. Execute Test Suite
+---
 
-The test suite validates the EVM ABI calldata compiler, the deterministic CID hasher, and the dual-signal matrix.
+## 🚀 Deployment
+
+The FlowTalos AI is designed to run indefinitely on a persistent cloud instance (e.g., AWS EC2, DigitalOcean Droplet) using PM2.
 
 ```bash
-python3 -m pytest test_agent.py -v
+pip install -r requirements.txt
+npm install -g pm2
+pm2 start main.py --name "flowtalos-ai" --interpreter python3 -- --daemon
 ```
 
 ---
 
-## 🔑 Environment Secrets
+## 🆘 Troubleshooting
 
-All integrations gracefully fall back to local computation if API keys are missing. For absolute production topology, see `.env.example`:
+**1. `web3.py` Compilation Errors:**
+- Ensure you have the `build-essential` package installed on Linux if compiling specific cryptography binaries.
 
-```ini
-FLOW_TESTNET_SIGNER=24c2e530f15129b7
-COINGECKO_API_KEY=your_key_here
-CRYPTOCOMPARE_API_KEY=your_key_here
+**2. Storacha Subprocess Timeout:**
+- If the IPFS upload hangs for more than 10 seconds, the Python agent will gracefully fall back to local offline `CIDv1` hashing. Restarting the daemon usually clears the Node.js event loop queue.
+
+**3. File Lock / Race Condition Error on `trade_log.json`:**
+- Remove the lockfile manually if the daemon crashed unexpectedly:
+```bash
+rm agent_lock.lock
 ```
+
+---
+
+## 📄 License
+
+This AI Agent component is distributed under the **MIT License**.
+
+Refer to the root repository `LICENSE` file for full definitions and terms.

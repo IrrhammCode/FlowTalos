@@ -46,13 +46,40 @@ By calculating a rigorous Base32 CIDv1 IPFS hash and uploading the payload direc
 
 ---
 
-## 🛡️ Reliability & 3-Tier Fallback
+## 🛠️ Tech Stack
 
-The logging module natively prevents single points of failure, ensuring that even under severe network duress, a computationally identical hash is created and logged on-chain locally:
+| Layer | Technology | Purpose |
+|------|------------|---------|
+| Runtime | Node.js TS | Strict type-safe execution wrapper |
+| Cryptography | `multiformats` / `sha2` | Official IPFS Base32 CID block generation |
+| Decentralized Storage | `@web3-storage/w3up-client` | Storacha Filecoin pinning delegation |
+| Interface | CLI `stdout` | Bridge payload transmission back to Python |
 
-*   **Tier 1 (Normal):** Full Web3 upload using `STORACHA_EMAIL_ADDRESS` and `STORACHA_SPACE_DID`.
-*   **Tier 2 (Offline mode):** Calculates deterministic `CIDv1` matching the precise Filecoin standard locally (begins with `bafkreig...`).
-*   **Tier 3 (Panic mode):** Fails back to standard Node.js `crypto.createHash('sha256')` hexing to prevent execution stalling.
+---
+
+## 📂 Folder Structure
+
+```text
+storacha-logger/
+├── src/
+│   ├── index.ts             # Primary logic & W3UP client integration
+│   └── utils.ts             # Deterministic fallback hashing functions
+├── package.json             # NPM dependencies & scripts
+├── tsconfig.json            # Strict TypeScript compilation rules
+└── README.md                # Component documentation
+```
+
+---
+
+## 🎨 Screenshots
+
+To provide a visual sense of the Storacha Logger environment:
+
+### 1. Storacha Console
+*Verification of IPFS blocks dynamically pinned by the AI Daemon during local testing.*
+![Storacha Dashboard](../docs/terminal.png)
+
+---
 
 ---
 
@@ -61,14 +88,25 @@ The logging module natively prevents single points of failure, ensuring that eve
 ### 1. Prerequisites
 - Node.js 18+ and `npm`
 
-### 2. Setup
+### 2. Environment Variables
+
+Create `.env` at the root of the `/storacha-logger` directory.
+
+| Variable | Description | Requirement |
+|--------|-------------|-------------|
+| `STORACHA_EMAIL_ADDRESS` | Registered Web3.Storage/Storacha email | Optional (For live Web3 Web IPFS pinning) |
+| `STORACHA_SPACE_DID` | The unique Space DID created for this project | Optional (For live Web3 Web IPFS pinning) |
+
+*Note: If these are omitted, the logger automatically falls back to secure local CIDv1 calculation.*
+
+### 3. Local Setup
 
 ```bash
 cd storacha-logger
 npm install
 ```
 
-### 3. Usage (Subprocess Context)
+### 4. Usage (Subprocess Context)
 
 The logger is meant to act as a hidden bridge layer rather than a standalone app.
 
@@ -77,9 +115,29 @@ echo '{"action":"BUY","token":"FLOW","amount":100}' > /tmp/test-payload.json
 npx ts-node src/index.ts /tmp/test-payload.json
 ```
 
-**Expected Local Deterministic Output:**
-```bash
-⚠ [Storacha] No credentials found. Computing real content-addressed CID locally...
-[✔] Real Content-Addressed CID: bafkreig...
-__CID_OUTPUT__:bafkreig...
-```
+---
+
+## 🚀 Deployment
+
+The `storacha-logger` is not deployed as a standalone persistent server. It is executed purely as a stateless script by the AI Agent daemon using `subprocess.run()`. As long as the physical server running `ai-agent/main.py` has Node.js and NPM installed within the same container, the logger will successfully build and trigger.
+
+---
+
+## 🆘 Troubleshooting
+
+**1. IPFS Upload Pending / Stuck:**
+- The `@web3-storage` protocol depends on external decentralized nodes. If `w3up` stalls, verify the status of the Storacha network. FlowTalos is designed to bypass this limit after 10 seconds locally.
+
+**2. `DID parsing error`:**
+- Ensure `STORACHA_SPACE_DID` correctly begins with `did:key:z...`.
+
+**3. Mismatched Local vs Live CIDs:**
+- The AI Agent requires exact whitespace serialization. Ensure the file passed to the logger is rigorously minimized JSON without trailing spaces, otherwise the SHA-256 tree root will violently shift.
+
+---
+
+## 📄 License
+
+This Storacha Logger component is distributed under the **MIT License**.
+
+Refer to the root repository `LICENSE` file for full definitions and terms.
