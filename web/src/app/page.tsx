@@ -21,31 +21,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Activity, ShieldCheck, Database, Zap, ArrowRight, ChevronRight, Lock, Eye, Workflow, Cpu, ChevronDown, CheckCircle2, Terminal, Play, MonitorCog, Binary, Scale, Fingerprint } from "lucide-react";
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { Activity, ShieldCheck, Database, Zap, ArrowRight, Lock, Workflow, ChevronDown, CheckCircle2, Terminal } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 import { useRouter } from 'next/navigation';
 
 // --- Custom Hooks & Utils ---
-const useMousePosition = () => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
-  useEffect(() => {
-    const updateMousePosition = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener("mousemove", updateMousePosition);
-    return () => window.removeEventListener("mousemove", updateMousePosition);
-  }, []);
-
-  return mousePosition;
-};
 
 // --- Components ---
 
 // Premium Glow Card for Bento Grid
-const GlowCard = ({ children, className = "", delay = 0, style }: any) => {
+const GlowCard = ({ children, className = "", delay = 0, style }: { children: React.ReactNode, className?: string, delay?: number, style?: React.CSSProperties }) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
 
@@ -364,7 +352,7 @@ const Features = () => {
                 <img src="/filecoin-logo.svg" alt="Storacha Pinning" className="w-full h-full opacity-90" />
               </div>
               <h3 className="text-3xl md:text-4xl font-bold text-white mb-4">Glass-Box Reasoning</h3>
-              <p className="text-slate-300 text-lg leading-relaxed mb-6">No black boxes. The decision logic is pinned to Filecoin via Storacha before execution. You can audit the mathematical "thoughts" of the agent.</p>
+              <p className="text-slate-300 text-lg leading-relaxed mb-6">No black boxes. The decision logic is pinned to Filecoin via Storacha before execution. You can audit the mathematical &quot;thoughts&quot; of the agent.</p>
               <div className="px-4 py-3 rounded-xl bg-emerald-950/80 border border-emerald-500/10 font-mono text-xs text-emerald-400 overflow-hidden text-ellipsis whitespace-nowrap pointer-events-auto shadow-inner">
                 ipfs://bafybeig...q4m/log.json
               </div>
@@ -421,7 +409,7 @@ const Philosophy = () => {
               Traditional algorithmic trading bots operate in the dark. Users provide capital, and the bot executes trades without explaining <em className="italic text-slate-300">why</em>.
             </p>
             <p className="text-slate-400 text-[1.1rem] font-light leading-relaxed">
-              FlowTalos completely flips this paradigm. We call it <strong className="text-white font-medium">Glass-Box AI</strong>. Every decision mathematical models make is translated into human-readable text and cryptographically anchored to IPFS via Storacha. You don't just see the trades; you see the exact reasoning behind them.
+              FlowTalos completely flips this paradigm. We call it <strong className="text-white font-medium">Glass-Box AI</strong>. Every decision mathematical models make is translated into human-readable text and cryptographically anchored to IPFS via Storacha. You don&apos;t just see the trades; you see the exact reasoning behind them.
             </p>
           </div>
           <ul className="space-y-5 pt-4">
@@ -457,25 +445,25 @@ const Philosophy = () => {
               <span className="text-xs font-mono text-slate-500 ml-auto">ipfs://bafybeig...q4m/reasoning.json</span>
             </div>
             <div className="p-6 bg-[#010805] font-mono text-sm leading-relaxed overflow-x-auto text-slate-300">
-              <div className="text-brand-primary mb-4">// Published by Synapse AI Agent to Storacha</div>
+              <div className="text-brand-primary mb-4">{`// Published by Synapse AI Agent to Storacha`}</div>
               <div><span className="text-emerald-500">{"{"}</span></div>
               <div className="pl-4">
-                <span className="text-emerald-300">"timestamp"</span>: <span className="text-emerald-200/70">"2026-03-01T14:32:00Z"</span>,
+                <span className="text-emerald-300">&quot;timestamp&quot;</span>: <span className="text-emerald-200/70">&quot;2026-03-01T14:32:00Z&quot;</span>,
               </div>
               <div className="pl-4">
-                <span className="text-emerald-300">"asset"</span>: <span className="text-emerald-200/70">"FLOW/USDC"</span>,
+                <span className="text-emerald-300">&quot;asset&quot;</span>: <span className="text-emerald-200/70">&quot;FLOW/USDC&quot;</span>,
               </div>
               <div className="pl-4">
-                <span className="text-emerald-300">"action"</span>: <span className="text-emerald-200/70">"BUY"</span>,
+                <span className="text-emerald-300">&quot;action&quot;</span>: <span className="text-emerald-200/70">&quot;BUY&quot;</span>,
               </div>
               <div className="pl-4">
-                <span className="text-emerald-300">"amount"</span>: <span className="text-green-300">150.00</span>,
+                <span className="text-emerald-300">&quot;amount&quot;</span>: <span className="text-green-300">150.00</span>,
               </div>
               <div className="pl-4">
-                <span className="text-emerald-300">"reasoning"</span>: <span className="text-emerald-200/70">"Technical indicators show strong divergence. RSI dropped to 28.5 (oversold territory) while MACD histogram indicates slowing bearish momentum. Executing partial position sizing to capture anticipated mean reversion within the next 12 hours."</span>,
+                <span className="text-emerald-300">&quot;reasoning&quot;</span>: <span className="text-emerald-200/70">&quot;Technical indicators show strong divergence. RSI dropped to 28.5 (oversold territory) while MACD histogram indicates slowing bearish momentum. Executing partial position sizing to capture anticipated mean reversion within the next 12 hours.&quot;</span>,
               </div>
               <div className="pl-4">
-                <span className="text-emerald-300">"lit_signature"</span>: <span className="text-emerald-200/70">"0x4f82...ec21"</span>
+                <span className="text-emerald-300">&quot;lit_signature&quot;</span>: <span className="text-emerald-200/70">&quot;0x4f82...ec21&quot;</span>
               </div>
               <div><span className="text-emerald-500">{"}"}</span></div>
             </div>
@@ -882,7 +870,7 @@ const Footer = () => (
             <span className="text-2xl font-bold text-white tracking-widest">FlowTalos</span>
           </div>
           <p className="text-slate-500 text-sm max-w-sm leading-relaxed">
-            The world's first Glass-Box AI wealth manager. Automating decentralized finance with cryptographic transparency and verifiable reasoning on the Flow blockchain.
+            The world&apos;s first Glass-Box AI wealth manager. Automating decentralized finance with cryptographic transparency and verifiable reasoning on the Flow blockchain.
           </p>
         </div>
         <div>
@@ -917,7 +905,7 @@ const Footer = () => (
 );
 
 // Utility Icon
-const SparkleIcon = (props: any) => (
+const SparkleIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
     <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" fill="currentColor" />
   </svg>

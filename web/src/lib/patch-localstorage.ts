@@ -39,7 +39,7 @@ if (typeof window === 'undefined' && typeof globalThis !== 'undefined') {
     // Only patch if localStorage exists but has a broken getItem
     const hasLocalStorage = 'localStorage' in globalThis;
     const isBroken = hasLocalStorage &&
-        typeof (globalThis as any).localStorage?.getItem !== 'function';
+        typeof (globalThis as typeof globalThis & { localStorage?: Storage }).localStorage?.getItem !== 'function';
 
     if (isBroken) {
         const noopStorage: StorageMock = {

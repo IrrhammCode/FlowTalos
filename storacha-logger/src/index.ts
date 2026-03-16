@@ -100,8 +100,9 @@ async function main() {
 
     // Security: Validate file path to prevent path traversal attacks
     const resolvedPath = pathModule.resolve(filePath);
-    if (resolvedPath.includes('..') || !pathModule.isAbsolute(resolvedPath)) {
-        console.error(`[Security] Rejected path traversal attempt: ${filePath}`);
+    const allowedDirs = [require('os').tmpdir(), process.cwd()];
+    if (!allowedDirs.some(dir => resolvedPath.startsWith(dir))) {
+        console.error(`[Security] Rejected path outside allowed directories: ${filePath}`);
         process.exit(1);
     }
 
@@ -158,15 +159,16 @@ async function main() {
         const cid = await pinReasoningToStoracha(fileContent);
         console.log(`__CID_OUTPUT__:${cid}`);
 
-    } catch (err: any) {
-        console.error("⚠ Upload failed:", err.message);
+    } catch (err: unknown) {
+        const errMsg = err instanceof Error ? err.message : String(err);
+        console.error("⚠ Upload failed:", errMsg);
         console.log("Computing emergency fallback CID from content...");
         // NEVER exit(1) — always output a CID so the Python pipeline doesn't break
         try {
             const emergencyCid = await computeContentCID(fileContent);
             console.log(`[✔] Emergency Fallback CID: ${emergencyCid}`);
             console.log(`__CID_OUTPUT__:${emergencyCid}`);
-        } catch (cidErr: any) {
+        } catch {
             // Absolute last resort: deterministic hash
             const crypto = require('crypto');
             const lastResortHash = crypto.createHash('sha256').update(fileContent).digest('hex');

@@ -20,7 +20,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useAccount, useDisconnect } from 'wagmi';
 import { useRouter } from 'next/navigation';
-import { Activity, ShieldCheck, Database, Zap, Cpu, Terminal, ArrowUpRight, ArrowDownRight, RefreshCw, BarChart3, Clock, Wallet, CheckCircle2, Copy, ExternalLink, Settings, LogOut, ChevronRight, X, AlertCircle, History as HistoryIcon, Search, DollarSign } from "lucide-react";
+import { Activity, ShieldCheck, Database, Zap, Cpu, Terminal, ArrowUpRight, ArrowDownRight, RefreshCw, BarChart3, Wallet, CheckCircle2, Settings, LogOut, ChevronRight, X, AlertCircle, History as HistoryIcon, Search, DollarSign } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -62,11 +62,6 @@ interface TerminalLogEntry {
     content: string;
 }
 
-/** Chart data point for portfolio performance. */
-interface ChartDataPoint {
-    name: string;
-    balance: number;
-}
 
 // --- Components ---
 const Sidebar = ({ disconnect, activeTab, setActiveTab }: { disconnect: () => void, activeTab: string, setActiveTab: (tab: string) => void }) => {
@@ -228,7 +223,7 @@ const IpfsProofModal = ({ isOpen, onClose, trade }: { isOpen: boolean; onClose: 
                                         <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full">VERIFIED</span>
                                     </p>
                                     <div className="bg-black/50 p-3 rounded-lg border border-white/5 text-[10px] text-slate-600 font-mono break-all line-clamp-2">
-                                        0xb4a47530668b4adbd52a170fb227bd9da4f810aa7242854b732e70e59a{Math.random().toString(16).slice(2).repeat(3)}
+                                        0xb4a47530668b4adbd52a170fb227bd9da4f810aa7242854b732e70e59a2f5b8a09f
                                     </div>
                                 </div>
                             </div>
@@ -439,13 +434,13 @@ export default function DashboardPage() {
                     let totalFlow = 0;
                     let totalUsdc = 0;
                     
-                    data.forEach((t: any) => {
+                    data.forEach((t: { action: string; amount?: string; price?: number }) => {
                         if (t.action.toUpperCase() === 'BUY') {
-                            totalFlow += parseFloat(t.amount || 0);
-                            totalUsdc -= (parseFloat(t.amount || 0) * (t.price || 0.8)); // simulated avg price
+                            totalFlow += parseFloat(t.amount || "0");
+                            totalUsdc -= (parseFloat(t.amount || "0") * (t.price || 0.8)); // simulated avg price
                         } else if (t.action.toUpperCase() === 'SELL') {
-                            totalFlow -= parseFloat(t.amount || 0);
-                            totalUsdc += (parseFloat(t.amount || 0) * (t.price || 0.8));
+                            totalFlow -= parseFloat(t.amount || "0");
+                            totalUsdc += (parseFloat(t.amount || "0") * (t.price || 0.8));
                         }
                     });
 
@@ -454,7 +449,7 @@ export default function DashboardPage() {
 
                     setRecentTrades([
                         ...simulatedTradesRef.current,
-                        ...data.map((t: any) => ({
+                        ...data.map((t: { token: string; action: string; amount: string; tx_status: string; ipfs_cid: string; timestamp: string }) => ({
                             asset: t.token,
                             action: t.action,
                             size: `${t.amount} ${t.token}`,
@@ -475,7 +470,7 @@ export default function DashboardPage() {
                     const initialBalance = 5000;
                     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
                     let runningBalance = initialBalance;
-                    const newChartData = days.map((day, i) => {
+                    const newChartData = days.map((day) => {
                         // Add a bit of faux volatility but trend upward based on trades
                         const dailyProfit = (Math.random() * 20) + (data.length * 2); 
                         runningBalance += dailyProfit;
@@ -490,7 +485,7 @@ export default function DashboardPage() {
                     setVaultPnl(`+$${totalProfit}`);
 
                 }
-            } catch (e) {
+            } catch {
                 // Trade log not available yet, keep empty
             }
         };
@@ -530,13 +525,16 @@ export default function DashboardPage() {
                             }
                         }
                     `,
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     args: (arg: any, t: any) => [
                         arg(parseFloat(amount).toFixed(8), t.UFix64),
                         arg(VAULT_ADDRESS, t.Address)
                     ],
+                    /* eslint-disable @typescript-eslint/no-explicit-any */
                     payer: fcl.authz as any,
                     proposer: fcl.authz as any,
                     authorizations: [fcl.authz as any],
+                    /* eslint-enable @typescript-eslint/no-explicit-any */
                     limit: 999
                 });
 
@@ -607,6 +605,7 @@ export default function DashboardPage() {
             setAmount("");
             setActiveVaultModal(null);
             setTimeout(() => setSuccessMessage(""), 5000);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error("Transaction failed:", error);
             setSuccessMessage(`Error: ${error.message}`);
@@ -641,7 +640,7 @@ export default function DashboardPage() {
             // Savings runs weekly (604800s), Restaking runs daily (86400s), standard swap runs quickly (5s)
             const scheduledDelay = isSavingsAction ? "604800.0" : isRestakingAction ? "86400.0" : "5.0"; 
             const executionEffort = "1000";         // Gas budget for the scheduled tx
-            const transactionBatch: any[] = [];     // Batch of EVM calls to execute
+
 
             // 3. FCL Mutate (ScheduleAIStrategy.cdc)
             const txId = await fcl.mutate({
@@ -693,6 +692,7 @@ export default function DashboardPage() {
                         }
                     }
                 `,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 args: (arg: any, t: any) => [
                     arg(scheduledDelay, t.UFix64),
                     arg(executionEffort, t.UInt64),
@@ -703,9 +703,11 @@ export default function DashboardPage() {
                         { key: "value", value: "0" }
                     ], t.Array(t.Dictionary({ key: t.String, value: t.AnyStruct })))
                 ],
+                /* eslint-disable @typescript-eslint/no-explicit-any */
                 payer: fcl.authz as any,
                 proposer: fcl.authz as any,
                 authorizations: [fcl.authz as any],
+                /* eslint-enable @typescript-eslint/no-explicit-any */
                 limit: 9999
             });
 
@@ -761,6 +763,7 @@ export default function DashboardPage() {
                 setIsProcessing(false);
             }, 12500);
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error("Terminal execution failed:", error);
             setTerminalLogs(prev => [...prev, { type: 'system', content: `❌ Error: ${error.message}` }]);
@@ -808,6 +811,7 @@ export default function DashboardPage() {
                             return vaultRef.balance
                         }
                     `,
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     args: (arg: any, t: any) => [arg(VAULT_ADDRESS, t.Address)]
                 });
 
@@ -835,6 +839,7 @@ export default function DashboardPage() {
                                 return vaultRef.balance
                             }
                         `,
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         args: (arg: any, t: any) => [arg(flowUser.addr, t.Address)]
                     });
                     // Personal wallet is NEVER affected by AI trades!
@@ -956,6 +961,7 @@ export default function DashboardPage() {
                                             <Tooltip
                                                 contentStyle={{ backgroundColor: '#020a06', borderColor: '#ffffff1a', borderRadius: '12px', color: '#fff' }}
                                                 itemStyle={{ color: '#10b981' }}
+                                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                                 formatter={(value: any) => [`$${value}`, 'Balance']}
                                             />
                                             <Area type="monotone" dataKey="balance" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorBalance)" />
@@ -1119,7 +1125,7 @@ export default function DashboardPage() {
                             </div>
                         </motion.div>
                     ) : activeTab === "Settings" ? (
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl space-y-6">
+                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto space-y-6">
                             <h2 className="text-xl font-bold text-white mb-2">Agent Preferences</h2>
 
                             {/* Account Info */}

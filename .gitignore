@@ -28,3 +28,13 @@ Thumbs.db
 trade_log.json
 temp_reasoning.json
 flowtalos_*.json
+logs.txt
+
+# ─── Sensitive Keys ───────────────────────────────────────
+new_keys.txt
+*.key
+
+# ─── IDE ──────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
