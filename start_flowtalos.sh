@@ -12,7 +12,7 @@ echo "[1] Starting Next.js Dashboard..."
 cd web && npm run dev &
 WEB_PID=$!
 
-echo "[2] Starting Synapse AI Agent (Daemon Mode)..."
+echo "[2] Starting Talos AI Agent (Daemon Mode)..."
 # Sleep briefly to let the frontend start up its output
 sleep 2
 cd ai-agent && python3 main.py --daemon &

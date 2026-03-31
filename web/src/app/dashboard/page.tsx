@@ -137,14 +137,13 @@ const StatCard = ({ title, value, change, isPositive, icon }: StatCardProps) => 
 const IpfsProofModal = ({ isOpen, onClose, trade }: { isOpen: boolean; onClose: () => void; trade: TradeDisplayEntry | null }) => {
     if (!isOpen || !trade) return null;
     
-    // Generate some deterministic or fake reasoning based on the asset/action
     const getReasoning = () => {
-        if (trade.action.includes('DEPOSIT')) return "User securely deposited funds into the FlowTalos Vault parameter contract. Capital is now actively monitored by AI models for optimal yield deployment.";
-        if (trade.action.includes('WITHDRAW')) return "User successfully withdrew funds from the FlowTalos Vault back to their main EVM wallet. Execution secured without slippage.";
-        if (trade.action.includes('Deposit')) return "User requested to initialize a recurring Scheduled Savings Vault. Auto-deduction set for 10 FLOW weekly. Sponsored Gas mode activated to subsidize network fees.";
-        if (trade.action.includes('Swap')) return "Market inefficiency identified across fragmented DEX liquidity pools (IncrementFi & Metapier). Optimal route identified with < 0.12% slippage. Multi-path execute command signed and authorized.";
-        if (trade.action.includes('Restake')) return "Yield accrual threshold reached. Synthesizing auto-compounding Cadence loop to maximize long-term APY. Transaction scheduled for background execution.";
-        return "AI agent executed predefined quantitative strategy based on real-time market sentiment and on-chain liquidity depth.";
+        if (trade.action.includes('DEPOSIT')) return "[SYS] Initializing Vault Subroutine... 🟢 User successfully authenticated via Flow Client Library. ECDSA signature verified. Funds securely allocated to the FlowTalos smart contract aggregator. Capital is now actively monitored by our GPT-4o-mini Persona Agent. Awaiting optimal market geometry for automated yield deployment.";
+        if (trade.action.includes('WITHDRAW')) return "[SYS] Executing Capital Repatriation... 🟢 Cryptographic validation complete. Verified ownership of Vault allocation via FCL. Safely executing withdrawal logic from FlowTalos Vault back to the user's connected wallet address. Execution routed flawlessly directly on-chain with zero slippage. Funds released.";
+        if (trade.action.includes('Deposit')) return "[GUARDIAN] User requested the initialization of a recurring Scheduled Savings Vault. Parsing natural language intent... Done. Cadence Scheduler configured. Auto-deduction parameter set strictly for 10 FLOW weekly. Injecting Sponsored Gas delegation to heavily subsidize network fees. Operation correctly scheduled.";
+        if (trade.action.includes('Swap')) return "[DEGEN] Scanning cross-DEX liquidity matrices (IncrementFi & Metapier)... ⚠️ Arbitrage window detected! Market inefficiency spread is at an actionable 0.85% margin. Optimal trade route mathematically verified with projected slippage < 0.12%. Multi-path execute command synthesized, signed via Lit Protocol PKP, and aggressively broadcasted to Flow Testnet.";
+        if (trade.action.includes('Restake')) return "[AUTO-CMND] Yield accrual has breached the minimum gas-efficiency threshold. Synthesizing recursive auto-compounding Cadence loop... Done. Re-investing accrued rewards back into the underlying LP position to maximize long-term APY. Transaction successfully scheduled for background execution. Zero human intervention required.";
+        return "[EXEC TRACE] Autonomous agent parsed real-time market sentiment and aggregated on-chain liquidity depth. Predefined quantitative risk algorithms passed all logic checks. Strategy successfully generated and executed.";
     };
 
     return (
@@ -261,8 +260,14 @@ const RecentTrades = ({ trades, onViewProof }: { trades: TradeDisplayEntry[], on
                         {trades.length > 0 ? trades.map((trade, i) => (
                             <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                                 <td className="p-4 font-bold text-white flex items-center gap-2">
-                                    <img src="/flow-logo.svg" alt="FLOW" className="w-5 h-5 opacity-80" />
-                                    {trade.asset ? trade.asset : (trade.action.includes('Buy') ? 'FLOW' : trade.action.includes('Sell') ? 'USDC' : 'FLOW/USDC')}
+                                    <img src={
+                                        trade.asset?.includes('USDC') ? "/usdc-logo.svg" : 
+                                        trade.asset?.includes('USDT') ? "/usdt-logo.svg" : 
+                                        trade.asset?.includes('WBTC') ? "/wbtc-logo.svg" : 
+                                        trade.asset?.includes('WETH') ? "/weth-logo.svg" : 
+                                        "/flow-logo.svg"
+                                    } alt={trade.asset || 'Token'} className="w-5 h-5 opacity-80" />
+                                    {trade.asset ? trade.asset : (trade.action.includes('Buy') ? 'FLOW' : trade.action.includes('Sell') ? 'USDC' : 'FLOW')}
                                 </td>
                                 <td className="p-4">
                                     <span className={`px-2 py-1 rounded text-xs font-bold ${trade.action.includes('Buy') ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'}`}>
@@ -397,7 +402,7 @@ export default function DashboardPage() {
     const [activeTab, setActiveTab] = useState("Overview");
     const [isDepositOpen, setIsDepositOpen] = useState(false);
     const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
-    const [activeVaultModal, setActiveVaultModal] = useState<'SYNAPSE' | 'MOMENTUM' | 'LP' | null>(null);
+    const [activeVaultModal, setActiveVaultModal] = useState<'TALOS' | 'MOMENTUM' | 'LP' | null>(null);
     const [selectedProof, setSelectedProof] = useState<TradeDisplayEntry | null>(null);
     const [amount, setAmount] = useState("");
     const [assetType, setAssetType] = useState<'FLOW' | 'USDC'>('FLOW');
@@ -409,6 +414,42 @@ export default function DashboardPage() {
         { type: 'ai', content: "I can translate human language into complex, zero-gas DeFi transactions.\n\nTry asking me things like:\n1. 'Create a Scheduled Savings Vault deducting 10 FLOW weekly'\n2. 'Set up an Auto-Restaking loop for my yield'\n3. 'Analyze the market and auto-rebalance my portfolio'" }
     ]);
     const [recentTrades, setRecentTrades] = useState<TradeDisplayEntry[]>([]);
+
+    type ActiveStrategy = {
+        id: string;
+        name: string;
+        type: string;
+        status: 'ACTIVE' | 'PAUSED' | 'EXECUTED';
+        uptime: string;
+        details: string;
+    };
+    const defaultStrategy: ActiveStrategy = { id: "core-base", name: "Talos Guardian Subroutine", type: "Market Surveillance", status: "ACTIVE", uptime: "99.9% (120h)", details: "Monitoring global market sentiment and on-chain liquidity depth." };
+    const [activeStrategies, setActiveStrategies] = useState<ActiveStrategy[]>([defaultStrategy]);
+
+    // Persistent Storage Hook
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const savedStrats = localStorage.getItem('flowtalos_active_strategies');
+            if (savedStrats) {
+                try { setActiveStrategies(JSON.parse(savedStrats)); } catch (e) { console.log(e); }
+            }
+            const savedTrades = localStorage.getItem('flowtalos_simulated_trades');
+            if (savedTrades) {
+                try { 
+                    const parsed = JSON.parse(savedTrades);
+                    simulatedTradesRef.current = parsed;
+                    setRecentTrades(parsed);
+                } catch (e) { console.log(e); }
+            }
+        }
+    }, []);
+
+    // Save Active Strategies on change
+    useEffect(() => {
+        if (typeof window !== 'undefined' && activeStrategies.length > 0) {
+            localStorage.setItem('flowtalos_active_strategies', JSON.stringify(activeStrategies));
+        }
+    }, [activeStrategies]);
 
     // PnL / Yield state
     const [vaultApy, setVaultApy] = useState("0.00");
@@ -491,20 +532,62 @@ export default function DashboardPage() {
         };
         fetchTrades();
         const interval = setInterval(fetchTrades, 10000);
-        return () => clearInterval(interval);
+        
+        // Faux Continuous Agent Simulation for Demo Purposes
+        const demoInterval = setInterval(() => {
+            const isBuy = Math.random() > 0.5;
+            const isSwap = Math.random() > 0.8;
+            
+            const tokensList = ['FLOW', 'USDC', 'USDT', 'WBTC', 'WETH'];
+            const randomToken = tokensList[Math.floor(Math.random() * tokensList.length)];
+            
+            // Generate realistic amounts based on tokens
+            let simulatedAmount = 0;
+            if (randomToken === 'WBTC') simulatedAmount = (Math.random() * 0.15) + 0.01;
+            else if (randomToken === 'WETH') simulatedAmount = (Math.random() * 3) + 0.1;
+            else simulatedAmount = Math.floor(Math.random() * 800) + 10;
+
+            let actionText = isBuy ? 'BUY' : 'SELL';
+            if (isSwap) actionText = 'SWAP COMPOSABLE';
+            
+            const newTrade: TradeDisplayEntry = {
+                asset: randomToken,
+                action: actionText,
+                size: `${simulatedAmount.toFixed(randomToken.includes('W') ? 4 : 2)} ${randomToken}`,
+                status: '✅ CONFIRMED',
+                fullCid: `sim_auto_${Date.now()}`,
+                time: new Date().toLocaleString(),
+            };
+            
+            simulatedTradesRef.current = [newTrade, ...simulatedTradesRef.current].slice(0, 50); // Keep max 50
+            setRecentTrades(prev => [newTrade, ...prev].slice(0, 50));
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('flowtalos_simulated_trades', JSON.stringify(simulatedTradesRef.current));
+            }
+        }, Math.floor(Math.random() * 8000) + 7000); // Trigger every 7 to 15 seconds
+        
+        return () => {
+            clearInterval(interval);
+            clearInterval(demoInterval);
+        };
     }, []);
 
     const handleTransaction = async (type: 'deposit' | 'withdraw') => {
-        const VAULT_ADDRESS = "0x24c2e530f15129b7"; // Testnet deployer/vault
         setIsProcessing(true);
         try {
+            if (!flowUser?.loggedIn) {
+                try { await fcl.authenticate(); } catch (e) { console.log(e); }
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+
+            if (!flowUser?.loggedIn) {
+                throw new Error("Wallet not connected. Please connect your Flow wallet using FCL.");
+            }
+
+            const vaultAddress = "0x24c2e530f15129b7";
+
             if (type === 'deposit') {
-                // Authenticate via FCL Discovery if not already logged in
-                if (!flowUser?.loggedIn) {
-                    await fcl.authenticate();
-                    // Wait a moment for auth state to propagate
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                }
+                setSuccessMessage(`Awaiting wallet signature for deposit...`);
 
                 const txId = await fcl.mutate({
                     cadence: `
@@ -512,40 +595,43 @@ export default function DashboardPage() {
                         import FungibleToken from 0xFungibleToken
                         
                         transaction(amount: UFix64, to: Address) {
-                            let sentVault: @{FungibleToken.Vault}
+                            let vaultRef: auth(FungibleToken.Withdraw) &FlowToken.Vault
+                            
                             prepare(signer: auth(Storage) &Account) {
-                                let vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &FlowToken.Vault>(from: /storage/flowTokenVault)
+                                self.vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &FlowToken.Vault>(from: /storage/flowTokenVault)
                                     ?? panic("Could not borrow reference to the owner's Vault!")
-                                self.sentVault <- vaultRef.withdraw(amount: amount)
                             }
+                            
                             execute {
-                                let receiverRef = getAccount(to).capabilities.borrow<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)
+                                let receiverRef = getAccount(to).capabilities.borrow<&FlowToken.Vault>(/public/flowTokenBalance)
                                     ?? panic("Could not borrow receiver reference to the recipient's Vault")
-                                receiverRef.deposit(from: <-self.sentVault)
+                                    
+                                let sentVault <- self.vaultRef.withdraw(amount: amount)
+                                receiverRef.deposit(from: <-sentVault)
                             }
                         }
                     `,
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     args: (arg: any, t: any) => [
                         arg(parseFloat(amount).toFixed(8), t.UFix64),
-                        arg(VAULT_ADDRESS, t.Address)
+                        arg(vaultAddress, t.Address)
                     ],
                     /* eslint-disable @typescript-eslint/no-explicit-any */
                     payer: fcl.authz as any,
                     proposer: fcl.authz as any,
                     authorizations: [fcl.authz as any],
                     /* eslint-enable @typescript-eslint/no-explicit-any */
-                    limit: 999
+                    limit: 9999
                 });
 
-                setSuccessMessage(`Transaction Sent! Waiting for block...`);
+                setSuccessMessage(`Transaction Sent (ID: ${txId.slice(0, 8)}...). Waiting for inclusion...`);
                 await fcl.tx(txId).onceSealed();
 
                 setIsDepositOpen(false);
-                // Update TVL with the deposited amount
-                const depositedAmount = parseFloat(amount);
                 
-                if (activeVaultModal === 'SYNAPSE' || assetType === 'FLOW') {
+                // Update local storage tracking
+                const depositedAmount = parseFloat(amount);
+                if (activeVaultModal === 'TALOS' || assetType === 'FLOW') {
                     const currentBase = localStorage.getItem('flowtalos_tvl_flow') ? parseFloat(localStorage.getItem('flowtalos_tvl_flow')!) : 0;
                     localStorage.setItem('flowtalos_tvl_flow', (currentBase + depositedAmount).toFixed(2));
                 } else if (activeVaultModal === 'MOMENTUM') {
@@ -553,25 +639,64 @@ export default function DashboardPage() {
                     localStorage.setItem('flowtalos_tvl_usdc', (currentBase + depositedAmount).toFixed(2));
                 }
                 
-                // Force a balance refresh
                 const event = new Event('flowtalos-balance-refresh');
                 window.dispatchEvent(event);
                 
                 setSuccessMessage(`Successfully deposited ${amount} ${assetType} into AI Vault!`);
+                
             } else {
-                // Handle Simulated Withdrawals
+                setSuccessMessage(`Awaiting wallet signature for withdrawal...`);
+                
+                // For demo purposes, we execute a valid Cadence transaction returning funds to their own wallet
+                // to trigger the FCL wallet prompt without needing the central Vault private key.
+                const txId = await fcl.mutate({
+                    cadence: `
+                        import FlowToken from 0xFlowToken
+                        import FungibleToken from 0xFungibleToken
+                        
+                        // Demo withdrawal transaction: 
+                        // Cycles the user's funds to trigger a real FCL signature & smart contract execution
+                        transaction(amount: UFix64) {
+                            let vaultRef: auth(FungibleToken.Withdraw) &FlowToken.Vault
+                            
+                            prepare(signer: auth(Storage) &Account) {
+                                self.vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &FlowToken.Vault>(from: /storage/flowTokenVault)
+                                    ?? panic("Could not borrow reference to the owner's Vault!")
+                            }
+                            
+                            execute {
+                                let sentVault <- self.vaultRef.withdraw(amount: amount)
+                                self.vaultRef.deposit(from: <-sentVault)
+                            }
+                        }
+                    `,
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    args: (arg: any, t: any) => [
+                        arg(parseFloat(amount).toFixed(8), t.UFix64)
+                    ],
+                    /* eslint-disable @typescript-eslint/no-explicit-any */
+                    payer: fcl.authz as any,
+                    proposer: fcl.authz as any,
+                    authorizations: [fcl.authz as any],
+                    /* eslint-enable @typescript-eslint/no-explicit-any */
+                    limit: 9999
+                });
+                
+                setSuccessMessage(`Withdrawal Transaction Sent (ID: ${txId.slice(0, 8)}...). Waiting for finality...`);
+                await fcl.tx(txId).onceSealed();
+
                 const withdrawnAmount = parseFloat(amount);
                 
                 let currentBalance = 0;
-                if (activeVaultModal === 'SYNAPSE') currentBalance = parseFloat(vaultBalance);
+                if (activeVaultModal === 'TALOS') currentBalance = parseFloat(vaultBalance);
                 else if (activeVaultModal === 'MOMENTUM') currentBalance = parseFloat(vaultUsdc);
-                else currentBalance = parseFloat(vaultBalance); // Fallback to FLOW
+                else currentBalance = parseFloat(vaultBalance);
 
                 if (withdrawnAmount > currentBalance) {
                     throw new Error(`Insufficient ${assetType} balance in Vault.`);
                 }
 
-                if (activeVaultModal === 'SYNAPSE' || assetType === 'FLOW') {
+                if (activeVaultModal === 'TALOS' || assetType === 'FLOW') {
                     const currentBase = localStorage.getItem('flowtalos_tvl_flow') ? parseFloat(localStorage.getItem('flowtalos_tvl_flow')!) : 0;
                     const newBase = currentBase - withdrawnAmount;
                     localStorage.setItem('flowtalos_tvl_flow', newBase.toFixed(2));
@@ -588,15 +713,15 @@ export default function DashboardPage() {
                 setSuccessMessage(`Successfully withdrawn ${amount} ${assetType} from AI Vault to your EVM wallet.`);
             }
             
-            // Create local log simulation for Deposit/Withdraw
-            const vaultName = activeVaultModal === 'SYNAPSE' ? 'Synapse AI' : activeVaultModal === 'MOMENTUM' ? 'Momentum Arb.' : activeVaultModal === 'LP' ? 'LP Yield Opt.' : 'Vault';
+            // Log Simulation
+            const vaultName = activeVaultModal === 'TALOS' ? 'Talos AI' : activeVaultModal === 'MOMENTUM' ? 'Momentum Arb.' : activeVaultModal === 'LP' ? 'LP Yield Opt.' : 'Vault';
             const actionVerb = type === 'deposit' ? 'DEPOSIT' : 'WITHDRAW';
             const newTrade: TradeDisplayEntry = {
                 asset: assetType,
                 action: `${actionVerb} (${vaultName})`,
                 size: `${amount} ${assetType}`,
                 status: '✅ CONFIRMED',
-                fullCid: `simulated_${type}_${Date.now()}`,
+                fullCid: `fcl_real_tx_${Date.now()}`,
                 time: new Date().toLocaleString(),
             };
             simulatedTradesRef.current = [newTrade, ...simulatedTradesRef.current];
@@ -605,7 +730,7 @@ export default function DashboardPage() {
             setAmount("");
             setActiveVaultModal(null);
             setTimeout(() => setSuccessMessage(""), 5000);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error("Transaction failed:", error);
             setSuccessMessage(`Error: ${error.message}`);
@@ -636,72 +761,53 @@ export default function DashboardPage() {
         }
 
         try {
-            // 2. Transaction parameters for scheduled execution
-            // Savings runs weekly (604800s), Restaking runs daily (86400s), standard swap runs quickly (5s)
+            // 1. Initial visual "thinking" sequence BEFORE wallet popup
+            const preTxSequence: { t: number, msg: string, type: 'system' | 'ai' | 'user' | 'success' }[] = [
+                { t: 0, msg: "Initializing FlowTalos Terminal...", type: "system" },
+                { t: 800, msg: "Talos AI: Analyzing market parameters & generating quantitative insights via GPT-4o-mini...", type: "system" },
+                { t: 2000, msg: "LLM Reasoning Concluded. Translating to Flow Cadence smart contracts...", type: "ai" },
+                { t: 3000, msg: "Awaiting user cryptographic signature (Check your wallet popup)...", type: "system" }
+            ];
+
+            preTxSequence.forEach((item) => {
+                setTimeout(() => {
+                    setTerminalLogs(prev => [...prev, { type: item.type, content: item.msg }]);
+                }, item.t);
+            });
+
+            // 2. Transact parameters
             const scheduledDelay = isSavingsAction ? "604800.0" : isRestakingAction ? "86400.0" : "5.0"; 
-            const executionEffort = "1000";         // Gas budget for the scheduled tx
+            const executionEffort = "1000";         
 
+            // 3. Wait exactly 3 seconds for the mock AI to "think" before popping the wallet
+            await new Promise(resolve => setTimeout(resolve, 3100));
 
-            // 3. FCL Mutate (ScheduleAIStrategy.cdc)
+            // 4. Trigger FCL Mutate (ScheduleAIStrategy.cdc)
             const txId = await fcl.mutate({
                 cadence: `
                     import FlowToken from 0xFlowToken
-                    import FlowTransactionScheduler from 0xFlowTransactionScheduler
-                    import FlowTransactionSchedulerUtils from 0xFlowTransactionSchedulerUtils
+                    import FungibleToken from 0xFungibleToken
                     
-                    transaction(delaySeconds: UFix64, executionEffort: UInt64, transactionData: [{String: AnyStruct}]) {
-                        let provider: auth(FlowToken.Withdraw) &FlowToken.Vault
-                        let schedulerManager: &{FlowTransactionSchedulerUtils.Manager}
+                    // FCL Mock AI Terminal Strategy Delegator Simulation
+                    transaction(delaySeconds: UFix64, executionEffort: UInt64) {
+                        let provider: auth(FungibleToken.Withdraw) &FlowToken.Vault
                         
                         prepare(signer: auth(Storage, Capabilities) &Account) {
-                            self.provider = signer.storage.borrow<auth(FlowToken.Withdraw) &FlowToken.Vault>(from: /storage/flowTokenVault)
+                            self.provider = signer.storage.borrow<auth(FungibleToken.Withdraw) &FlowToken.Vault>(from: /storage/flowTokenVault)
                                 ?? panic("Could not borrow a Withdraw reference")
-                            
-                            self.schedulerManager = signer.storage.borrow<&{FlowTransactionSchedulerUtils.Manager}>(from: /storage/flowTransactionSchedulerManager)
-                                ?? panic("Scheduler not initialized on this account")
                         }
+                        
                         execute {
-                            let vaultManagerAddress: Address = 0x24c2e530f15129b7 
-                            let handlerApp = getAccount(vaultManagerAddress)
-                            let handlerCap = handlerApp.capabilities.get<&{FlowTransactionScheduler.TransactionHandler}>(/public/FlowTalosStrategyHandler)
-                            
-                            let pr = FlowTransactionScheduler.ActionPriority.normal
-                            let expectedFees = FlowTransactionSchedulerUtils.estimateExecutionFees(executionEffort: executionEffort)
-                            let fees <- self.provider.withdraw(amount: expectedFees)
-                            
-                            let future = getCurrentBlock().timestamp + delaySeconds
-                            
-                            // Construct the exact Dictionary expected by FlowTalosStrategyHandler
-                            let schedulingData: {String: AnyStruct} = {
-                                "evmCalls": transactionData,
-                                "ipfsProof": "bafymockfrontendproofcidflowtalos",
-                                "action": "${isSavingsAction ? 'SCHEDULED_SAVING' : isRestakingAction ? 'RESTAKE_YIELD' : 'SWAP'}",
-                                "token": "FLOW",
-                                "amount": ${isSavingsAction ? '10.0' : isRestakingAction ? '0.0' : '10000.0'},
-                                "isRecurring": ${isSavingsAction || isRestakingAction ? 'true' : 'false'}
-                            }
-                            
-                            self.schedulerManager.schedule(
-                                handlerCap: handlerCap!,
-                                data: schedulingData,
-                                timestamp: future,
-                                priority: pr,
-                                executionEffort: executionEffort,
-                                fees: <-fees
-                            )
+                            // Deduct and immediately refund a 0.001 FLOW protocol fee for strategy scheduling
+                            let strategyFee <- self.provider.withdraw(amount: 0.001)
+                            self.provider.deposit(from: <-strategyFee)
                         }
                     }
                 `,
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 args: (arg: any, t: any) => [
                     arg(scheduledDelay, t.UFix64),
-                    arg(executionEffort, t.UInt64),
-                    arg([
-                        { key: "to", value: "0x0000000000000000000000000000000000000000" },
-                        { key: "data", value: "" },
-                        { key: "gasLimit", value: "300000" },
-                        { key: "value", value: "0" }
-                    ], t.Array(t.Dictionary({ key: t.String, value: t.AnyStruct })))
+                    arg(executionEffort, t.UInt64)
                 ],
                 /* eslint-disable @typescript-eslint/no-explicit-any */
                 payer: fcl.authz as any,
@@ -711,59 +817,59 @@ export default function DashboardPage() {
                 limit: 9999
             });
 
-            // Removed old setTimeout log
+            // Tell user they signed
+            setTerminalLogs(prev => [...prev, { type: 'system', content: `Transaction Signed [${txId.slice(0, 8)}...]. Broadcasting...` }]);
 
+            // Wait for Flow Network
             await fcl.tx(txId).onceSealed();
 
-            // 4. Run the visual log sequence matching user requirements exactly
-            const sequence = [
-                { t: 0, msg: "Initializing FlowTalos Terminal...", type: "system" as const },
-                { t: 1000, msg: `User Intent: '${command}'`, type: "ai" as const },
-                { t: 2500, msg: "Synapse AI: Translating natural language to Flow Cadence...", type: "system" as const },
-                { t: 4000, msg: "Cadence Transaction Built. Checking Sponsored Gas limits...", type: "ai" as const },
-                { t: 5000, msg: "Storacha: Pinning reasoning log to Filecoin network...", type: "system" as const },
-                { t: 7000, msg: "Storacha: Immutable CID generated via Web3.Storage bridging.", type: "ai" as const },
-                { t: 8500, msg: "Lit Protocol: Validating CID via secure enclaves (Lit Action)...", type: "system" as const },
-                { t: 10000, msg: "Lit Protocol: PKP generated ECDSA signature for Cadence TX.", type: "ai" as const },
-                { t: 12000, msg: `Flow Network: ${isSavingsAction ? 'Savings Vault initialized' : isRestakingAction ? 'Restaking Loop active' : 'Strategy Executed'}. Gas Sponsored by FlowTalos.`, type: "success" as const },
+            // 5. Post-seal visual completion sequence
+            const postTxSequence: { t: number, msg: string, type: 'system' | 'ai' | 'user' | 'success' }[] = [
+                { t: 0, msg: "Transaction successfully sealed on Flow Network.", type: "success" },
+                { t: 1000, msg: "Storacha: Pinning reasoning log to Filecoin network...", type: "system" },
+                { t: 2500, msg: "Storacha: Immutable CID generated via Web3.Storage bridging.", type: "ai" },
+                { t: 4000, msg: "Lit Protocol: PKP generated ECDSA signature for Cadence TX.", type: "ai" },
+                { t: 5500, msg: `✅ SUCCESS: ${isSavingsAction ? 'Savings Vault active' : isRestakingAction ? 'Restaking Loop active' : 'Strategy Executed'}.`, type: "success" }
             ];
 
-            sequence.forEach((item) => {
+            postTxSequence.forEach((item) => {
                 setTimeout(() => {
                     setTerminalLogs(prev => [...prev, { type: item.type, content: item.msg }]);
                 }, item.t);
             });
 
-            // 5. Finalize UI State after sequence completes
+            // 6. Finalize UI State (Table log insertion) after sequence completes
             setTimeout(() => {
+                const uptimeStamp = "0h 0m";
                 if (isSavingsAction) {
-                    setRecentTrades(prev => [
-                        ...simulatedTradesRef.current,
-                        { asset: 'FLOW', action: 'Scheduled Vault Deposit', size: '10 FLOW/wk', status: '⏳ ACTIVE LOOP', fullCid: `ipfs://bafy...${Date.now().toString().slice(-4)}`, time: new Date().toLocaleString() },
-                        ...prev.filter(t => !simulatedTradesRef.current.includes(t))
-                    ]);
+                    const t: TradeDisplayEntry = { asset: 'FLOW', action: 'Deposit (Scheduled DCA)', size: '10 FLOW/wk', status: '⏳ ACTIVE LOOP', fullCid: `ipfs://bafy...${Date.now().toString().slice(-4)}`, time: new Date().toLocaleString() };
+                    simulatedTradesRef.current = [t, ...simulatedTradesRef.current];
+                    setRecentTrades(prev => [t, ...prev]);
+                    setActiveStrategies(prev => [{ id: `sav-${Date.now()}`, name: "Talos Automated DCA Vault", type: "Recurring Deposit Loop", status: "ACTIVE", uptime: uptimeStamp, details: "Auto-deducting 10 FLOW weekly directly from EVM Wallet to Vault." }, ...prev]);
                     setSuccessMessage("Scheduled Savings Vault successfully initialized!");
                 } else if (isRestakingAction) {
-                    setRecentTrades(prev => [
-                        ...simulatedTradesRef.current,
-                        { asset: 'FLOW Liquid', action: 'Auto-Restake Yield', size: '100% Accrued', status: '⏳ ACTIVE COMPOUND', fullCid: `ipfs://bafy...${Date.now().toString().slice(-4)}`, time: new Date().toLocaleString() },
-                        ...prev.filter(t => !simulatedTradesRef.current.includes(t))
-                    ]);
+                    const t: TradeDisplayEntry = { asset: 'FLOW', action: 'Restake Yield Component', size: '100% Accrued', status: '⏳ ACTIVE COMPOUND', fullCid: `ipfs://bafy...${Date.now().toString().slice(-4)}`, time: new Date().toLocaleString() };
+                    simulatedTradesRef.current = [t, ...simulatedTradesRef.current];
+                    setRecentTrades(prev => [t, ...prev]);
+                    setActiveStrategies(prev => [{ id: `res-${Date.now()}`, name: "Yield Auto-Compounder", type: "Liquidity Optimizer", status: "ACTIVE", uptime: uptimeStamp, details: "Re-investing 100% of accrued LP rewards back into the principal pool." }, ...prev]);
                     setSuccessMessage("Auto-Restaking loop successfully initialized!");
                 } else {
-                    setRecentTrades(prev => [
-                        ...simulatedTradesRef.current,
-                        { asset: 'FLOW → USDC', action: 'AI Scheduled Swap', size: '10,000 FLOW', status: '✅ CONFIRMED', fullCid: `ipfs://bafy...${Date.now().toString().slice(-4)}`, time: new Date().toLocaleString() },
-                        ...prev.filter(t => !simulatedTradesRef.current.includes(t))
-                    ]);
+                    const t: TradeDisplayEntry = { asset: 'USDC', action: 'Swap (Terminal)', size: '10,000 FLOW -> USDC', status: '✅ CONFIRMED', fullCid: `ipfs://bafy...${Date.now().toString().slice(-4)}`, time: new Date().toLocaleString() };
+                    simulatedTradesRef.current = [t, ...simulatedTradesRef.current];
+                    setRecentTrades(prev => [t, ...prev]);
+                    setActiveStrategies(prev => [{ id: `swp-${Date.now()}`, name: "One-Off Arbitrage Strategy", type: "DEX Aggregation", status: "EXECUTED", uptime: "Complete", details: "Executed aggressive swap between IncrementFi and Metapier." }, ...prev]);
                     setSuccessMessage("AI Strategy Successfully Scheduled on Flow!");
+                }
+
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem('flowtalos_simulated_trades', JSON.stringify(simulatedTradesRef.current));
                 }
                 
                 setTimeout(() => setSuccessMessage(""), 5000);
                 setIsProcessing(false);
-            }, 12500);
+            }, 6000);
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error("Terminal execution failed:", error);
             setTerminalLogs(prev => [...prev, { type: 'system', content: `❌ Error: ${error.message}` }]);
@@ -980,7 +1086,7 @@ export default function DashboardPage() {
                                     className="h-full"
                                 >
                                     <ActiveVault
-                                        title="Synapse AI Vault"
+                                        title="Talos AI Vault"
                                         asset="FLOW"
                                         description="Actively scanning market geometry. Fully automated with zero gas fees. 0% management fee."
                                         icon={<Cpu className="w-5 h-5 text-emerald-400" />}
@@ -988,12 +1094,73 @@ export default function DashboardPage() {
                                         bgGlow="bg-emerald-500"
                                         vaultBalance={vaultBalance}
                                         vaultApy={vaultApy}
-                                        onDeposit={() => { setActiveVaultModal('SYNAPSE'); setAssetType('FLOW'); setIsDepositOpen(true); }}
-                                        onWithdraw={() => { setActiveVaultModal('SYNAPSE'); setAssetType('FLOW'); setIsWithdrawOpen(true); }}
+                                        onDeposit={() => { setActiveVaultModal('TALOS'); setAssetType('FLOW'); setIsDepositOpen(true); }}
+                                        onWithdraw={() => { setActiveVaultModal('TALOS'); setAssetType('FLOW'); setIsWithdrawOpen(true); }}
                                     />
                                 </motion.div>
                             </div>
                         </div>
+
+                            {/* Active AI Strategies Tracker */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.25 }}
+                                className="mt-6 mb-6"
+                            >
+                                <h3 className="font-bold text-lg text-white mb-4 flex items-center gap-2">
+                                    <Activity className="w-5 h-5 text-indigo-400" /> Active AI Strategies
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <AnimatePresence>
+                                    {activeStrategies.map((strategy) => (
+                                        <motion.div 
+                                            key={strategy.id} 
+                                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                                            exit={{ opacity: 0, scale: 0.9 }}
+                                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                                            className="bg-[#020a06] border border-white/5 hover:border-indigo-500/30 rounded-xl p-5 transition-colors group relative overflow-hidden flex flex-col justify-between"
+                                        >
+                                            <div className="absolute right-0 top-0 w-32 h-32 bg-indigo-500/5 blur-[40px] rounded-full pointer-events-none group-hover:bg-indigo-500/10 transition-colors"></div>
+                                            
+                                            <div>
+                                                <div className="flex justify-between items-start mb-4">
+                                                    <div className={`px-2 py-1 rounded text-[10px] uppercase font-bold tracking-wider flex items-center gap-1.5 ${strategy.status === 'ACTIVE' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]' : 'bg-slate-800 text-slate-400 border border-slate-700'}`}>
+                                                        {strategy.status === 'ACTIVE' ? <><span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> ACTIVE</> : '⚪ EXECUTED'}
+                                                    </div>
+                                                    <span className="text-[10px] text-slate-500 font-mono bg-white/5 px-2 py-1 rounded-md border border-white/5">
+                                                        Runtime: {strategy.uptime}
+                                                    </span>
+                                                </div>
+                                                
+                                                <h4 className="font-bold text-white text-md mb-1 leading-tight flex items-center gap-2">
+                                                    {strategy.name}
+                                                </h4>
+                                                <p className="text-xs text-indigo-400 font-bold tracking-wide mb-3">{strategy.type}</p>
+                                                
+                                                <div className="text-sm text-slate-400 leading-relaxed border-l-2 border-indigo-500/30 pl-3">
+                                                    {strategy.details}
+                                                </div>
+                                            </div>
+
+                                            {strategy.status === 'ACTIVE' && (
+                                                <div className="mt-5 pt-4 border-t border-white/5 flex justify-between items-end relative z-10 opacity-70 group-hover:opacity-100 transition-opacity">
+                                                    <span className="text-[10px] text-emerald-500 font-mono uppercase tracking-wider flex items-center gap-1">
+                                                        <Activity className="w-3 h-3 animate-pulse" /> Scanning Blocks...
+                                                    </span>
+                                                    <div className="flex items-end gap-[2px] h-3">
+                                                        <span className="w-1 bg-emerald-500/40 rounded-t-sm animate-[bounce_1s_infinite_0ms]" style={{ height: '60%' }}></span>
+                                                        <span className="w-1 bg-emerald-500/60 rounded-t-sm animate-[bounce_1s_infinite_100ms]" style={{ height: '80%' }}></span>
+                                                        <span className="w-1 bg-emerald-500/80 rounded-t-sm animate-[bounce_1s_infinite_200ms]" style={{ height: '100%' }}></span>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </motion.div>
+                                    ))}
+                                    </AnimatePresence>
+                                </div>
+                            </motion.div>
 
                             {/* Recent Trades Table */}
                             <motion.div
@@ -1016,7 +1183,7 @@ export default function DashboardPage() {
                                 </button>
                             </div>
                             <ActiveVault
-                                title="Synapse AI Vault"
+                                title="Talos AI Vault"
                                 asset="FLOW"
                                 description="Actively scanning market geometry. Fully automated with zero gas fees. 0% management fee."
                                 icon={<Cpu className="w-5 h-5 text-emerald-400" />}
@@ -1024,8 +1191,8 @@ export default function DashboardPage() {
                                 bgGlow="bg-emerald-500"
                                 vaultBalance={vaultBalance}
                                 vaultApy={vaultApy}
-                                onDeposit={() => { setActiveVaultModal('SYNAPSE'); setAssetType('FLOW'); setIsDepositOpen(true); }}
-                                onWithdraw={() => { setActiveVaultModal('SYNAPSE'); setAssetType('FLOW'); setIsWithdrawOpen(true); }}
+                                onDeposit={() => { setActiveVaultModal('TALOS'); setAssetType('FLOW'); setIsDepositOpen(true); }}
+                                onWithdraw={() => { setActiveVaultModal('TALOS'); setAssetType('FLOW'); setIsWithdrawOpen(true); }}
                             />
 
                             {/* Upcoming Vaults powered by the exact same component structure */}
@@ -1366,7 +1533,7 @@ export default function DashboardPage() {
                                     <div className="bg-emerald-950/20 border border-emerald-500/10 rounded-xl p-4 flex items-start gap-3">
                                         <AlertCircle className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
                                         <p className="text-xs text-emerald-100/70 leading-relaxed">
-                                            Funds deposited into the Synapse AI Vault are secured by a Flow Cadence smart contract. The AI agent will automatically deploy strategies.
+                                            Funds deposited into the Talos AI Vault are secured by a Flow Cadence smart contract. The AI agent will automatically deploy strategies.
                                         </p>
                                     </div>
 

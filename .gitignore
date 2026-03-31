@@ -38,3 +38,6 @@ new_keys.txt
 .idea/
 .vscode/
 *.swp
+
+# ─── Scripts ──────────────────────────────────────────────
+demo_script.md

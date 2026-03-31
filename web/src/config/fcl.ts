@@ -39,4 +39,7 @@ config({
     // ── Flow Scheduler Contracts ────────────────────────────────────────
     "0xFlowTransactionScheduler": "0x8c5303eaa26202d6",
     "0xFlowTransactionSchedulerUtils": "0x8c5303eaa26202d6",
+
+    // ── WalletConnect (FCL Requirement) ─────────────────────────────────
+    "walletconnect.projectId": process.env.NEXT_PUBLIC_WC_PROJECT_ID || '08ebaa662283bf38734ba9ed52dc66bc',
 });

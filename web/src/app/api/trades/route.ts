@@ -55,7 +55,8 @@ const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
  */
 export async function GET(): Promise<NextResponse<TradeEntry[]>> {
     try {
-        // Resolve and validate the file path to prevent path traversal
+        // Resolve path to the trade log file. Note: On Vercel, this is usually 
+        // inaccessible because it resides in a sibling directory (ai-agent).
         const baseDir = path.resolve(process.cwd(), '..');
         const logPath = path.resolve(baseDir, 'ai-agent', 'trade_log.json');
 
@@ -65,7 +66,9 @@ export async function GET(): Promise<NextResponse<TradeEntry[]>> {
             return NextResponse.json([]);
         }
 
+        // Check if the file exists on the current runtime environment
         if (!fs.existsSync(logPath)) {
+            console.log(`[api/trades] Log file not found at ${logPath}. This is expected on Vercel/Serverless environments unless synced via external storage.`);
             return NextResponse.json([]);
         }
 
@@ -92,6 +95,7 @@ export async function GET(): Promise<NextResponse<TradeEntry[]>> {
     } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Unknown error';
         console.error(`[api/trades] Failed to read trade log: ${message}`);
+        // Return an empty array rather than failing with 500 to keep the dashboard stable
         return NextResponse.json([]);
     }
 }

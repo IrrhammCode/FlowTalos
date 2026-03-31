@@ -32,7 +32,7 @@ By executing a strict evaluation matrix that cross-references live market data w
 ├─────────────────────────────────────────────────────────────┤
 │  1. fetch_market_data()    → CoinGecko real-time price      │
 │  2. fetch_news_sentiment() → CryptoCompare headline NLP     │
-│  3. synapse_ai_analyze()   → Dual-signal matrix decision    │
+│  3. talos_ai_analyze()   → Dual-signal matrix decision    │
 │  4. upload_to_storacha()   → Immutable IPFS proof (CID)     │
 │  5. trigger_lit_action()   → Lit Protocol threshold signing │
 │  6. submit_to_flow()       → Flow Scheduled Transaction     │
@@ -43,7 +43,7 @@ By executing a strict evaluation matrix that cross-references live market data w
 
 ## 📊 Decision Matrix
 
-The Synapse AI engine utilizes a strict **Dual-Signal alignment matrix**. Trades only execute when technicals and sentiment explicitly agree, drastically reducing quantitative "whipsaw" false positives.
+The Talos AI engine utilizes a strict **Dual-Signal alignment matrix**. Trades only execute when technicals and sentiment explicitly agree, drastically reducing quantitative "whipsaw" false positives.
 
 | Technical Variable | Positive Sentiment | Neutral Sentiment | Negative Sentiment |
 |--------------------|:------------------:|:-----------------:|:------------------:|
@@ -73,7 +73,7 @@ ai-agent/
 ├── src/                 # Core Python modules
 │   ├── config.py        # Environment & protocol constants
 │   ├── fetcher.py       # CoinGecko & CryptoCompare API clients
-│   └── synapse.py       # Dual-signal alignment matrix logic
+│   └── talos.py       # Dual-signal alignment matrix logic
 ├── tests/               # Pytest suite
 │   └── test_agent.py    # Unit tests for calldata and CID generation
 ├── main.py              # Application entrypoint & daemon loop

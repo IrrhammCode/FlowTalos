@@ -1,5 +1,5 @@
 """
-FlowTalos — Synapse AI Agent Unit Tests
+FlowTalos — Talos AI Agent Unit Tests
 ========================================
 Comprehensive test suite for the core AI Agent functions.
 
@@ -15,7 +15,7 @@ Author: FlowTalos Team — Flow Hackathon 2026
 """
 
 import pytest
-from main import compute_local_cid, generate_evm_calldata, synapse_ai_analyze
+from main import compute_local_cid, generate_evm_calldata, talos_ai_analyze
 
 
 # =============================================================================
@@ -76,7 +76,7 @@ class TestGenerateEVMCalldata:
 # AI Signal Matrix Tests (Decision Engine)
 # =============================================================================
 
-class TestSynapseAIAnalyze:
+class TestTalosAIAnalyze:
     """Tests for the dual-signal (technicals + sentiment) decision matrix.
 
     Decision Matrix:
@@ -100,7 +100,7 @@ class TestSynapseAIAnalyze:
             "headlines": ["Flow announces massive partnership", "Network activity ATH"]
         }
 
-        signal = synapse_ai_analyze(market, news)
+        signal = talos_ai_analyze(market, news)
 
         assert signal["action"] == "BUY"
         assert signal["token"] == "FLOW"
@@ -121,7 +121,7 @@ class TestSynapseAIAnalyze:
             "headlines": ["Flow network latency", "Whales moving to exchanges"]
         }
 
-        signal = synapse_ai_analyze(market, news)
+        signal = talos_ai_analyze(market, news)
 
         assert signal["action"] == "SELL"
         assert signal["token"] == "FLOW"
@@ -142,7 +142,7 @@ class TestSynapseAIAnalyze:
             "headlines": ["Crypto markets flat today", "Bitcoin stable around 60k"]
         }
 
-        signal = synapse_ai_analyze(market, news)
+        signal = talos_ai_analyze(market, news)
 
         assert signal["action"] == "HOLD"
         assert signal["amount"] == 0.0
@@ -160,7 +160,7 @@ class TestSynapseAIAnalyze:
             "headlines": ["Flow hacked!", "Major exploit discovered"]
         }
 
-        signal = synapse_ai_analyze(market, news)
+        signal = talos_ai_analyze(market, news)
 
         assert signal["action"] == "HOLD"
         assert signal["amount"] == 0.0
@@ -177,7 +177,7 @@ class TestSynapseAIAnalyze:
             "headlines": ["Flow partners with Google Cloud", "Flow TVL hits $1B"]
         }
 
-        signal = synapse_ai_analyze(market, news)
+        signal = talos_ai_analyze(market, news)
 
         assert signal["action"] == "HOLD"
         assert signal["amount"] == 0.0

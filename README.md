@@ -45,7 +45,7 @@ cd FlowTalos
 # 2. Install and run the Next.js Glass-Box frontend
 cd web && npm install && npm run dev
 
-# 3. (New terminal) Boot the Synapse AI Daemon
+# 3. (New terminal) Boot the Talos AI Daemon
 cd ai-agent
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
@@ -76,7 +76,7 @@ FlowTalos is highly modularized to ensure maximum security through separation of
 
 | Component | Directory | Description |
 |-----------|-----------|-------------|
-| **AI Agent** | [`/ai-agent`](./ai-agent/README.md) | The autonomous Python daemon executing the dual-signal RSI/NLP strategy matrix and orchestrating the infrastructure. |
+| **AI Agent** | [`/ai-agent`](./ai-agent/README.md) | The autonomous Python daemon executing the GPT-4o-mini Persona reasoning engine and orchestrating the infrastructure. |
 | **Smart Contracts** | [`/cadence`](./cadence/README.md) | The core Flow Testnet capability-based Vault bridging natively into Flow EVM liquidity. |
 | **Dashboard** | [`/web`](./web/README.md) | The Glass-Box Next.js interface for real-time AI transparency and dual-chain wallet monitoring. |
 | **Security Node** | [`/lit-action`](./lit-action/README.md) | The decentralized JavaScript threshold validation preventing the AI from hallucinating or draining Vaults. |
@@ -173,7 +173,7 @@ To provide a visual sense of the protocol's operating environment, here are stru
  └─────────────────────────┘       │ (Execute Scheduled TX)
                                    │
  ┌─────────────────────────┐   ┌─────────────────────────┐
- │   Synapse AI Engine     │──▶│ Flow Execution Scheduler│
+ │   Talos AI Engine     │──▶│ Flow Execution Scheduler│
  │   (Python Daemon)       │   │ (Cadence Timer Queue)   │
  └─────────────────────────┘   └─────────────────────────┘
       │               │                     ▲
@@ -206,7 +206,7 @@ To provide a visual sense of the protocol's operating environment, here are stru
 
 Here is the step-by-step lifecycle of an autonomous AI trade:
 
-1. **Data Ingestion:** The Synapse AI agent fetches current FLOW prices (CoinGecko) and global news headlines (CryptoCompare).
+1. **Data Ingestion:** The Talos AI agent fetches current FLOW prices (CoinGecko) and global news headlines (CryptoCompare).
 2. **AI Signal Generation:** The algorithm calculates the RSI and evaluates social sentiment (e.g., Bullish Technicals + Positive News = **BUY**).
 3. **EVM Calldata Generation:** The agent constructs the exact EVM bytecode required to swap tokens on an EVM decentralized exchange.
 4. **Reasoning Log Creation & IPFS Pinning:** A JSON payload detailing the price, sentiment, and reasoning is pinned to Storacha/IPFS, returning a CIDv1 hash.
@@ -314,7 +314,7 @@ FlowTalos is proudly built for the **PL_Genesis: Frontiers of Collaboration Hack
 3. **Storacha (Filecoin/IPFS) Track:** Replacing typical ephemeral off-chain AI reasoning with **Permanent Verifiable Audit Logs**, pushing JSON metadata directly to Filecoin/IPFS for absolute decentralized dispute resolution.
 
 ### Targeted Bounty
-- 💰 **AI & Robotics (Verifiable AI):** Selected as our primary bounty focus. FlowTalos is an exact match for the "Verifiable AI" requirement: *Agents with cryptographic proof of reasoning and decision provenance*. Every single trading decision made by the Synapse AI is cryptographically hashed and pinned to Storacha (IPFS) *before* the Lit Protocol threshold signature is granted. This provides an undeniable, decentralized "receipt" and audit trail of the agent's exact thought parameters natively on-chain.
+- 💰 **AI & Robotics (Verifiable AI):** Selected as our primary bounty focus. FlowTalos is an exact match for the "Verifiable AI" requirement: *Agents with cryptographic proof of reasoning and decision provenance*. Every single trading decision made by the Talos AI is cryptographically hashed and pinned to Storacha (IPFS) *before* the Lit Protocol threshold signature is granted. This provides an undeniable, decentralized "receipt" and audit trail of the agent's exact thought parameters natively on-chain.
 
 ---
 
@@ -330,8 +330,8 @@ FlowTalos is proudly built for the **PL_Genesis: Frontiers of Collaboration Hack
 ## 🧠 AI Engine Design
 
 - **Market data ingestion:** CoinGecko API hooks providing time-series pricing data for mathematical modeling.
-- **Sentiment analysis:** Aggregates real-time news headlines (and Twitter variables natively) to establish global psychological bias matrices.
-- **Signal matrix:** Fuses technical (RSI overbought/oversold) and fundamental sentiment variables. Operations trigger strictly on bidirectional signal agreement.
+- **Dynamic Reasoning (GPT-4o-mini):** Utilizes OpenAI's latest models to dynamically analyze market data through customizable `AGENT_PERSONA` profiles (e.g., "Aggressive Degen" vs "Conservative Guardian").
+- **Glass-Box Inference:** Fuses technical and fundamental sentiment variables. The LLM explicitly outputs structured JSON detailing its exact reasoning path.
 - **Trade execution encoding:** Bypasses central node servers by actively hashing raw `swapExactTokensForTokens` EVM calldata locally.
 
 ---
@@ -389,6 +389,10 @@ Create `.env` files based on `.env.example`. Most notably for the `ai-agent/.env
 ```ini
 # Flow Testnet Signer Account Address
 FLOW_TESTNET_SIGNER=24c2e530f15129b7
+
+# AI Intelligence & Personas
+OPENAI_API_KEY=sk-your_openai_key_here
+AGENT_PERSONA="Conservative Guardian" # Dictates the risk profile and reasoning style of the AI
 
 # API Integrations (Optional, graceful offline fallbacks exist)
 COINGECKO_API_KEY=your_key_here
@@ -547,7 +551,8 @@ Vulnerability reporting: Please DO NOT open a public GitHub Issue. Create a secu
 
 ## ⚠️ Known Limitations
 
-- **Rule-based AI constraints:** The intelligence matrix currently utilizes deterministic math scoring (RSI + Sentiment mapped weights) rather than deep-learning LLM prediction generation to guarantee execution speed.
+- **EVM Fallbacks:** If the primary DEX router on Flow EVM lacks liquidity, the agent does not currently ping secondary routing paths automatically.
+
 - **Limited assets:** Native swaps presently restricted to primary liquid tokens (FLOW/USDC).
 - **Testnet environment:** Relies on testnet API keys which face aggressive rate limits during high throughput.
 

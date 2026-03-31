@@ -6,7 +6,7 @@
  *   - Hero section with animated gradient headlines
  *   - Live Market Ticker (CoinGecko real-time via marquee)
  *   - Protocol Stats (TVL, agents, volume, proofs)
- *   - Features Bento Grid (Synapse AI, Glass-Box, Lit PKPs, Walletless UX)
+ *   - Features Bento Grid (Talos AI, Glass-Box, Lit PKPs, Walletless UX)
  *   - Philosophy section with Glass-Box reasoning JSON preview
  *   - How It Works 4-step pipeline
  *   - Interactive Agent Simulation (6-step live execution demo)
@@ -335,10 +335,10 @@ const Features = () => {
             <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-brand-primary/20 rounded-full blur-[100px] -mr-32 -mt-32 pointer-events-none transition-opacity group-hover:opacity-100 opacity-50"></div>
             <div className="relative z-10 flex flex-col h-full justify-between p-10 pointer-events-none">
               <div className="w-16 h-16 mb-6 p-2 bg-brand-primary/20 rounded-2xl border border-brand-primary/30 shadow-[0_0_20px_rgba(18,201,138,0.3)] flex items-center justify-center overflow-hidden shrink-0">
-                <img src="/logo.png" alt="Synapse AI" className="w-[130%] h-[130%] object-cover mix-blend-screen origin-center opacity-90" />
+                <img src="/logo.png" alt="Talos AI" className="w-[130%] h-[130%] object-cover mix-blend-screen origin-center opacity-90" />
               </div>
               <div>
-                <h3 className="text-3xl md:text-4xl font-bold text-white mb-4">Synapse AI Engine</h3>
+                <h3 className="text-3xl md:text-4xl font-bold text-white mb-4">Talos AI Engine</h3>
                 <p className="text-slate-300 text-lg leading-relaxed max-w-lg">Off-chain models analyze market geometry and execute smart trades without emotional bias, trained extensively on Flow historical data.</p>
               </div>
             </div>
@@ -445,7 +445,7 @@ const Philosophy = () => {
               <span className="text-xs font-mono text-slate-500 ml-auto">ipfs://bafybeig...q4m/reasoning.json</span>
             </div>
             <div className="p-6 bg-[#010805] font-mono text-sm leading-relaxed overflow-x-auto text-slate-300">
-              <div className="text-brand-primary mb-4">{`// Published by Synapse AI Agent to Storacha`}</div>
+              <div className="text-brand-primary mb-4">{`// Published by Talos AI Agent to Storacha`}</div>
               <div><span className="text-emerald-500">{"{"}</span></div>
               <div className="pl-4">
                 <span className="text-emerald-300">&quot;timestamp&quot;</span>: <span className="text-emerald-200/70">&quot;2026-03-01T14:32:00Z&quot;</span>,
@@ -486,7 +486,7 @@ const HowItWorks = () => {
     {
       num: "02",
       title: "Human Language Intent",
-      desc: "Type what you want to achieve. Synapse AI translates your human language into an optimized Cadence strategy.",
+      desc: "Type what you want to achieve. Talos AI translates your human language into an optimized Cadence strategy.",
       icon: <Terminal className="w-8 h-8 text-emerald-400" />
     },
     {
@@ -554,7 +554,7 @@ const AgentPreview = () => {
     const sequence = [
       { t: 0, msg: "Initializing FlowTalos Terminal...", type: "info" as const },
       { t: 1000, msg: "User Intent: 'Create a Scheduled Savings Vault deducting 10 FLOW weekly'", type: "success" as const, s: 2 },
-      { t: 2500, msg: "Synapse AI: Translating natural language to Flow Cadence...", type: "action" as const },
+      { t: 2500, msg: "Talos AI: Translating natural language to Flow Cadence...", type: "action" as const },
       { t: 4000, msg: "Cadence Transaction Built. Checking Sponsored Gas limits...", type: "success" as const, s: 3 },
       { t: 5000, msg: "Storacha: Pinning reasoning log to Filecoin network...", type: "info" as const },
       { t: 7000, msg: "Storacha: Immutable CID generated via Web3.Storage bridging.", type: "success" as const, s: 4 },
@@ -731,7 +731,7 @@ const AgentPreview = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 lg:gap-4 relative">
             {[
               { s: 2, icon: <Lock className="w-5 h-5" />, title: "Intent Gen", label: "Flow Network" },
-              { s: 3, icon: <Zap className="w-5 h-5" />, title: "AI Inference", label: "Synapse Model" },
+              { s: 3, icon: <Zap className="w-5 h-5" />, title: "AI Inference", label: "Talos Model" },
               { s: 4, icon: <Database className="w-5 h-5" />, title: "IPFS Audit", label: "Storacha" },
               { s: 5, icon: <ShieldCheck className="w-5 h-5" />, title: "Lit Signature", label: "Enclave PKP" },
               { s: 6, icon: <Activity className="w-5 h-5" />, title: "On-Chain Exec", label: "Flow Network" },
@@ -879,7 +879,7 @@ const Footer = () => (
             <li><a href="#" className="hover:text-brand-primary transition-colors">Flow Blockchain</a></li>
             <li><a href="#" className="hover:text-emerald-300 transition-colors">Lit Protocol (PKPs)</a></li>
             <li><a href="#" className="hover:text-emerald-400 transition-colors">Storacha IPFS</a></li>
-            <li><a href="#" className="hover:text-emerald-300 transition-colors">Synapse AI</a></li>
+            <li><a href="#" className="hover:text-emerald-300 transition-colors">Talos AI</a></li>
           </ul>
         </div>
         <div>

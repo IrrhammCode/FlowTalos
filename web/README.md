@@ -89,7 +89,7 @@ web/
 - **Protocol Stats Ticker:** Live metrics including TVL and strategy uptime.
 - **Dual-Chain Wallet Connector:** Flawless integration between RainbowKit (EVM) and `@onflow/fcl` (Cadence).
 - **IPFS Proof Links:** Direct access to unalterable `CIDv1` records verifying that the Python logic was executed fairly.
-- **AI Terminal Emulation:** A React component exclusively rendering the live thoughts of the Synapse Daemon in real-time.
+- **AI Terminal Emulation:** A React component exclusively rendering the live thoughts of the Talos Daemon in real-time.
 ---
 
 ## 🎨 Screenshots
@@ -105,7 +105,7 @@ To provide a visual sense of the protocol's operating environment, here are stru
 ![Dashboard Overview](../docs/dashboard.png)
 
 ### 3. AI Terminal & IPFS Logs
-*Live terminal emulation rendering the thoughts of the Synapse Daemon and clickable CIDv1 immutable proofs.*
+*Live terminal emulation rendering the thoughts of the Talos Daemon and clickable CIDv1 immutable proofs.*
 ![Terminal and Logs](../docs/terminal.png)
 
 ---

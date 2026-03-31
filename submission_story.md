@@ -21,11 +21,11 @@ The current landscape of DeFi yield aggregation and algorithmic trading suffers 
 ## 3. The FlowTalos Solution: A Four-Pillar Architecture
 FlowTalos solves these problems by deeply amalgamating Flow's specific architectural advantages with decentralized infrastructure:
 
-### Pillar I: The Nervous System (Synapse AI & IPFS Logging)
-The off-chain Python backend acts as the brain. It runs continuously, ingesting live market data via CoinGecko/Pyth APIs. It computes trading geometry (e.g., RSI, fast/slow velocity metrics). 
-When a trading signal is confirmed (e.g., "Oversold conditions detected: BUY FLOW"), the AI produces two critical outputs:
+### Pillar I: The Nervous System (Talos AI & IPFS Logging)
+The off-chain Python backend acts as the brain. It runs continuously, ingesting live market data via CoinGecko and news sentiment via CryptoCompare, feeding these signals into **OpenAI GPT-4o-mini**. The LLM acts as an autonomous Quantitative Manager, analyzing technical geometry (e.g., RSI) alongside qualitative catalysts and dynamic persona instructions (e.g., 'Aggressive Degen' vs 'Conservative Guardian'). 
+When the LLM formulates a trading decision (e.g., "Oversold conditions + Positive News detected: BUY FLOW"), it outputs a strict JSON payload containing two critical elements:
 1. The **EVM Calldata** (ABI Hexadecimal strings) required to execute the optimal trade on a Flow EVM DEX (like IncrementFi).
-2. A human-readable **Reasoning Log** (JSON) explaining exactly the mathematical parameters that led to the trade.
+2. A human-readable **Reasoning Log** (JSON) dynamically written by GPT-4o-mini explaining exactly *why* it made the trade.
 
 This Reasoning Log is immediately pushed to **Storacha (Filecoin/IPFS)**, generating an immutable, permanent Content Identifier (CID).
 
@@ -51,13 +51,13 @@ We built a premium Next.js dashboard mimicking a high-end quant terminal. Users 
 *   **Technological Implementation & Flow Utilization**: FlowTalos is built *explicitly* to showcase Flow's recent Cross-VM update. It demonstrates how a Cadence contract can manage a COA inside the EVM to route trades securely. We heavily utilized `@onflow/fcl` and Cadence resource capabilities.
 *   **Design and UX**: The dashboard is built with Next.js, Framer Motion, and TailwindCSS. It features a custom "Glass-Morphism" aesthetic, sleek typography (Inter), responsive design, and an integrated Web3 Terminal that feels like a premium traditional finance (TradFi) product.
 *   **Potential Impact**: FlowTalos introduces the concept of "Auditable AI DeFi." As AI agents become standard in Web3, the ability to permanently tie a smart contract execution to an immutable IPFS log of the exact Prompt/Reasoning will become the gold standard for user trust.
-*   **Originality/Creativity**: While Yield Aggregators exist, tying off-chain Python Deep Learning inferences, Lit Protocol TEEs, Filecoin IPFS logs, and Flow Cross-VM executions into a single closed-loop architecture is a highly original synthesis of cutting-edge technologies.
+*   **Originality/Creativity**: While Yield Aggregators exist, tying **LLM-driven inferences (GPT-4o-mini)**, dynamic Agent Personas, Lit Protocol TEEs, Filecoin IPFS logs, and Flow Cross-VM executions into a single closed-loop architecture is a highly original synthesis of cutting-edge technologies.
 
 ---
 
 ## 5. Technology Stack Summary
 *   **Blockchain**: Flow Network, Flow Emulator, Cadence Smart Contracts (`FlowTalosVault.cdc`, `FlowTransactionScheduler`), Flow EVM (COAs), `@onflow/fcl`
-*   **AI Backend**: Python `3.9`, `requests`, `web3.py` (ABI Calldata Generation)
+*   **AI Backend**: Python `3.9`, **OpenAI SDK (GPT-4o-mini)**, `requests`, `web3.py` (ABI Calldata Generation)
 *   **Frontend**: Next.js (React), TailwindCSS, Recharts, Framer Motion
 *   **Wallet Connectivity**: Wagmi, RainbowKit, WalletConnect
 *   **Decentralized Storage**: Storacha (`@web3-storage/w3up-client`), IPFS, Filecoin
