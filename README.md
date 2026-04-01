@@ -527,7 +527,7 @@ For deep-dive technical explorations, architecture logic, and future economic de
 
 ## 🎥 Demo
 
-**▶️ [https://www.youtube.com/watch?v=B2sSe2CYazU]((https://www.youtube.com/watch?v=B2sSe2CYazU))**   
+**▶️ Demo Video:** `https://www.youtube.com/watch?v=B2sSe2CYazU`   
 **🌐 Live Dashboard Link:** `https://flow-talos.vercel.app//`
 
 ---
