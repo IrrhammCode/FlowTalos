@@ -527,8 +527,8 @@ For deep-dive technical explorations, architecture logic, and future economic de
 
 ## 🎥 Demo
 
-**▶️ [Demo Video Link]((https://youtu.be/fake_url))** *(Placeholder for submission)*  
-**🌐 Live Dashboard Link:** `https://flowtalos.vercel.app/` *(Awaiting deployment)*
+**▶️ [Demo Video Link]((https://www.youtube.com/watch?v=B2sSe2CYazU))** *(Placeholder for submission)*  
+**🌐 Live Dashboard Link:** `https://flow-talos.vercel.app//` *(Awaiting deployment)*
 
 ---
 
